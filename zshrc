@@ -17,10 +17,12 @@ export SPACESHIP_PREFIX_ENV_DEFAULT=' ';
 alias c='xclip -selection c'
 alias pelis='~/bin/stremio/Stremio.sh '
 alias ccat='pygmentize -g'
+alias :wq="exit"
+alias rollback="git reset HEAD~"
 
 # diff so fancy :D
 function gdiff {
-  git diff --color $1 | diff-so-fancy
+  git diff --color $@ | diff-so-fancy
 }
 
 # git config switcher
@@ -48,7 +50,42 @@ function lewifi {
   echo "${BOLD}${GREEN}Copied to clipboard!!!";
 }
 
-# 
+# review PR files one by one
+function pr-review-files() {
+  for i in $(git diff master --name-only)
+  do
+    GIT_PAGER=less git diff master -- $i
+  done
+}
+
+# review-pr <pr-number>
+function pr-review() {
+  if [ $# -eq 0 ]
+  then
+    echo "Missing PR number"
+    return 1
+  fi
+
+  local cyan='\e[36m'
+  local reset='\e[0m'
+
+  echo "${cyan}Update master branch${reset}"
+  git fetch || (echo "The directory is not in a git repository" && return 1) || return 1
+  git checkout master
+  git merge
+
+  echo "${cyan}Get PR branch${reset}"
+  git fetch origin pull/$1/head > /dev/null 2>&1
+  git checkout FETCH_HEAD > /dev/null 2>&1
+  local branch=`git branch -ra --contains FETCH_HEAD --sort=committerdate | grep remotes | sed 's/remotes\/origin\///' | head -n 1 | tr -d '[:space:]'`
+  git checkout $branch
+  git merge
+
+  echo "${cyan}Merge master into branch${reset}"
+  git merge --no-edit master
+}
+
+# shrug
 function shrug {
   SHRUG="¯\\_(ツ)_/¯"
   echo $SHRUG
