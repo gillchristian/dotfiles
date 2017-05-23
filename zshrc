@@ -19,6 +19,7 @@ alias pelis='~/bin/stremio/Stremio.sh '
 alias ccat='pygmentize -g'
 alias :wq="exit"
 alias rollback="git reset HEAD~"
+alias gplg="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 
 # diff so fancy :D
 function gdiff {
@@ -88,8 +89,21 @@ function pr-review() {
 # shrug
 function shrug {
   SHRUG="¯\\_(ツ)_/¯"
-  echo $SHRUG
   echo $SHRUG | c
+  echo $SHRUG
+}
+
+# working on
+function wkon {
+  file="WORKING-ON.txt"
+
+  touch $file;
+
+  if [ -z ${1+x} ]; then
+    cat $file;
+  else
+    echo "$@" >> $file;
+  fi
 }
 
 # NVM
@@ -98,26 +112,22 @@ export NVM_DIR="/home/gillchristian/.nvm"
 
 [[ -s "/home/gillchristian/.gvm/scripts/gvm" ]] && source "/home/gillchristian/.gvm/scripts/gvm"
 
+# editor
+export EDITOR=vim
+
 # golang's GOPATH
 export PATH=$PATH:/usr/local/go/bin
 export GOPATH="$HOME/dev/go"
-# export GOPATH="$HOME/temp-go/go"
 export PATH="$PATH:$GOPATH/bin"
-
-# rvm
-export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
-export PATH="$HOME/.anyenv/bin:$PATH"
-
-# anyenv
-eval "$(anyenv init -)"
-export PATH="$HOME/.rbenv/plugins/ruby-build/bin:$PATH"
 
 # caddy
 export PATH="$HOME/bin/caddy:$PATH"
 
 # dir colors
-eval $(dircolors -b $HOME/.dircolors)
+# eval $(dircolors -b $HOME/.dircolors)
 
 # yarn
 export PATH="$HOME/.yarn/bin:$PATH"
 
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
