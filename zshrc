@@ -14,12 +14,23 @@ export SPACESHIP_PREFIX_ENV_DEFAULT=' ';
 # my aliases & helper functions
 
 # 'cuz aliases
+#
+# copy
 alias c='xclip -selection c'
+# ¯\_(ツ)_/¯
 alias pelis='~/bin/stremio/Stremio.sh '
-alias ccat='pygmentize -g'
+# dog, a better cat
+alias dog='pygmentize -g'
+# vim =/
 alias :wq="exit"
+# go back one commit
 alias rollback="git reset HEAD~"
+# pretty git log
 alias gplg="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+# docker-compose
+alias dc="docker-compose"
+
+# ----- FUNCTIONS -----
 
 # diff so fancy :D
 function gdiff {
@@ -99,12 +110,19 @@ function wkon {
 
   touch $file;
 
-  if [ -z ${1+x} ]; then
-    cat $file;
-  else
+  if [ ! -z ${1+x} ]; then
     echo "$@" >> $file;
   fi
+
+  cat $file;
 }
+
+# replace, plz! \o/
+function rplz {
+  pt -l $1 | xargs sed -ri.bak -e "s/$1/$2/g"
+}
+
+# ----- ENVIRONMENT -----
 
 # NVM
 export NVM_DIR="/home/gillchristian/.nvm"
