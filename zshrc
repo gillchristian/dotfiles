@@ -104,11 +104,30 @@ function shrug {
   echo $SHRUG
 }
 
-# working on
+# what you are working on! 
+#
+# I could just use cat I know
 function wkon {
   file="WORKING-ON.txt"
-
   touch $file;
+
+  if [ "$1" == "-d" ] || [ "$1" == "--delete" ] ; then
+    echo "removing $file ...";
+    rm $file;
+
+    return;
+  fi
+
+  if [ "$1" == "-h" ] || [ "$1" == "--help" ] ; then
+    echo "wkon: easy keep track of what you are working on\n";
+    echo "USAGE:";
+    echo "  $ wkon [message] # appends [message] to $file and displays it's content\n";
+    echo "OPTIONS:";
+    echo "  -h, --help    show help";
+    echo "  -d, --delete  remove $file";
+
+    return ;
+  fi
 
   if [ ! -z ${1+x} ]; then
     echo "$@" >> $file;
@@ -120,6 +139,11 @@ function wkon {
 # replace, plz! \o/
 function rplz {
   pt -l $1 | xargs sed -ri.bak -e "s/$1/$2/g"
+}
+
+# NPM project bin
+function nb {
+  $(npm bin)/$1 ${@:2}
 }
 
 # ----- ENVIRONMENT -----
