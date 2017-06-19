@@ -108,33 +108,43 @@ function shrug {
 #
 # I could just use cat I know
 function wkon {
-  file="WORKING-ON.txt"
-  touch $file;
+  file="WORKING-ON.txt";
 
+  # -d, --delete flag
   if [ "$1" == "-d" ] || [ "$1" == "--delete" ] ; then
-    echo "removing $file ...";
+    printf "removing %s ...\n" "$file";
+
     rm $file;
+    return;
+  fi
+
+  # -h, --help flag
+  if [ "$1" == "-h" ] || [ "$1" == "--help" ] ; then
+    printf "wkon: easy keep track of what you are working on\n\n";
+    printf "USAGE:\n";
+    printf "  $ wkon [message] # appends [message] to %s and displays it's content\n\n" "$file";
+    printf "OPTIONS:\n";
+    printf "  -h, --help    show help\n";
+    printf "  -d, --delete  remove %s\n" "$file";
 
     return;
   fi
 
-  if [ "$1" == "-h" ] || [ "$1" == "--help" ] ; then
-    echo "wkon: easy keep track of what you are working on\n";
-    echo "USAGE:";
-    echo "  $ wkon [message] # appends [message] to $file and displays it's content\n";
-    echo "OPTIONS:";
-    echo "  -h, --help    show help";
-    echo "  -d, --delete  remove $file";
-
-    return ;
-  fi
-
+  # add content and create file if necessary
+  # this must come after flags, as they are params also
   if [ ! -z ${1+x} ]; then
     echo "$@" >> $file;
   fi
 
-  cat $file;
+  # only show content if file exists and has content
+  if [ -f $file ] && [ -s $file ]; then
+    echo "----- WORKING ON -----\n";
+    cat $file;
+  fi
 }
+
+# zsh on directoy change hook
+add-zsh-hook chpwd wkon;
 
 # replace, plz! \o/
 function rplz {
