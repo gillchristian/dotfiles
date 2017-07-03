@@ -178,8 +178,13 @@ export PATH="$HOME/bin/caddy:$PATH"
 # dir colors
 # eval $(dircolors -b $HOME/.dircolors)
 
+# ~/bin 
+export PATH="$HOME/bin:$PATH"
+
 # yarn
 export PATH="$HOME/.yarn/bin:$PATH"
 
+# rust
+export PATH="$HOME/.cargo/bin:$PATH"
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
