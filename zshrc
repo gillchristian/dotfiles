@@ -104,6 +104,11 @@ function shrug {
   echo $SHRUG
 }
 
+function lorem {
+	local lines=${1-10}; 
+	tr -dc a-z1-4 < /dev/urandom | tr 1-2 ' \n' | awk 'length==0 || length>50' | tr 3-4 ' ' | sed 's/^ *//' | cat -s | sed 's/ / /g' | fmt | head -n ${lines};
+}
+
 # what you are working on! 
 #
 # I could just use cat I know
@@ -186,5 +191,8 @@ export PATH="$HOME/.yarn/bin:$PATH"
 
 # rust
 export PATH="$HOME/.cargo/bin:$PATH"
+
+# from scratch
+export PATH="$HOME/bin/from-scrath:$PATH"
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
