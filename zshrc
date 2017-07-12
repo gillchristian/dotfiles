@@ -151,6 +151,24 @@ function wkon {
 # zsh on directoy change hook
 add-zsh-hook chpwd wkon;
 
+# ############### https://openit.io/ ###############
+#
+# Openit right from CLI
+# 
+# $ openit js/chimi
+function openit() {
+  open "http://openit.io/$1"
+}
+
+# Git clone with openit
+#
+# $ clone js/chimi
+function clone() {
+  git clone $(curl -Ls -o /dev/null -w %{url_effective} https://openit.io/$1)
+}
+
+# ##################################################
+
 # replace, plz! \o/
 function rplz {
   pt -l $1 | xargs sed -ri.bak -e "s/$1/$2/g"
