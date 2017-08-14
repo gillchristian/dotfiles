@@ -29,6 +29,8 @@ alias rollback="git reset HEAD~"
 alias gplg="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 # docker-compose
 alias dc="docker-compose"
+# my prettier way
+alias p="prettier --single-quote --print-width 100 --trailing-comma all --write"
 
 # ----- FUNCTIONS -----
 
@@ -109,11 +111,15 @@ function lorem {
 	tr -dc a-z1-4 < /dev/urandom | tr 1-2 ' \n' | awk 'length==0 || length>50' | tr 3-4 ' ' | sed 's/^ *//' | cat -s | sed 's/ / /g' | fmt | head -n ${lines};
 }
 
-# what you are working on! 
-#
-# I could just use cat I know
-function wkon {
-  file="WORKING-ON.txt";
+########################################
+#         What I'm Working ON          #
+########################################
+
+# zsh on directoy change hook
+add-zsh-hook chpwd wkon;
+
+function wkon () {
+  file="${WKON_FILE:-WORKING-ON.txt}";
 
   # -d, --delete flag
   if [ "$1" == "-d" ] || [ "$1" == "--delete" ] ; then
@@ -128,6 +134,8 @@ function wkon {
     printf "wkon: easy keep track of what you are working on\n\n";
     printf "USAGE:\n";
     printf "  $ wkon [message] # appends [message] to %s and displays it's content\n\n" "$file";
+    printf "CONFIGURATION:\n";
+    printf "  Use \$WKON_FILE to save to a custom file. Defatul: \"WORKING-ON.txt\"\n\n";
     printf "OPTIONS:\n";
     printf "  -h, --help    show help\n";
     printf "  -d, --delete  remove %s\n" "$file";
@@ -143,13 +151,12 @@ function wkon {
 
   # only show content if file exists and has content
   if [ -f $file ] && [ -s $file ]; then
-    echo "----- WORKING ON -----\n";
+    echo "----- WORKING ON: -----\n";
     cat $file;
   fi
 }
 
-# zsh on directoy change hook
-add-zsh-hook chpwd wkon;
+########################################
 
 # ############### https://openit.io/ ###############
 #
