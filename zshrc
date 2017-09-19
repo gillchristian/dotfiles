@@ -17,8 +17,6 @@ export SPACESHIP_PREFIX_ENV_DEFAULT=' ';
 #
 # copy
 alias c='xclip -selection c'
-# ¯\_(ツ)_/¯
-alias pelis='~/bin/stremio/Stremio.sh '
 # dog, a better cat
 alias dog='pygmentize -g'
 # vim =/
@@ -31,6 +29,8 @@ alias gplg="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset
 alias dc="docker-compose"
 # my prettier way
 alias p="prettier --single-quote --print-width 100 --trailing-comma all --write"
+# fu concurrent
+alias fu="fu -c"
 
 # ----- FUNCTIONS -----
 
@@ -115,9 +115,6 @@ function lorem {
 #         What I'm Working ON          #
 ########################################
 
-# zsh on directoy change hook
-add-zsh-hook chpwd wkon;
-
 function wkon () {
   file="${WKON_FILE:-WORKING-ON.txt}";
 
@@ -156,6 +153,9 @@ function wkon () {
   fi
 }
 
+# zsh on directoy change hook
+add-zsh-hook chpwd wkon;
+
 ########################################
 
 # ############### https://openit.io/ ###############
@@ -164,7 +164,7 @@ function wkon () {
 # 
 # $ openit js/chimi
 function openit() {
-  open "http://openit.io/$1"
+  xdg-open "http://openit.io/$1"
 }
 
 # Git clone with openit
@@ -178,7 +178,7 @@ function clone() {
 
 # replace, plz! \o/
 function rplz {
-  pt -l $1 | xargs sed -ri.bak -e "s/$1/$2/g"
+  pt -l $1 $3 | xargs sed -ri.bak -e "s/$1/$2/g"
 }
 
 # NPM project bin
@@ -187,12 +187,6 @@ function nb {
 }
 
 # ----- ENVIRONMENT -----
-
-# NVM
-export NVM_DIR="/home/gillchristian/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
-
-[[ -s "/home/gillchristian/.gvm/scripts/gvm" ]] && source "/home/gillchristian/.gvm/scripts/gvm"
 
 # editor
 export EDITOR=vim
