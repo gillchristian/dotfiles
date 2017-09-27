@@ -11,3 +11,7 @@
 	protocol = ssh
 [push]
 	default = simple
+[url "git@github.com:housinganywhere"]
+	insteadOf = https://github.com/housinganywhere
+[alias]
+	up = pull --rebase

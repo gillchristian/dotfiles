@@ -28,9 +28,10 @@ function installConfig {
   # ZSH
   echo "Updating and installing ZSH config"
   update zsh
-  link $DOTFILE_DIR/zsh ~/.zsh
-  link $DOTFILE_DIR/zsh/zshrc ~/.zshrc
+  link "$DOTFILES_DIR/zsh" ~/.zsh
+  link "$DOTFILES_DIR/zsh/zshrc" ~/.zshrc
   if [ "$SHELL" != "/usr/bin/zsh" ]; then
+    echo "Setting ZSH as the default shell"
     chsh -s $(which zsh)
   fi
   echo ""
@@ -39,14 +40,14 @@ function installConfig {
   echo "Installing antigen"
   mkdir ~/antigen
   curl -L git.io/antigen > ~/antigen/antigen.zsh
-  link $DOTFILES_DIR/zsh/antigenrc ~/.antigenrc
+  link "$DOTFILES_DIR/zsh/antigenrc" ~/.antigenrc
   echo ""
 
   # Git
   update git
   echo "Installing Git Config"
-  link $DOTFILE_DIR/git/gitconfig ~/.gitconfig
-  link $DOTFILE_DIR/git/gitignore_global ~/.gitignore_global
+  link "$DOTFILES_DIR/git/gitconfig" ~/.gitconfig
+  link "$DOTFILES_DIR/git/gitignore_global" ~/.gitignore_global
   echo ""
 
   # SSH
@@ -54,7 +55,7 @@ function installConfig {
   update openssh-client
   update openssh-server
   mkdir -p ~/.ssh/
-  link $DOTFILE_DIR/ssh/config ~/.ssh/config
+  link "$DOTFILES_DIR/ssh/config" ~/.ssh/config
   echo ""
 
   # VIM
@@ -68,8 +69,8 @@ function installConfig {
   #   tern_for_vim
   echo "Updating and installing VIM config"
   update vim
-  link $DOTFILE_DIR/vim ~/.vim
-  link $DOTFILE_DIR/vim/vimrc ~/.vimrc
+  link "$DOTFILES_DIR/vim" ~/.vim
+  link "$DOTFILES_DIR/vim/vimrc" ~/.vimrc
   echo ""
 }
 

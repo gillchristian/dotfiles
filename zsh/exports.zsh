@@ -17,3 +17,6 @@ export PATH="$HOME/bin/caddy:$PATH"
 
 # ~/bin 
 export PATH="$HOME/bin:$PATH"
+
+# yarn
+export PATH="$HOME/.yarn/bin:$PATH"
