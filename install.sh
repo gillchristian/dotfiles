@@ -2,7 +2,7 @@
 
 # Reference: https://github.com/HeroCC/dotfiles
 
-DOTFILES_DIR="$HOME/dotfiles"
+DOTFILES_DIR="$HOME/dev/dotfiles"
 
 function link {
   if [[ -e "$2" ]]; then

@@ -1,8 +1,7 @@
-# my dot zshrc
+# my dotfiles
 
 ```bash
-$ git clone git@github.com:gillchristian/dotzsh.git ~/Desktop/dotzsh
-$ cd ~/Desktop/dotzsh
-$ ln -s zshrc ~/.zshrc
-$ ln -s antigenrc ~/.antigenrc
+$ git clone git@github.com:gillchristian/dotzsh.git ~/dev/dotfiles
+$ cd ~/dev/dotfiles
+$ ./install.sh
 ```
