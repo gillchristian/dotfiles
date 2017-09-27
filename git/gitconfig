@@ -1,0 +1,13 @@
+[user]
+	name = gillchristian
+	email = gillchristiang@gmail.com
+[github]
+	user = gillchristian
+[core]
+	excludesfile = ~/.gitignore_global
+[color]
+	ui = auto
+[hub]
+	protocol = ssh
+[push]
+	default = simple

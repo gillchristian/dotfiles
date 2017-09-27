@@ -1,0 +1,14 @@
+# load antigen before all yo!
+source ~/antigen/antigen.zsh
+antigen init ~/.antigenrc
+
+bindkey '^[[A' history-substring-search-up
+bindkey '^[[B' history-substring-search-down
+
+# Dir colors
+eval $(dircolors -b $HOME/.dircolors)
+
+# Source all the configs
+source ~/.zsh/functions.zsh
+source ~/.zsh/aliases.zsh
+source ~/.zsh/exports.zsh

@@ -1,0 +1,296 @@
+" vim: sw=2 sts=2 fdm=marker fdl=1
+
+set nocompatible
+syntax on
+filetype plugin indent on
+
+" VIM-PLUG {{{
+  call plug#begin('~/.vim/bundle')
+
+  Plug 'AndrewRadev/linediff.vim', { 'on': 'Linediff' }
+  Plug 'SirVer/ultisnips'
+  Plug 'Valloric/YouCompleteMe'
+  Plug 'bkad/CamelCaseMotion'
+  Plug 'chrisbra/Colorizer', { 'on': 'ColorHighlight' }
+  Plug 'ctrlpvim/ctrlp.vim'
+  Plug 'editorconfig/editorconfig-vim'
+  Plug 'ervandew/supertab'
+  Plug 'heavenshell/vim-jsdoc', { 'on': 'JsDoc' }
+  Plug 'junegunn/vim-easy-align'
+  Plug 'maksimr/vim-jsbeautify'
+  Plug 'mattn/emmet-vim'
+  Plug 'mileszs/ack.vim'
+  Plug 'morhetz/gruvbox'
+  Plug 'pangloss/vim-javascript'
+  Plug 'mxw/vim-jsx'
+  Plug 'scrooloose/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind'] } | Plug 'Xuyuanp/nerdtree-git-plugin'
+  Plug 'ternjs/tern_for_vim'
+  Plug 'tpope/vim-commentary'
+  Plug 'tpope/vim-fugitive'
+  Plug 'airblade/vim-gitgutter'
+  Plug 'tpope/vim-repeat'
+  Plug 'tpope/vim-surround'
+  Plug 'tpope/vim-unimpaired'
+  Plug 'vim-airline/vim-airline'
+  Plug 'vim-scripts/loremipsum', { 'on': 'Loremipsum' }
+  Plug 'terryma/vim-multiple-cursors'
+  Plug 'vim-syntastic/syntastic'| Plug 'mtscout6/syntastic-local-eslint.vim'
+  Plug 'kana/vim-textobj-user' | Plug 'fvictorio/vim-textobj-backticks' |
+                               \ Plug 'glts/vim-textobj-comment' |
+                               \ Plug 'kana/vim-textobj-entire' |
+                               \ Plug 'kana/vim-textobj-fold' |
+                               \ Plug 'saaguero/vim-textobj-pastedtext'
+  Plug 'fatih/vim-go'
+  Plug 'fleischie/vim-styled-components'
+  Plug 'elmcast/elm-vim'
+  Plug 'digitaltoad/vim-pug'
+  Plug 'rust-lang/rust.vim'
+
+  call plug#end()
+" }}}
+
+" OPTIONS {{{
+  " UI {{{
+    set colorcolumn=+0 " Color column = textwidth
+    set cursorline
+    set foldcolumn=2
+    set hlsearch
+    set laststatus=2
+    set relativenumber 
+    set number   
+    set showcmd
+    set showtabline=2
+    set textwidth=120
+    set wildmenu
+    set nowrap
+    set mouse+=a
+    if &term =~ '^tmux'
+        " tmux knows the extended mouse mode
+        set ttymouse=xterm2
+    endif
+  " }}}
+  " Indentation {{{
+    set autoindent
+    set expandtab
+    set shiftround
+    set shiftwidth=2
+    set tabstop=2
+    set softtabstop=2
+  " }}}
+  " Etc {{{
+    set backspace=2
+    set backupcopy=yes
+    set confirm
+    set clipboard=unnamedplus
+    set diffopt+=vertical
+    set formatoptions=cqj
+    set nohidden
+    set ignorecase
+    set modeline
+    set splitright
+    set completeopt-=preview
+  " }}}
+" }}}
+
+" MAPS {{{
+  " General {{{
+    " Search selected text
+    vnoremap / "py/\V<c-r>p<cr>
+
+    " Easier %
+    nnoremap M %
+    vnoremap M %
+
+    " Insert mode
+    inoremap jk <esc>
+    inoremap <c-o> <esc>O
+
+    " Save
+    nnoremap <f5> :w<cr>
+    inoremap <f5> <esc>:w<cr>
+
+    " Easier command history navigation
+    cnoremap <c-p> <up>
+    cnoremap <c-n> <down>
+
+    nnoremap <silent> cof :call ToggleFoldMethod()<cr>
+
+    " Hide searched items
+    nnoremap <silent> <c-h> :nohl<cr>
+
+    " Paste over visual
+    vnoremap p "_dP
+  " }}}
+  " Leader maps {{{
+    let mapleader = ' '
+    let maplocalleader = ','
+
+    " C: Copy {{{
+      " cf: copy filename to clipboard
+      nnoremap <silent> <leader>cf :let @+=expand('%:tfoo')<cr>
+      " cl: copy filename:linenumber to clipboard
+      nnoremap <silent> <leader>cl :let @+=join([expand('%:tfoo'), line(".")], ":")<cr>
+    " }}}
+    " N: NERDTree {{{
+      nnoremap <leader>nf :NERDTreeFind<cr>
+    " }}}
+    " P: CtrlP {{{
+      nnoremap <leader>pp :CtrlP<cr>
+      nnoremap <leader>pr :CtrlPMRUFiles<cr>
+      nnoremap <leader>pb :CtrlPBufTag<cr>
+    " }}}
+    " Q: Quickfix {{{
+      vnoremap <leader>q "zy :tabe<cr>:Ack '<c-r>z'<cr>
+      nnoremap <leader>qc :cclose<cr>
+    " }}}
+    " T: Tabs {{{
+      nnoremap <silent> <leader>to :tabonly<cr>
+      nnoremap <silent> <leader>tp :tabm -1<cr>
+      nnoremap <silent> <leader>tn :tabm +1<cr>
+      nnoremap <silent> <leader>tr :call TabCloseRight()<cr>
+    " }}}
+    " V: Vim {{{
+      nnoremap <leader>vv :tabe $MYVIMRC<cr>
+      nnoremap <leader>vr :source $MYVIMRC<cr>
+      nnoremap <leader>vs :tabe $VIMHOME/UltiSnips<cr>
+    " }}}
+    " W: Windows {{{
+      nnoremap <silent> <leader>wo :only<cr>
+      nnoremap <silent> <leader>wh <c-w>h
+      nnoremap <silent> <leader>wj <c-w>j
+      nnoremap <silent> <leader>wk <c-w>k
+      nnoremap <silent> <leader>wl <c-w>l
+      nnoremap <silent> <leader>ww <c-w>w
+    " }}}
+  " }}}
+" }}}
+
+" PLUGINS {{{
+  let g:ackprg = 'ag --vimgrep'
+  autocmd FileType javascript hi link jsObjectKey GruvboxFg3 
+  autocmd FileType javascript hi link jsFuncCall Constant
+  " vim-easy-align {{{
+    xmap ga <Plug>(EasyAlign)
+    nmap ga <Plug>(EasyAlign)
+  " vim-easy-align }}}
+  " YCM {{{
+    let g:ycm_server_python_interpreter = '/usr/bin/python'
+  " }}}
+
+  " Make YCM and UltiSnips work together {{{
+    " make YCM compatible with UltiSnips (using supertab)
+    let g:ycm_key_list_select_completion = ['<C-n>', '<Down>']
+    let g:ycm_key_list_previous_completion = ['<C-p>', '<Up>']
+    let g:SuperTabDefaultCompletionType = '<C-n>'
+
+    " better key bindings for UltiSnipsExpandTrigger
+    let g:UltiSnipsExpandTrigger = "<tab>"
+    let g:UltiSnipsJumpForwardTrigger = "<tab>"
+    let g:UltiSnipsJumpBackwardTrigger = "<s-tab>"
+  " }}}
+
+  " Syntastic {{{
+    set statusline+=%#warningmsg#
+    set statusline+=%{SyntasticStatuslineFlag()}
+    set statusline+=%*
+
+    let g:syntastic_always_populate_loc_list = 1
+    let g:syntastic_auto_loc_list = 0
+    let g:syntastic_check_on_open = 0
+    let g:syntastic_check_on_wq = 0
+
+    " Javascript
+    let g:syntastic_javascript_checkers = ['eslint']
+
+    " Typescript
+    let g:tsuquyomi_disable_quickfix = 1
+    let g:syntastic_typescript_checkers = ['tsuquyomi']
+  " }}}
+
+  " CtrlP {{{
+    set wildignore+=*.swp
+    let g:ctrlp_show_hidden = 1
+    let g:ctrlp_user_command = ['.git/', 'git --git-dir=%s/.git ls-files -oc --exclude-standard | grep -v src/public']
+    let g:ctrlp_open_new_file = 't'
+
+    let g:ctrlp_extensions = ['buffertag']
+  " }}}
+
+  " NERDTree {{{
+    let NERDTreeQuitOnOpen=1
+    let g:NERDTreeWinSize = 50
+    nnoremap <f2> :NERDTreeToggle<cr>
+    inoremap <f2> <esc>:NERDTreeToggle<cr>
+
+    " NERDTress File highlighting
+    function! NERDTreeHighlightFile(extension, fg, bg, guifg, guibg)
+    exec 'autocmd filetype nerdtree highlight ' . a:extension .' ctermbg='. a:bg .' ctermfg='. a:fg .' guibg='. a:guibg .' guifg='. a:guifg
+    exec 'autocmd filetype nerdtree syn match ' . a:extension .' #^\s\+.*'. a:extension .'$#'
+    endfunction
+
+    call NERDTreeHighlightFile('yml', 'yellow', 'none', 'yellow', '#151515')
+
+    call NERDTreeHighlightFile('md', 'Red', 'none', '#ffa500', '#151515')
+
+    call NERDTreeHighlightFile('js', 'yellow', 'none', 'yellow', '#151515')
+    call NERDTreeHighlightFile('jsx', 'blue', 'none', '#3366FF', '#151515')
+    call NERDTreeHighlightFile('json', 'yellow', 'none', 'yellow', '#151515')
+
+    " call NERDTreeHighlightFile('html', 'green', 'none', 'green', '#151515')
+    call NERDTreeHighlightFile('html', 'Red', 'none', '#ffa500', '#151515')
+    call NERDTreeHighlightFile('jade', 'green', 'none', 'green', '#151515')
+
+    call NERDTreeHighlightFile('css', 'cyan', 'none', 'cyan', '#151515')
+    call NERDTreeHighlightFile('styl', 'cyan', 'none', 'cyan', '#151515')
+
+    call NERDTreeHighlightFile('php', 'Magenta', 'none', '#ff00ff', '#151515')
+
+  " }}}
+
+  " CamelCaseMotion {{{
+  call camelcasemotion#CreateMotionMappings('<leader>')
+  " }}}
+
+  " Tern {{{
+    let tern_map_keys = 1
+  " }}}
+
+  " vim-javascript {{{
+    let g:javascript_plugin_jsdoc = 1
+    let g:jsx_ext_required = 0
+  " vim-javascript }}}
+" }}}
+
+" COLORS {{{
+  set background=dark
+  set t_Co=256
+  let g:gruvbox_italic=1
+  colorscheme gruvbox
+" }}}
+
+" FUNCTIONS {{{
+  function! TabCloseRight()
+    let cur=tabpagenr()
+    while cur < tabpagenr('$')
+      exe 'tabclose' . (cur + 1)
+    endwhile
+  endfunction
+
+  " Toggle between folding using manual and syntax methods
+  function! ToggleFoldMethod()
+    let l:isManual = &foldmethod ==# 'manual'
+    
+    if l:isManual
+      setlocal foldmethod=syntax
+    else
+      let l:position = getpos('.')
+
+      setlocal foldmethod=manual
+      " Remove all folds
+      normal ggVGzD
+
+      call setpos('.', l:position)
+    endif
+
+  endfunction
+" FUNCTIONS }}}

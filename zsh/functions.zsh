@@ -1,43 +1,9 @@
-# load antigen before all yo!
-source ~/antigen/antigen.zsh
-antigen init ~/.antigenrc
-
-bindkey '^[[A' history-substring-search-up
-bindkey '^[[B' history-substring-search-down
-
-# configure spaceship
-# export SPACESHIP_RUBY_SHOW=false;
-export SPACESHIP_PROMPT_SYMBOL=$;
-export SPACESHIP_PREFIX_SHOW=false;
-export SPACESHIP_PREFIX_ENV_DEFAULT=' ';
-
-# my aliases & helper functions
-
-# 'cuz aliases
-#
-# copy
-alias c='xclip -selection c'
-# dog, a better cat
-alias dog='pygmentize -g'
-# vim =/
-alias :wq="exit"
-# go back one commit
-alias rollback="git reset HEAD~"
-# pretty git log
-alias gplg="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
-# docker-compose
-alias dc="docker-compose"
-# my prettier way
-alias p="prettier --single-quote --print-width 100 --trailing-comma all --write"
-# fu concurrent
-alias fu="fu -c"
-
-# ----- FUNCTIONS -----
-
-# diff so fancy :D
+# diff so fancy
 function gdiff {
   git diff --color $@ | diff-so-fancy
 }
+
+# ##################################################
 
 # git config switcher
 function gconfig {
@@ -52,6 +18,8 @@ function gconfig {
   fi
 }
 
+# ##################################################
+
 # le wifi password
 function lewifi {
   RED=$(tput setaf 1)
@@ -64,6 +32,8 @@ function lewifi {
   echo "${BOLD}${GREEN}Copied to clipboard!!!";
 }
 
+# ##################################################
+
 # review PR files one by one
 function pr-review-files() {
   for i in $(git diff master --name-only)
@@ -71,6 +41,8 @@ function pr-review-files() {
     GIT_PAGER=less git diff master -- $i
   done
 }
+
+# ##################################################
 
 # review-pr <pr-number>
 function pr-review() {
@@ -99,6 +71,8 @@ function pr-review() {
   git merge --no-edit master
 }
 
+# ##################################################
+
 # shrug
 function shrug {
   SHRUG="¯\\_(ツ)_/¯"
@@ -106,14 +80,14 @@ function shrug {
   echo $SHRUG
 }
 
+# ##################################################
+
 function lorem {
 	local lines=${1-10}; 
 	tr -dc a-z1-4 < /dev/urandom | tr 1-2 ' \n' | awk 'length==0 || length>50' | tr 3-4 ' ' | sed 's/^ *//' | cat -s | sed 's/ / /g' | fmt | head -n ${lines};
 }
 
-########################################
-#         What I'm Working ON          #
-########################################
+# ##################################################
 
 function wkon () {
   file="${WKON_FILE:-WORKING-ON.txt}";
@@ -156,20 +130,22 @@ function wkon () {
 # zsh on directoy change hook
 add-zsh-hook chpwd wkon;
 
-########################################
+# ##################################################
 
-# ############### https://openit.io/ ###############
-#
-# Openit right from CLI
+# Openit right from CLI https://openit.io/
 # 
 # $ openit js/chimi
+
 function openit() {
   xdg-open "http://openit.io/$1"
 }
 
+# ##################################################
+
 # Git clone with openit
 #
 # $ clone js/chimi
+
 function clone() {
   git clone $(curl -Ls -o /dev/null -w %{url_effective} https://openit.io/$1)
 }
@@ -181,37 +157,11 @@ function rplz {
   pt -l $1 $3 | xargs sed -ri.bak -e "s/$1/$2/g"
 }
 
+# ##################################################
+
 # NPM project bin
 function nb {
   $(npm bin)/$1 ${@:2}
 }
 
-# ----- ENVIRONMENT -----
-
-# editor
-export EDITOR=vim
-
-# golang's GOPATH
-export PATH=$PATH:/usr/local/go/bin
-export GOPATH="$HOME/dev/go"
-export PATH="$PATH:$GOPATH/bin"
-
-# caddy
-export PATH="$HOME/bin/caddy:$PATH"
-
-# dir colors
-# eval $(dircolors -b $HOME/.dircolors)
-
-# ~/bin 
-export PATH="$HOME/bin:$PATH"
-
-# yarn
-export PATH="$HOME/.yarn/bin:$PATH"
-
-# rust
-export PATH="$HOME/.cargo/bin:$PATH"
-
-# from scratch
-export PATH="$HOME/bin/from-scrath:$PATH"
-
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+# ##################################################
