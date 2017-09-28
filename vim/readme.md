@@ -1,4 +1,8 @@
-# Instructions
+# my vimfiles
+
+## Instructions
+
+> This is handled by [`gillchristian/dotfiles`](https://github.com/gillchristian/dotfiles) with the `postinstall` script.
 
 Requisites:
 
@@ -13,3 +17,7 @@ Steps:
 2. Run `:PlugInstall`
 3. Go to `/bundle/YouCompleteMe` and run `install.py`
 4. Go to `/bundle/tern_for_vim` and run `npm install`
+
+## Inspiration
+
+[fvictorio](https://github.com/fvictorio)'s vimfiles.
