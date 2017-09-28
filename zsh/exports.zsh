@@ -1,4 +1,5 @@
 # Configure spaceship
+export SPACESHIP_KUBECONTEXT_SHOW=false;
 export SPACESHIP_RUBY_SHOW=false;
 export SPACESHIP_PROMPT_SYMBOL=$;
 export SPACESHIP_PREFIX_SHOW=false;

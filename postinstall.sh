@@ -1,0 +1,71 @@
+#!/bin/bash
+
+function install_NODE_ENV {
+  echo "Installing node, nvm & yarn"
+  nvm install 8
+  nvm alias default 8
+  curl -o- -L https://yarnpkg.com/install.sh | bash
+  # yarn adds itself to the $PATH when being installed
+  # but yarn path is already exported in ~/.zsh/exports.zsh
+  # the following line removes that from ~/.zshrc
+  sed -i -e "/export\sPATH=\"\$HOME\/\.yarn\/bin:\$PATH/d" ~/.zshrc
+  echo ""
+}
+
+function install_VIM_PLUGINS {
+  # only run if npm is installed
+  if hash npm 2>/dev/null; then
+    echo "Installing vim plugins"
+    vim +PlugInstall +qall
+    echo ""
+
+    echo "Installing YouCompleteMe and tern_for_vim"
+    cd ~/.vim/bundle/YouCompleteMe
+    ./install.py --gocode-completer --tern-completer --clang-completer
+    cd ~/.vim/bundle/tern_for_vim
+    npm install
+    echo ""
+  else
+    echo "In order to install vim packages you first need node & npm installed"
+  fi
+}
+
+function install_DOCKER_COMPOSE {
+  echo "Installing docker-compose"
+  sudo touch /usr/local/bin/docker-compose
+  sudo chmod +x /usr/local/bin/docker-compose
+  touch /temp/docker-compose-binary
+  curl -L "https://github.com/docker/compose/releases/download/1.16.1/docker-compose-$(uname -s)-$(uname -m)" > /temp/docker-compose-binary
+  sudo mv /temp/docker-compose-binary /usr/local/bin/docker-compose
+  echo ""
+}
+
+function install_DOCKER {
+  echo "Installing Docker"
+  sudo apt-get remove docker docker-engine docker.io
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  echo "Verifying fingerprint"
+  sudo apt-key fingerprint 0EBFCD88
+  sudo add-apt-repository \
+    "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+    $(lsb_release -cs) \
+    stable"
+  sudo apt-get update
+  sudo apt-get install docker-ce
+  echo "Verifying Docker installation"
+  sudo docker run hello-world
+  sudo groupadd docker
+  sudo usermod -aG docker $USER
+  sudo systemctl enable docker
+
+ install_DOCKER_COMPOSE 
+
+  echo "After the installation restart the computer and run \`\$ docker run hello-world\`"
+  echo ""
+}
+
+function main {
+  install_NODE_ENV
+  install_VIM_PLUGINS
+  install_DOCKER 
+}
