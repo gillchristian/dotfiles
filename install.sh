@@ -16,6 +16,7 @@ function install_PACKAGES {
     rar \
     git \
     vim \
+    vim-gnome \
     zsh \
     git-core \
     indicator-multiload \
@@ -63,7 +64,7 @@ function update {
 }
 
 function goinstall {
-  echo "Installing $1"
+  echo "Installing $1 from $2"
   go get -u $2
   echo ""
 }
@@ -92,8 +93,7 @@ function install_GOLANG {
 }
 
 function install_VIM {
-  echo "Updating VIM and adding config"
-  update vim
+  echo "Adding VIM config"
   link "$DOTFILES_DIR/vim" ~/.vim
   link "$DOTFILES_DIR/vim/vimrc" ~/.vimrc
   echo ""
@@ -109,8 +109,7 @@ function install_SSH {
 }
 
 function install_GIT {
-  echo "Installing Git & adding config"
-  update git
+  echo "Adding Git config"
   link "$DOTFILES_DIR/git/gitconfig" ~/.gitconfig
   link "$DOTFILES_DIR/git/gitignore_global" ~/.gitignore_global
   echo ""
@@ -125,8 +124,7 @@ function install_ANTIGEN {
 }
 
 function install_ZSH {
-  echo "Updating ZSH and adding config"
-  update zsh
+  echo "Adding ZSH config"
   link "$DOTFILES_DIR/zsh" ~/.zsh
   link "$DOTFILES_DIR/zsh/zshrc" ~/.zshrc
   if [ "$SHELL" != "/usr/bin/zsh" ]; then
