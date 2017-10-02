@@ -1,5 +1,9 @@
 #!/bin/bash
 
+DOTFILES_DIR="$HOME/dev/dotfiles"
+
+source "$DOTFILES_DIR/helpers.sh"
+
 function install_NODE_ENV {
   echo "Installing node, nvm & yarn"
   nvm install 8
@@ -8,7 +12,7 @@ function install_NODE_ENV {
   # yarn adds itself to the $PATH when being installed
   # but yarn path is already exported in ~/.zsh/exports.zsh
   # the following line removes that from ~/.zshrc
-  sed -i -e "/export\sPATH=\"\$HOME\/\.yarn\/bin:\$PATH/d" ~/.zshrc
+  sed -i -e "/export\sPATH=\"\$HOME\/\.yarn\/bin:\$PATH/d" "$DOTFILES_DIR/zsh/zshrc"
   echo ""
 }
 
@@ -17,6 +21,10 @@ function install_VIM_PLUGINS {
   if hash npm 2>/dev/null; then
     echo "Installing vim plugins"
     vim +PlugInstall +qall
+    # fzf adds a a call to source fzf to the ~/.zshrc, since it's already in
+    # ~/.zsh/sources.zsh the following lines removes that from ~/.zshrc
+    sed -i -e "/\n\[\s-f\s~\/\.fzf\.zsh\s\]\s&&\ssource\s~\/\.fzf\.zsh/d" "$DOTFILES_DIR/zsh/zshrc"
+
     echo ""
 
     echo "Installing YouCompleteMe and tern_for_vim"
@@ -68,4 +76,11 @@ function main {
   install_NODE_ENV
   install_VIM_PLUGINS
   install_DOCKER 
+
+  # after calling sed to remove something from the
+  # file that is symlinked the symlink gets broken
+  echo "Relinking ~/.zsrc"
+  link "$DOTFILES_DIR/zsh" ~/.zsh
+  echo "All done!"
+  echo ""
 }

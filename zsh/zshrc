@@ -9,6 +9,7 @@ bindkey '^[[B' history-substring-search-down
 eval $(dircolors -b $HOME/.dircolors)
 
 # Source all the configs
-source ~/.zsh/functions.zsh
+source ~/.zsh/sources.zsh
 source ~/.zsh/aliases.zsh
+source ~/.zsh/functions.zsh
 source ~/.zsh/exports.zsh
