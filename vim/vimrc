@@ -12,7 +12,6 @@ filetype plugin indent on
   Plug 'Valloric/YouCompleteMe'
   Plug 'bkad/CamelCaseMotion'
   Plug 'chrisbra/Colorizer', { 'on': 'ColorHighlight' }
-  Plug 'ctrlpvim/ctrlp.vim'
   Plug 'editorconfig/editorconfig-vim'
   Plug 'ervandew/supertab'
   Plug 'heavenshell/vim-jsdoc', { 'on': 'JsDoc' }
@@ -45,8 +44,11 @@ filetype plugin indent on
   Plug 'elmcast/elm-vim'
   Plug 'digitaltoad/vim-pug'
   Plug 'rust-lang/rust.vim'
+  Plug 'reasonml-editor/vim-reason'
+  Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 
   call plug#end()
+
 " }}}
 
 " OPTIONS {{{
@@ -94,6 +96,9 @@ filetype plugin indent on
 
 " MAPS {{{
   " General {{{
+    " fzf
+    nnoremap <c-p> :FZF<cr>
+
     " Search selected text
     vnoremap / "py/\V<c-r>p<cr>
 
@@ -134,10 +139,6 @@ filetype plugin indent on
     " N: NERDTree {{{
       nnoremap <leader>nf :NERDTreeFind<cr>
     " }}}
-    " P: CtrlP {{{
-      nnoremap <leader>pp :CtrlP<cr>
-      nnoremap <leader>pr :CtrlPMRUFiles<cr>
-      nnoremap <leader>pb :CtrlPBufTag<cr>
     " }}}
     " Q: Quickfix {{{
       vnoremap <leader>q "zy :tabe<cr>:Ack '<c-r>z'<cr>
@@ -207,13 +208,6 @@ filetype plugin indent on
     let g:syntastic_typescript_checkers = ['tsuquyomi']
   " }}}
 
-  " CtrlP {{{
-    set wildignore+=*.swp
-    let g:ctrlp_show_hidden = 1
-    let g:ctrlp_user_command = ['.git/', 'git --git-dir=%s/.git ls-files -oc --exclude-standard | grep -v src/public']
-    let g:ctrlp_open_new_file = 't'
-
-    let g:ctrlp_extensions = ['buffertag']
   " }}}
 
   " NERDTree {{{
