@@ -18,6 +18,10 @@ Steps:
 3. Go to `/bundle/YouCompleteMe` and run `install.py`
 4. Go to `/bundle/tern_for_vim` and run `npm install`
 
+## TODOs
+
+- Improve `fzf` integration ([link](https://github.com/junegunn/fzf/blob/master/README-VIM.md)).
+
 ## Inspiration
 
 [fvictorio](https://github.com/fvictorio)'s vimfiles.
