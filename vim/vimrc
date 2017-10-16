@@ -46,6 +46,7 @@ filetype plugin indent on
   Plug 'rust-lang/rust.vim'
   Plug 'reasonml-editor/vim-reason'
   Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+  Plug 'flowtype/vim-flow', { 'autoload': { 'filetypes': 'javascript' }}
 
   call plug#end()
 
