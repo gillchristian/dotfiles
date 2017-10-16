@@ -27,11 +27,12 @@ function install_VIM_PLUGINS {
 
     echo ""
 
-    echo "Installing YouCompleteMe and tern_for_vim"
+    echo "Installing YouCompleteMe (for Go, JS, TS), tern_for_vim and typescript"
     cd ~/.vim/bundle/YouCompleteMe
     ./install.py --gocode-completer --tern-completer --clang-completer
     cd ~/.vim/bundle/tern_for_vim
     npm install
+    npm install -g typescript
     echo ""
   else
     echo "In order to install vim packages you first need node & npm installed"

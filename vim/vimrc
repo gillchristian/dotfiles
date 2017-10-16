@@ -47,6 +47,9 @@ filetype plugin indent on
   Plug 'reasonml-editor/vim-reason'
   Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
   Plug 'flowtype/vim-flow', { 'autoload': { 'filetypes': 'javascript' }}
+  Plug 'HerringtonDarkholme/yats.vim'
+  Plug 'Shougo/vimproc.vim', {'do' : 'make'}
+  Plug 'Quramy/tsuquyomi'
 
   call plug#end()
 
