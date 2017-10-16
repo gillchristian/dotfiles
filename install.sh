@@ -51,6 +51,14 @@ function install_PACKAGES {
   echo ""
 }
 
+function install_RUST {
+  # Install Rust
+  echo "Installing Rust"
+  curl https://sh.rustup.rs -sSf | sh
+
+  echo ""
+}
+
 function install_GOLANG {
   # Install Golang
   echo "Installing Go"
@@ -129,6 +137,8 @@ function install_CONFIG {
   install_VIM
 
   install_GOLANG
+  
+  install_RUST
 }
 
 function main {
