@@ -8,15 +8,22 @@ export SPACESHIP_PREFIX_ENV_DEFAULT=' ';
 # Editor
 export EDITOR=vim
 
-# Golang's GOPATH
+# Golang's GOPATH & bin
 export GOPATH="$HOME/dev/go"
-export PATH="$PATH:$GOPATH/bin:/usr/local/go/bin"
+
+GO_BIN="$GOPATH/bin:/usr/local/go/bin"
 
 # Caddy
-export PATH="$HOME/bin/caddy:$PATH"
+CADDY="$HOME/bin/caddy"
 
 # ~/bin 
-export PATH="$HOME/bin:$PATH"
+MY_BIN="$HOME/bin"
 
 # yarn
-export PATH="$HOME/.yarn/bin:$PATH"
+YARN="$HOME/.yarn/bin"
+
+# rust's cargo
+CARGO="$HOME/.cargo/bin"
+
+# add stuff to PATH
+export PATH="$GO_BIN:$CADDY:$MY_BIN:$YARN:$CARGO:$PATH"
