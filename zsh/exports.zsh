@@ -9,9 +9,8 @@ export SPACESHIP_PREFIX_ENV_DEFAULT=' ';
 export EDITOR=vim
 
 # Golang's GOPATH
-export PATH=$PATH:/usr/local/go/bin
 export GOPATH="$HOME/dev/go"
-export PATH="$PATH:$GOPATH/bin"
+export PATH="$PATH:$GOPATH/bin:/usr/local/go/bin"
 
 # Caddy
 export PATH="$HOME/bin/caddy:$PATH"
