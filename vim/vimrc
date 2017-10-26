@@ -143,6 +143,9 @@ filetype plugin indent on
     " N: NERDTree {{{
       nnoremap <leader>nf :NERDTreeFind<cr>
     " }}}
+    " Y: YouCompleteMe {{{
+      nnoremap gd :YcmCompleter GoToDefinition<cr>
+    " }}}
     " }}}
     " Q: Quickfix {{{
       vnoremap <leader>q "zy :tabe<cr>:Ack '<c-r>z'<cr>
