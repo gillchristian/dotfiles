@@ -51,6 +51,14 @@ function install_PACKAGES {
   echo ""
 }
 
+function install_HASKELL {
+  # Install Haskell's Stack
+  echo "Installing Haskell's Stack"
+  curl -sSL https://get.haskellstack.org/ | sh
+
+  echo ""
+}
+
 function install_RUST {
   # Install Rust
   echo "Installing Rust"
@@ -139,6 +147,8 @@ function install_CONFIG {
   install_GOLANG
   
   install_RUST
+
+  install_HASKELL
 }
 
 function main {
