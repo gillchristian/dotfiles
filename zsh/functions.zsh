@@ -8,12 +8,12 @@ function gdiff {
 # git config switcher
 function gconfig {
   if [ -z $1 ] || [ -z $2 ] ; then
-    echo "user.name: $(git config --global user.name)"
+    echo "user.name:  $(git config --global user.name)"
     echo "user.email: $(git config --global user.email)"
   else
     git config --global user.name $1
     git config --global user.email $2
-    echo "user.name: $(git config --global user.name)"
+    echo "user.name:  $(git config --global user.name)"
     echo "user.email: $(git config --global user.email)"
   fi
 }

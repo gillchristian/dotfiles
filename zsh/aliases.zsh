@@ -24,6 +24,3 @@ alias fu="fu -c"
 
 # purge docker images with no tag
 alias docker-purge='docker rmi $(docker images | grep "^<none>" | awk "{print $3}")'
-
-# remove merged branches
-alias git-purge='git branch --merged >/tmp/merged-branches && vi /tmp/merged-branches && xargs git branch -d </tmp/merged-branches'
