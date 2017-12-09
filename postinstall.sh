@@ -34,6 +34,10 @@ function install_VIM_PLUGINS {
     npm install
     npm install -g typescript
     echo ""
+
+    echo "Installing vim-elm dependencies"
+    npm install -g elm elm-test elm-oracle elm-format
+    echo ""
   else
     echo "In order to install vim packages you first need node & npm installed"
   fi
