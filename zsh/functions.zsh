@@ -110,7 +110,14 @@ function wkon () {
     printf "OPTIONS:\n";
     printf "  -h, --help    show help\n";
     printf "  -d, --delete  remove %s\n" "$file";
+    printf "  -e, --edit    open %s in your \$EDITOR\n" "$file";
 
+    return;
+  fi
+
+  # -e, --edit flag
+  if [ "$1" == "-e" ] || [ "$1" == "--edit" ] ; then
+    $EDITOR $file;
     return;
   fi
 

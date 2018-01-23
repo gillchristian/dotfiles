@@ -50,6 +50,7 @@ filetype plugin indent on
   Plug 'HerringtonDarkholme/yats.vim'
   Plug 'Shougo/vimproc.vim', {'do' : 'make'}
   Plug 'Quramy/tsuquyomi'
+  Plug 'neovimhaskell/haskell-vim'
 
   call plug#end()
 
@@ -183,6 +184,22 @@ filetype plugin indent on
   " vim-easy-align }}}
   " YCM {{{
     let g:ycm_server_python_interpreter = '/usr/bin/python'
+
+    let g:ycm_semantic_triggers =  {
+        \   'c' : ['->', '.'],
+        \   'objc' : ['->', '.'],
+        \   'ocaml' : ['.', '#'],
+        \   'cpp,objcpp' : ['->', '.', '::'],
+        \   'perl' : ['->'],
+        \   'php' : ['->', '::', '"', "'", 'use ', 'namespace ', '\'],
+        \   'elm,cs,java,javascript,typescript,d,python,perl6,scala,vb,elixir,go' : ['.'],
+        \   'html': ['<', '"', '</', ' '],
+        \   'vim' : ['re![_a-za-z]+[_\w]*\.'],
+        \   'ruby' : ['.', '::'],
+        \   'lua' : ['.', ':'],
+        \   'erlang' : [':'],
+        \   'haskell' : ['.', 're!.']
+        \ }
   " }}}
 
   " Make YCM and UltiSnips work together {{{
@@ -198,12 +215,13 @@ filetype plugin indent on
   " }}}
 
   " Syntastic {{{
+  "
     set statusline+=%#warningmsg#
     set statusline+=%{SyntasticStatuslineFlag()}
     set statusline+=%*
 
     let g:syntastic_always_populate_loc_list = 1
-    let g:syntastic_auto_loc_list = 0
+    let g:syntastic_auto_loc_list = 1
     let g:syntastic_check_on_open = 0
     let g:syntastic_check_on_wq = 0
 
@@ -216,19 +234,15 @@ filetype plugin indent on
 
     " elm
     let g:elm_format_autosave = 1
-    let g:syntastic_always_populate_loc_list = 1
-    let g:syntastic_auto_loc_list = 1
 
     let g:elm_syntastic_show_warnings = 1
-    let g:ycm_semantic_triggers = {
-        \ 'elm' : ['.'],
-        \}
   " }}}
 
   " }}}
 
   " NERDTree {{{
     let NERDTreeQuitOnOpen=1
+    let NERDTreeShowHidden=1
     let g:NERDTreeWinSize = 50
     nnoremap <f2> :NERDTreeToggle<cr>
     inoremap <f2> <esc>:NERDTreeToggle<cr>
@@ -247,7 +261,6 @@ filetype plugin indent on
     call NERDTreeHighlightFile('jsx', 'blue', 'none', '#3366FF', '#151515')
     call NERDTreeHighlightFile('json', 'yellow', 'none', 'yellow', '#151515')
 
-    " call NERDTreeHighlightFile('html', 'green', 'none', 'green', '#151515')
     call NERDTreeHighlightFile('html', 'Red', 'none', '#ffa500', '#151515')
     call NERDTreeHighlightFile('jade', 'green', 'none', 'green', '#151515')
 
