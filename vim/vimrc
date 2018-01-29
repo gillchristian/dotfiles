@@ -51,6 +51,7 @@ filetype plugin indent on
   Plug 'Shougo/vimproc.vim', {'do' : 'make'}
   Plug 'Quramy/tsuquyomi'
   Plug 'neovimhaskell/haskell-vim'
+  Plug 'begriffs/haskell-vim-now'
 
   call plug#end()
 
@@ -138,6 +139,7 @@ filetype plugin indent on
     " C: Copy {{{
       " cf: copy filename to clipboard
       nnoremap <silent> <leader>cf :let @+=expand('%:tfoo')<cr>
+      nnoremap <silent> <leader>cp :let @+= expand("%:p")<cr> 
       " cl: copy filename:linenumber to clipboard
       nnoremap <silent> <leader>cl :let @+=join([expand('%:tfoo'), line(".")], ":")<cr>
     " }}}

@@ -38,6 +38,7 @@ function install_PACKAGES {
     silversearcher-ag \
     spotify-client \
     asciinema \
+    jq \
   # vim
     cmake \
     python3-dev \
