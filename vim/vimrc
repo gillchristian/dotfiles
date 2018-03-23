@@ -48,8 +48,9 @@ filetype plugin indent on
   Plug 'neovimhaskell/haskell-vim'
   Plug 'begriffs/haskell-vim-now'
   Plug 'prettier/vim-prettier', { 'do': 'npm install', 
-                                \ 'for': ['javascript', 'typescript', 'css', 'less', 'scss'] }
+                                \ 'for': ['javascript', 'typescript', 'css', 'less', 'scss', 'gql', 'md'] }
   Plug 'w0rp/ale'
+  Plug 'shime/vim-livedown'
 
   call plug#end()
 
@@ -286,6 +287,20 @@ filetype plugin indent on
   " vim-prettier {{{
     let g:prettier#exec_cmd_async = 1
   " vim-prettier }}}
+
+  " vim-livedown {{{
+  " should markdown preview get shown automatically upon opening markdown buffer
+  let g:livedown_autorun = 0
+
+  " should the browser window pop-up upon previewing
+  let g:livedown_open = 1 
+
+  " the port on which Livedown server will run
+  let g:livedown_port = 1337
+
+  " the browser to use
+  let g:livedown_browser = "chrome"
+  " vim-livedown }}}
 " }}}
 
 " COLORS {{{

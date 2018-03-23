@@ -32,7 +32,7 @@ function install_VIM_PLUGINS {
     ./install.py --gocode-completer --tern-completer --clang-completer
     cd ~/.vim/bundle/tern_for_vim
     npm install
-    npm install -g typescript
+    npm install -g typescript livedown
     echo ""
 
     echo "Installing vim-elm dependencies"
