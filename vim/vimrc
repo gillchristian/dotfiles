@@ -14,10 +14,6 @@ filetype plugin indent on
   Plug 'chrisbra/Colorizer', { 'on': 'ColorHighlight' }
   Plug 'editorconfig/editorconfig-vim'
   Plug 'ervandew/supertab'
-  Plug 'heavenshell/vim-jsdoc', { 'on': 'JsDoc' }
-  Plug 'junegunn/vim-easy-align'
-  Plug 'maksimr/vim-jsbeautify'
-  Plug 'mattn/emmet-vim'
   Plug 'mileszs/ack.vim'
   Plug 'morhetz/gruvbox'
   Plug 'pangloss/vim-javascript'
@@ -33,7 +29,6 @@ filetype plugin indent on
   Plug 'vim-airline/vim-airline'
   Plug 'vim-scripts/loremipsum', { 'on': 'Loremipsum' }
   Plug 'terryma/vim-multiple-cursors'
-  Plug 'vim-syntastic/syntastic'| Plug 'mtscout6/syntastic-local-eslint.vim'
   Plug 'kana/vim-textobj-user' | Plug 'fvictorio/vim-textobj-backticks' |
                                \ Plug 'glts/vim-textobj-comment' |
                                \ Plug 'kana/vim-textobj-entire' |
@@ -52,6 +47,9 @@ filetype plugin indent on
   Plug 'Quramy/tsuquyomi'
   Plug 'neovimhaskell/haskell-vim'
   Plug 'begriffs/haskell-vim-now'
+  Plug 'prettier/vim-prettier', { 'do': 'npm install', 
+                                \ 'for': ['javascript', 'typescript', 'css', 'less', 'scss'] }
+  Plug 'w0rp/ale'
 
   call plug#end()
 
@@ -282,9 +280,12 @@ filetype plugin indent on
   " }}}
 
   " vim-javascript {{{
-    let g:javascript_plugin_jsdoc = 1
     let g:jsx_ext_required = 0
   " vim-javascript }}}
+
+  " vim-prettier {{{
+    let g:prettier#exec_cmd_async = 1
+  " vim-prettier }}}
 " }}}
 
 " COLORS {{{

@@ -13,3 +13,5 @@ source ~/.zsh/sources.zsh
 source ~/.zsh/aliases.zsh
 source ~/.zsh/functions.zsh
 source ~/.zsh/exports.zsh
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
