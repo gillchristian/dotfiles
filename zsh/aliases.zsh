@@ -24,3 +24,6 @@ alias fu="fu -c"
 
 # purge docker images with no tag
 alias docker-purge='docker rmi $(docker images | grep "^<none>" | awk "{print $3}")'
+
+# because I do it all the time
+alias asd='rm -fr node_modules'

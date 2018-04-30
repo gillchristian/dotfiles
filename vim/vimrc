@@ -41,6 +41,7 @@ filetype plugin indent on
   Plug 'rust-lang/rust.vim'
   Plug 'reasonml-editor/vim-reason'
   Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+  " TODO: checkout https://github.com/junegunn/fzf.vim
   Plug 'flowtype/vim-flow', { 'autoload': { 'filetypes': 'javascript' }}
   Plug 'HerringtonDarkholme/yats.vim'
   Plug 'Shougo/vimproc.vim', {'do' : 'make'}
@@ -51,6 +52,7 @@ filetype plugin indent on
                                 \ 'for': ['javascript', 'typescript', 'css', 'less', 'scss', 'gql', 'md'] }
   Plug 'w0rp/ale'
   Plug 'shime/vim-livedown'
+  Plug 'joequery/Stupid-EasyMotion'
 
   call plug#end()
 
@@ -136,7 +138,7 @@ filetype plugin indent on
     let maplocalleader = ','
 
     " C: Copy {{{
-      " cf: copy filename to clipboard
+      " cf: copy filename / path to clipboard
       nnoremap <silent> <leader>cf :let @+=expand('%:tfoo')<cr>
       nnoremap <silent> <leader>cp :let @+= expand("%:p")<cr> 
       " cl: copy filename:linenumber to clipboard
