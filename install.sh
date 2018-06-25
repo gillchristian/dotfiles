@@ -39,6 +39,7 @@ function install_PACKAGES {
     spotify-client \
     asciinema \
     jq \
+    git-extras \
   # vim
     cmake \
     python3-dev \

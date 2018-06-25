@@ -29,7 +29,7 @@ function install_VIM_PLUGINS {
 
     echo "Installing YouCompleteMe (for Go, JS, TS), tern_for_vim and typescript"
     cd ~/.vim/bundle/YouCompleteMe
-    ./install.py --gocode-completer --tern-completer --clang-completer
+    ./install.py --gocode-completer --tern-completer --clang-completer --rust-completer
     cd ~/.vim/bundle/tern_for_vim
     npm install
     npm install -g typescript livedown
@@ -37,6 +37,18 @@ function install_VIM_PLUGINS {
 
     echo "Installing vim-elm dependencies"
     npm install -g elm elm-test elm-oracle elm-format
+    echo ""
+
+    echo "Installing nerd-fonts"
+    git clone --depth 1 git@github.com:ryanoasis/nerd-fonts.git ~/dev
+    cd ~/dev/nerd-fonts
+    ./install.sh Hack
+    cd ~
+    echo ""
+
+    # TODO: move this from here, it's not vim related
+    echo "Installing other programs from npm"
+    npm install -g tldr npm-ls-scripts
     echo ""
   else
     echo "In order to install vim packages you first need node & npm installed"
