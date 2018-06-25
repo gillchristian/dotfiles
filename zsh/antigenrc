@@ -22,6 +22,8 @@ antigen bundle zsh-users/zsh-syntax-highlighting
 antigen bundle zsh-users/zsh-history-substring-search
 antigen bundle rupa/z
 antigen bundle lukechilds/zsh-nvm
+antigen bundle fvictorio/git-infer
+antigen bundle gillchristian/wkon
 
 # And we done...
 antigen apply

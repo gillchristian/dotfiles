@@ -11,19 +11,24 @@ export EDITOR=vim
 # Golang's GOPATH & bin
 export GOPATH="$HOME/dev/go"
 
-GO_BIN="$GOPATH/bin:/usr/local/go/bin"
+export GO_BIN="$GOPATH/bin:/usr/local/go/bin"
 
 # Caddy
-CADDY="$HOME/bin/caddy"
+export CADDY="$HOME/bin/caddy"
 
 # ~/bin 
-MY_BIN="$HOME/bin"
+export MY_BIN="$HOME/bin"
 
 # yarn
-YARN="$HOME/.yarn/bin"
+export YARN="$HOME/.yarn/bin"
 
 # rust's cargo
-CARGO="$HOME/.cargo/bin"
+export CARGO="$HOME/.cargo/bin"
+
+# depot_tools
+export DEPOT_TOOLS="$HOME/dev/depot_tools"
 
 # add stuff to PATH
-export PATH="$GO_BIN:$CADDY:$MY_BIN:$YARN:$CARGO:$PATH"
+export PATH="$GO_BIN:$CADDY:$MY_BIN:$YARN:$CARGO:$DEPOT_TOOLS:$PATH"
+
+export JAVA_HOME="/usr/lib/jvm/java-8-oracle"
