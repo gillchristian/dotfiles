@@ -7,52 +7,94 @@ filetype plugin indent on
 " VIM-PLUG {{{
   call plug#begin('~/.vim/bundle')
 
-  Plug 'AndrewRadev/linediff.vim', { 'on': 'Linediff' }
-  Plug 'SirVer/ultisnips'
-  Plug 'Valloric/YouCompleteMe'
-  Plug 'bkad/CamelCaseMotion'
-  Plug 'chrisbra/Colorizer', { 'on': 'ColorHighlight' }
-  Plug 'editorconfig/editorconfig-vim'
-  Plug 'ervandew/supertab'
-  Plug 'mileszs/ack.vim'
-  Plug 'morhetz/gruvbox'
-  Plug 'pangloss/vim-javascript'
-  Plug 'mxw/vim-jsx'
+  " UI
   Plug 'scrooloose/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind'] } | Plug 'Xuyuanp/nerdtree-git-plugin'
-  Plug 'ternjs/tern_for_vim'
-  Plug 'tpope/vim-commentary'
-  Plug 'tpope/vim-fugitive'
+  Plug 'vim-airline/vim-airline'
   Plug 'airblade/vim-gitgutter'
+  Plug 'chrisbra/Colorizer', { 'on': 'ColorHighlight' }
+
+  " Themes
+  Plug 'morhetz/gruvbox'
+
+  " Changing files
+  Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+
+  " Lint & format
+  Plug 'prettier/vim-prettier', { 'do': 'npm install', 
+                                \ 'for': ['javascript', 'typescript', 'css', 'less', 'scss', 'gql', 'md'] }
+  Plug 'w0rp/ale'
+
+  " Motion & edit
+  Plug 'tpope/vim-commentary'
   Plug 'tpope/vim-repeat'
   Plug 'tpope/vim-surround'
   Plug 'tpope/vim-unimpaired'
-  Plug 'vim-airline/vim-airline'
-  Plug 'vim-scripts/loremipsum', { 'on': 'Loremipsum' }
-  Plug 'terryma/vim-multiple-cursors'
   Plug 'kana/vim-textobj-user' | Plug 'fvictorio/vim-textobj-backticks' |
                                \ Plug 'glts/vim-textobj-comment' |
                                \ Plug 'kana/vim-textobj-entire' |
                                \ Plug 'kana/vim-textobj-fold' |
                                \ Plug 'saaguero/vim-textobj-pastedtext'
-  Plug 'fatih/vim-go'
-  Plug 'fleischie/vim-styled-components'
-  Plug 'elmcast/elm-vim'
-  Plug 'digitaltoad/vim-pug'
-  Plug 'rust-lang/rust.vim'
-  Plug 'reasonml-editor/vim-reason'
-  Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-  " TODO: checkout https://github.com/junegunn/fzf.vim
-  Plug 'flowtype/vim-flow', { 'autoload': { 'filetypes': 'javascript' }}
-  Plug 'HerringtonDarkholme/yats.vim'
+  Plug 'joequery/Stupid-EasyMotion'
+  Plug 'terryma/vim-multiple-cursors'
+  Plug 'ervandew/supertab'
+  Plug 'bkad/CamelCaseMotion'
+
+  " start screen
+  Plug 'mhinz/vim-startify'
+
+  " IDE (autocomplete & others)
+  Plug 'ternjs/tern_for_vim'
+  Plug 'Valloric/YouCompleteMe'
+  Plug 'SirVer/ultisnips'
+  Plug 'editorconfig/editorconfig-vim'
+
+  " ????
+  Plug 'majutsushi/tagbar'
+  Plug 'AndrewRadev/linediff.vim', { 'on': 'Linediff' }
   Plug 'Shougo/vimproc.vim', {'do' : 'make'}
+  Plug 'vim-scripts/loremipsum', { 'on': 'Loremipsum' }
+  Plug 'tpope/vim-fugitive'
+  Plug 'mileszs/ack.vim'
+
+  " ---------- languages ----------
+
+  " Markdown
+  Plug 'shime/vim-livedown'
+
+  " Golang
+  Plug 'fatih/vim-go'
+
+  " Elm
+  Plug 'elmcast/elm-vim'
+
+  " Pug
+  Plug 'digitaltoad/vim-pug'
+
+  " JavaScript, TypeScript & Flow
+  Plug 'pangloss/vim-javascript'
+  Plug 'mxw/vim-jsx'
+  Plug 'HerringtonDarkholme/yats.vim'
   Plug 'Quramy/tsuquyomi'
+  Plug 'flowtype/vim-flow', { 'autoload': { 'filetypes': 'javascript' }}
+  Plug 'fleischie/vim-styled-components'
+
+  " Haskell
   Plug 'neovimhaskell/haskell-vim'
   Plug 'begriffs/haskell-vim-now'
-  Plug 'prettier/vim-prettier', { 'do': 'npm install', 
-                                \ 'for': ['javascript', 'typescript', 'css', 'less', 'scss', 'gql', 'md'] }
-  Plug 'w0rp/ale'
-  Plug 'shime/vim-livedown'
-  Plug 'joequery/Stupid-EasyMotion'
+
+  " Rust
+  Plug 'rust-lang/rust.vim'
+
+  " ReasonML
+  Plug 'reasonml-editor/vim-reason'
+
+  " GN files
+  Plug 'ngg/vim-gn'
+
+  " -------------------------------
+
+  " Icons (must be the last one)
+  Plug 'ryanoasis/vim-devicons'
 
   call plug#end()
 
@@ -77,6 +119,8 @@ filetype plugin indent on
         " tmux knows the extended mouse mode
         set ttymouse=xterm2
     endif
+    set encoding=UTF-8
+    set guifont=Hack\ Nerd\ Font\ 11
   " }}}
   " Indentation {{{
     set autoindent
@@ -132,6 +176,9 @@ filetype plugin indent on
 
     " Paste over visual
     vnoremap p "_dP
+
+    " majutsushi/tagbar
+    nmap <F8> :TagbarToggle<CR>
   " }}}
   " Leader maps {{{
     let mapleader = ' '
@@ -203,6 +250,11 @@ filetype plugin indent on
         \   'erlang' : [':'],
         \   'haskell' : ['.', 're!.']
         \ }
+  " }}}
+
+  " airline {{{
+    " this is for devicons
+    let g:airline_powerline_fonts = 1
   " }}}
 
   " Make YCM and UltiSnips work together {{{
