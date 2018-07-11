@@ -120,7 +120,6 @@ filetype plugin indent on
         set ttymouse=xterm2
     endif
     set encoding=UTF-8
-    set guifont=Hack\ Nerd\ Font\ 11
   " }}}
   " Indentation {{{
     set autoindent
