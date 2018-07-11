@@ -27,3 +27,6 @@ alias docker-purge='docker rmi $(docker images | grep "^<none>" | awk "{print $3
 
 # because I do it all the time
 alias asd='rm -fr node_modules'
+
+# bat, a cat clone with wings
+alias bat='bat --paging=never --theme=Monokai\ Extended\ Bright'
