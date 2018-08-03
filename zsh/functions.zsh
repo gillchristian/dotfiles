@@ -134,3 +134,8 @@ function fim {
 }
 
 # ##################################################
+
+# check the weather
+function we {
+  curl "wttr.in/$1"
+}
