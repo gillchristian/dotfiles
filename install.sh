@@ -40,6 +40,7 @@ function install_PACKAGES {
     asciinema \
     jq \
     git-extras \
+    tmux \
   # vim
     cmake \
     python3-dev \
@@ -67,7 +68,11 @@ function install_RUST {
   echo "Installing Rust"
   curl https://sh.rustup.rs -sSf | sh
 
-  cargo install ripgrep fd-find bat
+  # https://github.com/BurntSushi/ripgrep
+  # https://github.com/sharkdp/fd
+  # https://github.com/sharkdp/bat
+  # https://github.com/dalance/amber
+  cargo install ripgrep fd-find bat amber
 
   echo ""
 }

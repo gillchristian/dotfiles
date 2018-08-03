@@ -42,7 +42,7 @@ function install_VIM_PLUGINS {
     echo "Installing nerd-fonts"
     git clone --depth 1 git@github.com:ryanoasis/nerd-fonts.git ~/dev
     cd ~/dev/nerd-fonts
-    ./install.sh Hack
+    ./install.sh 'Go Mono'
     cd ~
     echo ""
 
