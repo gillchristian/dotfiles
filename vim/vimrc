@@ -20,9 +20,9 @@ filetype plugin indent on
   Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 
   " Lint & format
-  Plug 'prettier/vim-prettier', { 'do': 'npm install', 
-                                \ 'for': ['javascript', 'typescript', 'css', 'less', 'scss', 'gql', 'md'] }
   Plug 'w0rp/ale'
+  Plug 'prettier/vim-prettier', {'do': 'npm install', 
+                                \ 'for': ['javascript', 'typescript', 'css', 'less', 'scss', 'gql', 'md']}
 
   " Motion & edit
   Plug 'tpope/vim-commentary'
@@ -43,16 +43,17 @@ filetype plugin indent on
   Plug 'mhinz/vim-startify'
 
   " IDE (autocomplete & others)
-  Plug 'ternjs/tern_for_vim'
   Plug 'Valloric/YouCompleteMe'
+  Plug 'ternjs/tern_for_vim'
   Plug 'SirVer/ultisnips'
   Plug 'editorconfig/editorconfig-vim'
+  Plug 'dbeniamine/cheat.sh-vim'
 
   " ????
   Plug 'majutsushi/tagbar'
-  Plug 'AndrewRadev/linediff.vim', { 'on': 'Linediff' }
+  Plug 'AndrewRadev/linediff.vim', {'on': 'Linediff'}
   Plug 'Shougo/vimproc.vim', {'do' : 'make'}
-  Plug 'vim-scripts/loremipsum', { 'on': 'Loremipsum' }
+  Plug 'vim-scripts/loremipsum', {'on': 'Loremipsum'}
   Plug 'tpope/vim-fugitive'
   Plug 'mileszs/ack.vim'
 
@@ -75,8 +76,9 @@ filetype plugin indent on
   Plug 'mxw/vim-jsx'
   Plug 'HerringtonDarkholme/yats.vim'
   Plug 'Quramy/tsuquyomi'
-  Plug 'flowtype/vim-flow', { 'autoload': { 'filetypes': 'javascript' }}
+  Plug 'flowtype/vim-flow', {'autoload': {'filetypes': 'javascript'}}
   Plug 'fleischie/vim-styled-components'
+  Plug 'Quramy/vim-js-pretty-template'
 
   " Haskell
   Plug 'neovimhaskell/haskell-vim'
@@ -285,6 +287,9 @@ filetype plugin indent on
     " Typescript
     let g:tsuquyomi_disable_quickfix = 1
     let g:syntastic_typescript_checkers = ['tsuquyomi']
+
+    autocmd FileType typescript nmap <buffer> <Leader>r <Plug>(TsuquyomiRenameSymbol)
+    autocmd FileType typescript nmap <buffer> <Leader>R <Plug>(TsuquyomiRenameSymbolC)
 
     " elm
     let g:elm_format_autosave = 1
