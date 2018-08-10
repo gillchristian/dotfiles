@@ -92,6 +92,7 @@ function install_GOLANG {
   goinstall "Find Unleashed" github.com/kbrgl/fu
   goinstall the_platinum_searcher github.com/monochromegane/the_platinum_searcher/...
   goinstall hub github.com/github/hub
+  goinstall lazygit github.com/jesseduffield/lazygit
 
   # only install td if fetching todos-data is succesful 
   # since it's a private repo, so only would work for me
