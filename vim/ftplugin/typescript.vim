@@ -7,3 +7,5 @@ if exists('g:loaded_tsuquyomi')
 else
     :echom 'Tsuquyomi is not installed, maps won''t work'<cr>
 endif
+
+let b:ale_linters = {'typescript': ['tslint']}

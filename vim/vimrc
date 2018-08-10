@@ -79,6 +79,7 @@ filetype plugin indent on
   Plug 'flowtype/vim-flow', {'autoload': {'filetypes': 'javascript'}}
   Plug 'fleischie/vim-styled-components'
   Plug 'Quramy/vim-js-pretty-template'
+  Plug 'leafgarland/typescript-vim'
 
   " Haskell
   Plug 'neovimhaskell/haskell-vim'
@@ -270,31 +271,24 @@ filetype plugin indent on
     let g:UltiSnipsJumpBackwardTrigger = "<s-tab>"
   " }}}
 
-  " Syntastic {{{
+  " asdf (this used to be Syntastic but I removed it and there's still some config here lol) {{{
   "
     set statusline+=%#warningmsg#
-    set statusline+=%{SyntasticStatuslineFlag()}
     set statusline+=%*
 
-    let g:syntastic_always_populate_loc_list = 1
-    let g:syntastic_auto_loc_list = 1
-    let g:syntastic_check_on_open = 0
-    let g:syntastic_check_on_wq = 0
-
     " Javascript
-    let g:syntastic_javascript_checkers = ['eslint']
 
     " Typescript
     let g:tsuquyomi_disable_quickfix = 1
-    let g:syntastic_typescript_checkers = ['tsuquyomi']
+    let g:typescript_indent_disable = 1 " @link https://github.com/leafgarland/typescript-vim#indenting
 
     autocmd FileType typescript nmap <buffer> <Leader>r <Plug>(TsuquyomiRenameSymbol)
     autocmd FileType typescript nmap <buffer> <Leader>R <Plug>(TsuquyomiRenameSymbolC)
+    autocmd FileType typescript nmap <buffer> <Leader>f <Plug>(TsuTypeDefinition)
+    autocmd FileType typescript nmap <buffer> <Leader>t <Plug>(YcmCompleter GetType)
 
     " elm
     let g:elm_format_autosave = 1
-
-    let g:elm_syntastic_show_warnings = 1
   " }}}
 
   " }}}

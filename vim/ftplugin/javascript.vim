@@ -5,3 +5,5 @@ nnoremap <buffer> <localleader>u :TernRefs<cr>
 
 nnoremap <buffer> <localleader>p :call JsBeautify()<cr>
 vnoremap <buffer> <localleader>p :call RangeJsBeautify()<cr>
+
+let b:ale_linters = {'javascript': ['eslint']}
