@@ -162,7 +162,21 @@ function install_CONFIG {
   install_HASKELL
 }
 
+check_DISTRO() {
+  IS_DEBIAN=`cat /etc/*-release | grep Debian`
+  IS_UBUNTU=`cat /etc/*-release | grep Ubuntu`
+  IS_MINT=`cat /etc/*-release | grep Mint`
+
+  if [[ $IS_DEBIAN == "" && $IS_UBUNTU == "" && $IS_MINT == "" ]]; then
+    echo "Warning!"
+    echo "Please, only run this script Debian, Mint or Ubuntu"
+    exit 1;
+  fi
+}
+
 function main {
+  check_DISTRO
+
   install_PACKAGES
 
   install_CONFIG
