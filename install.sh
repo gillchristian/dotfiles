@@ -93,6 +93,7 @@ function install_GOLANG {
   goinstall the_platinum_searcher github.com/monochromegane/the_platinum_searcher/...
   goinstall hub github.com/github/hub
   goinstall lazygit github.com/jesseduffield/lazygit
+  goinstall gocloc github.com/hhatto/gocloc/cmd/gocloc
 
   # only install td if fetching todos-data is succesful 
   # since it's a private repo, so only would work for me

@@ -116,7 +116,7 @@ function clone() {
 
 # replace, plz! \o/
 function rplz {
-  pt -l -e $1 $3 | xargs sed -ri.bak -e "s/$1/$2/g"
+  rg -l -e $1 $3 | xargs sed -ri.bak -e "s/$1/$2/g"
 }
 
 # ##################################################

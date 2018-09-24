@@ -80,6 +80,7 @@ filetype plugin indent on
   Plug 'fleischie/vim-styled-components'
   Plug 'Quramy/vim-js-pretty-template'
   Plug 'leafgarland/typescript-vim'
+  Plug 'jxnblk/vim-mdx-js'
 
   " Haskell
   Plug 'neovimhaskell/haskell-vim'
@@ -89,7 +90,7 @@ filetype plugin indent on
   Plug 'rust-lang/rust.vim'
 
   " ReasonML
-  Plug 'reasonml-editor/vim-reason'
+  Plug 'reasonml-editor/vim-reason-plus'
 
   " GN files
   Plug 'ngg/vim-gn'
@@ -230,6 +231,10 @@ filetype plugin indent on
   let g:ackprg = 'ag --vimgrep'
   autocmd FileType javascript hi link jsObjectKey GruvboxFg3 
   autocmd FileType javascript hi link jsFuncCall Constant
+  " Colorizer
+    let g:colorizer_auto_filetype='scss,css,html,ts,js,tsx,re' " doesn't work for some reason
+    nnoremap <silent> <Leader>h :ColorHighlight<cr>
+
   " vim-easy-align {{{
     xmap ga <Plug>(EasyAlign)
     nmap ga <Plug>(EasyAlign)
@@ -286,6 +291,11 @@ filetype plugin indent on
     autocmd FileType typescript nmap <buffer> <Leader>R <Plug>(TsuquyomiRenameSymbolC)
     autocmd FileType typescript nmap <buffer> <Leader>f <Plug>(TsuTypeDefinition)
     autocmd FileType typescript nmap <buffer> <Leader>t <Plug>(YcmCompleter GetType)
+
+    " Go
+    autocmd FileType go nmap <buffer> <Leader>r <Plug>(GoRename)
+    autocmd FileType go nmap <buffer> <Leader>t <Plug>(YcmCompleter GetType)
+
 
     " elm
     let g:elm_format_autosave = 1
