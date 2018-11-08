@@ -7,7 +7,7 @@ alias c='xclip -selection c'
 alias gplg="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 #
 # put all in wip
-alias wip="ga . && gc -m wip"
+alias wip="ga . && gc --no-verify -m wip"
 #
 # go back one commit
 alias rollback="git reset HEAD~"
