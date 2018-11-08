@@ -64,6 +64,7 @@ filetype plugin indent on
 
   " Golang
   Plug 'fatih/vim-go'
+  Plug 'nsf/gocode', { 'rtp': 'vim', 'do': '~/.vim/bundle/gocode/vim/symlink.sh' }
 
   " Elm
   Plug 'elmcast/elm-vim'
@@ -287,14 +288,15 @@ filetype plugin indent on
     let g:tsuquyomi_disable_quickfix = 1
     let g:typescript_indent_disable = 1 " @link https://github.com/leafgarland/typescript-vim#indenting
 
-    autocmd FileType typescript nmap <buffer> <Leader>r <Plug>(TsuquyomiRenameSymbol)
-    autocmd FileType typescript nmap <buffer> <Leader>R <Plug>(TsuquyomiRenameSymbolC)
-    autocmd FileType typescript nmap <buffer> <Leader>f <Plug>(TsuTypeDefinition)
-    autocmd FileType typescript nmap <buffer> <Leader>t <Plug>(YcmCompleter GetType)
+    autocmd FileType typescript nmap <buffer> <leader>r <Plug>(TsuquyomiRenameSymbol)
+    autocmd FileType typescript nmap <buffer> <leader>R <Plug>(TsuquyomiRenameSymbolC)
+    autocmd FileType typescript nmap <buffer> <leader>f <Plug>(TsuTypeDefinition)
+    autocmd FileType typescript nmap <buffer> <leader>t <Plug>(YcmCompleter GetType)
 
     " Go
-    autocmd FileType go nmap <buffer> <Leader>r <Plug>(GoRename)
-    autocmd FileType go nmap <buffer> <Leader>t <Plug>(YcmCompleter GetType)
+    autocmd FileType go nmap <buffer> <leader>r <Plug>(GoRename)
+    autocmd FileType go nmap <buffer> <leader>t <Plug>(YcmCompleter GetType)
+    autocmd FileType go nmap <buffer> <leader>p <Plug>(GoFmt)
 
 
     " elm
@@ -363,6 +365,9 @@ filetype plugin indent on
   " the browser to use
   let g:livedown_browser = "chrome"
   " vim-livedown }}}
+
+  " others
+    let g:netrw_browsex_viewer= "xdg-open"
 " }}}
 
 " COLORS {{{
