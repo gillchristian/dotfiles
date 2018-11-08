@@ -139,3 +139,18 @@ function fim {
 function we {
   curl "wttr.in/$1"
 }
+
+# ##################################################
+
+# find stuff in gillchristian/til repo
+function til {
+  cat til.md | rg '#' | cut -d ' ' -f 2- | rg -i $@
+}
+
+# ##################################################
+
+# bundle again all antibody plugins
+
+function antibody_bundle {
+  antibody bundle < "$DOTFILES_DIR/zsh/antibodyrc" > ~/.antibody_plugins.sh
+}

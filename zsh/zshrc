@@ -1,9 +1,10 @@
-# load antigen before all yo!
-source ~/antigen/antigen.zsh
-antigen init ~/.antigenrc
+# load antibody plugins
+source ~/.antibody_plugins.sh
 
 bindkey '^[[A' history-substring-search-up
 bindkey '^[[B' history-substring-search-down
+
+export DOTFILES_DIR="$HOME/dev/dotfiles"
 
 # Dir colors
 eval $(dircolors -b $HOME/.dircolors)

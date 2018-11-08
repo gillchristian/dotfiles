@@ -80,5 +80,8 @@ project/plugins/project/
 # rplz
 *.bak
 
-# wkon
+# moondewio/wkon
 WORKING-ON.txt
+
+# moondewio/dir_alias
+.aliasfile

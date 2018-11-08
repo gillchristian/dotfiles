@@ -1,0 +1,25 @@
+# Oh-my-zsh lib files
+robbyrussell/oh-my-zsh path:lib
+
+# Oh-my-zsh plugins
+robbyrussell/oh-my-zsh path:plugins/git
+robbyrussell/oh-my-zsh path:plugins/node
+robbyrussell/oh-my-zsh path:plugins/npm
+robbyrussell/oh-my-zsh path:plugins/safe-paste
+robbyrussell/oh-my-zsh path:plugins/pip
+robbyrussell/oh-my-zsh path:plugins/command-not-found
+robbyrussell/oh-my-zsh path:plugins/ubuntu
+robbyrussell/oh-my-zsh path:plugins/yarn
+
+# Theme.
+denysdovhan/spaceship-zsh-theme
+
+# moar plugins!!!
+zsh-users/zsh-autosuggestions
+zsh-users/zsh-syntax-highlighting
+zsh-users/zsh-history-substring-search
+rupa/z
+lukechilds/zsh-nvm
+moondewio/git-infer
+moondewio/dir_alias
+gillchristian/wkon

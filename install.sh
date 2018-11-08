@@ -94,6 +94,7 @@ function install_GOLANG {
   goinstall hub github.com/github/hub
   goinstall lazygit github.com/jesseduffield/lazygit
   goinstall gocloc github.com/hhatto/gocloc/cmd/gocloc
+  goinstall gocode github.com/mdempsky/gocode
 
   # only install td if fetching todos-data is succesful 
   # since it's a private repo, so only would work for me
@@ -126,11 +127,14 @@ function install_GIT {
   echo ""
 }
 
-function install_ANTIGEN {
-  echo "Installing Antigen and adding config"
-  mkdir ~/antigen
-  curl -L git.io/antigen > ~/antigen/antigen.zsh
-  link "$DOTFILES_DIR/zsh/antigenrc" ~/.antigenrc
+function install_ANTIBODY {
+  echo "Installing Antibody and adding config"
+  curl -sL git.io/antibody | sh -s
+  echo ""
+
+  echo "Installing plugins with antibody"
+  antibody bundle < "$DOTFILES_DIR/zsh/antibodyrc" > ~/.antibody_plugins.sh
+  antibody update
   echo ""
 }
 
@@ -149,7 +153,7 @@ function install_ZSH {
 function install_CONFIG {
   install_ZSH
 
-  install_ANTIGEN
+  install_ANTIBODY
 
   install_GIT
 
