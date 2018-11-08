@@ -15,3 +15,5 @@
 	insteadOf = https://github.com/housinganywhere
 [alias]
 	up = pull --rebase
+[fetch]
+	prune = true
