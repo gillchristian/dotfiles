@@ -20,6 +20,6 @@ zsh-users/zsh-syntax-highlighting
 zsh-users/zsh-history-substring-search
 rupa/z
 lukechilds/zsh-nvm
-moondewio/git-infer
+moondewio/git-infer kind:path
 moondewio/dir_alias
 gillchristian/wkon
