@@ -1,7 +1,7 @@
 # my dotfiles
 
 ```bash
-$ sudo apt-get git
+$ sudo apt-get install git
 $ git clone https://github.com/gillchristian/dotfiles.git ~/dev/dotfiles
 $ cd ~/dev/dotfiles
 $ ./install.sh
@@ -19,7 +19,8 @@ $ ./postinstall.sh
 - Test (_maybe inside a Docker container_).
 - Report of what went well and what not.
 - Improve output & progress.
-- Unify `install.sh` and `postinstall.sh` in one script.
+- Unify `install.sh` and `postinstall.sh` in one script (not not possible
+  because `nvm` is installing by zsh plugin when running zsh for the first time).
 
 ## Inspiration
 

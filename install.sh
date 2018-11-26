@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 DOTFILES_DIR="$HOME/dev/dotfiles"
 
@@ -11,47 +11,18 @@ function install_PACKAGES {
   sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys BBEBDCB318AD50EC6865090613B00F1FD2C19886 0DF731E45CE24F27EEEB1450EFDC8610341D9410
   echo deb http://repository.spotify.com stable non-free | sudo tee /etc/apt/sources.list.d/spotify.list
 
+  # vim 8 repository
+  sudo add-apt-repository -y ppa:jonathonf/vim
+
   sudo apt-get update
   echo ""
 
   echo "Installing packages"
-  sudo apt-get install -y \
-  # general
-    zip \
-    ubuntu-restricted-extras \
-    unzip \
-    rar \
-    git \
-    vim \
-    vim-gnome \
-    zsh \
-    git-core \
-    indicator-multiload \
-    bison \
-    curl \
-    make \
-    binutils \
-    gcc \
-    build-essential \
-    terminator \
-    xclip \
-    silversearcher-ag \
-    spotify-client \
-    asciinema \
-    jq \
-    git-extras \
-    tmux \
-  # vim
-    cmake \
-    python3-dev \
-    python-dev \
-    exuberant-ctags \
-    mercurial \
-    libmagic-dev \
-  # docker
-    apt-transport-https \
-    ca-certificates \
-    software-properties-common
+  sudo apt-get install -y zip ubuntu-restricted-extras unzip rar git vim vim-gnome zsh git-core indicator-multiload 
+  sudo apt-get install -y bison make binutils gcc build-essential terminator xclip silversearcher-ag asciinema mercurial
+  sudo apt-get install -y exuberant-ctags libmagic-dev apt-transport-https ca-certificates software-properties-common
+  sudo apt-get install -y curl jq git-extras tmux cmake python3-dev python-dev
+  sudo apt-get install -y --allow-unauthenticated spotify-client
   echo ""
 }
 
@@ -89,6 +60,10 @@ function install_GOLANG {
     mkdir -p $GOPATH/src/github.com/$gitUsername
   fi
 
+  mkdir -p ~/dev/go
+  GOPATH="$HOME/dev/go"
+  export GO_BIN="$GOPATH/bin:/usr/local/go/bin"
+
   goinstall "Find Unleashed" github.com/kbrgl/fu
   goinstall the_platinum_searcher github.com/monochromegane/the_platinum_searcher/...
   goinstall hub github.com/github/hub
@@ -96,7 +71,7 @@ function install_GOLANG {
   goinstall gocloc github.com/hhatto/gocloc/cmd/gocloc
   goinstall gocode github.com/mdempsky/gocode
 
-  # only install td if fetching todos-data is succesful 
+  # only install td if fetching todos-data is succesful
   # since it's a private repo, so only would work for me
   git clone git@github.com:gillchristian/todos-data.git ~/.todos
   if [ $? -eq 0 ]; then
@@ -149,6 +124,41 @@ function install_ZSH {
   echo ""
 }
 
+function install_DOCKER_COMPOSE {
+  # TODO: prompt version
+  echo "Installing docker-compose"
+  sudo touch /usr/local/bin/docker-compose
+  touch /tmp/docker-compose-binary
+  curl -L "https://github.com/docker/compose/releases/download/1.23.1/docker-compose-$(uname -s)-$(uname -m)" > /tmp/docker-compose-binary
+  sudo mv /tmp/docker-compose-binary /usr/local/bin/docker-compose
+  sudo chmod +x /usr/local/bin/docker-compose
+  echo ""
+}
+
+function install_DOCKER {
+  echo "Installing Docker"
+  sudo apt-get remove docker docker-engine docker.io
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  echo "Verifying fingerprint"
+  sudo apt-key fingerprint 0EBFCD88
+  sudo add-apt-repository \
+    "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+    $(lsb_release -cs) \
+    stable"
+  sudo apt-get update
+  sudo apt-get install docker-ce
+  echo "Verifying Docker installation"
+  sudo docker run hello-world
+  sudo groupadd docker
+  sudo usermod -aG docker $USER
+  sudo systemctl enable docker
+
+  install_DOCKER_COMPOSE
+
+  echo "After the installation restart the computer and run \`\$ docker run hello-world\`"
+  echo ""
+}
+
 
 function install_CONFIG {
   install_ZSH
@@ -162,10 +172,12 @@ function install_CONFIG {
   install_VIM
 
   install_GOLANG
-  
+
   install_RUST
 
   install_HASKELL
+
+  install_DOCKER
 }
 
 function main {
