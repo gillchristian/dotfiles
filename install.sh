@@ -1,6 +1,7 @@
 #!/bin/bash
 
 DOTFILES_DIR="$HOME/dev/dotfiles"
+XDG_CONFIG_HOME="$HOME/.config"
 
 source "$DOTFILES_DIR/helpers.sh"
 
@@ -17,12 +18,24 @@ function install_PACKAGES {
   sudo apt-get update
   echo ""
 
-  echo "Installing packages"
-  sudo apt-get install -y zip ubuntu-restricted-extras unzip rar git vim vim-gnome zsh git-core indicator-multiload 
-  sudo apt-get install -y bison make binutils gcc build-essential terminator xclip silversearcher-ag asciinema mercurial
-  sudo apt-get install -y exuberant-ctags libmagic-dev apt-transport-https ca-certificates software-properties-common
-  sudo apt-get install -y curl jq git-extras tmux cmake python3-dev python-dev
+  echo "Installing packages ..."
+  # general
+  sudo apt-get install -y zip ubuntu-restricted-extras unzip rar git vim vim-gnome zsh git-core indicator-multiload
+  sudo apt-get install -y bison curl make binutils gcc build-essential xclip silversearcher-ag spotify-client asciinema
+  sudo apt-get install -y jq git-extras tmux
+
+  # docker
+  sudo apt-get install -y apt-transport-https ca-certificates software-properties-common
+
+  # vim
+  sudo apt-get install -y cmake python3-dev python-dev exuberant-ctags mercurial libmagic-dev
+
+  # alacritty
+  sudo apt-get install -y libfreetype6-dev libfontconfig1-dev
+
+  # others
   sudo apt-get install -y --allow-unauthenticated spotify-client
+    
   echo ""
 }
 
@@ -38,12 +51,17 @@ function install_RUST {
   # Install Rust
   echo "Installing Rust"
   curl https://sh.rustup.rs -sSf | sh
+  echo ""
 
   # https://github.com/BurntSushi/ripgrep
   # https://github.com/sharkdp/fd
   # https://github.com/sharkdp/bat
   # https://github.com/dalance/amber
   cargo install ripgrep fd-find bat amber
+  cargo install --git https://github.com/jwilm/alacritty
+  link "$DOTFILES_DIR/alacritty/alacritty.yml" "$XDG_CONFIG_HOME/alacritty.yml"
+  # is 60 enough ?
+  sudo update-alternatives --install $(which x-terminal-emulator) x-terminal-emulator $(which alacritty) 60
 
   echo ""
 }

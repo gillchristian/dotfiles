@@ -32,3 +32,6 @@ export DEPOT_TOOLS="$HOME/dev/depot_tools"
 export PATH="$GO_BIN:$CADDY:$MY_BIN:$YARN:$CARGO:$DEPOT_TOOLS:$PATH"
 
 export JAVA_HOME="/usr/lib/jvm/java-8-oracle"
+
+# xdg config
+export XDG_CONFIG_HOME="$HOME/.config"
