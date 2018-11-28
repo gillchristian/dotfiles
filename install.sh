@@ -177,6 +177,10 @@ function install_DOCKER {
   echo ""
 }
 
+function install_TMUX {
+  link "$DOTFILES_DIR/tmux/tmux.conf" "$HOME/.tmux.conf"
+}
+
 
 function install_CONFIG {
   install_ZSH
@@ -196,6 +200,8 @@ function install_CONFIG {
   install_HASKELL
 
   install_DOCKER
+
+  install_TMUX
 }
 
 function main {
