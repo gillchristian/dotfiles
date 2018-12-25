@@ -24,3 +24,6 @@ alias docker-purge='docker rmi $(docker images | grep "^<none>" | awk "{print $3
 # screw pagination
 alias bat='bat --paging=never --theme=Monokai\ Extended\ Bright'
 alias batjs='bat -l js' # doesn't support ts so I use JS for that
+
+# standup - show in screen and copy
+alias standup='td standup | tee /dev/tty | c'

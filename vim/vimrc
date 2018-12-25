@@ -59,6 +59,8 @@ filetype plugin indent on
 
   " ---------- languages ----------
 
+  " Jenkinsfile
+  Plug 'thanethomson/vim-jenkinsfile'
   " Markdown
   Plug 'shime/vim-livedown'
 
@@ -86,6 +88,8 @@ filetype plugin indent on
   " Haskell
   Plug 'neovimhaskell/haskell-vim'
   Plug 'begriffs/haskell-vim-now'
+  Plug 'eagletmt/ghcmod-vim'
+  Plug 'eagletmt/neco-ghc'
 
   " Rust
   Plug 'rust-lang/rust.vim'
@@ -256,7 +260,7 @@ filetype plugin indent on
         \   'ruby' : ['.', '::'],
         \   'lua' : ['.', ':'],
         \   'erlang' : [':'],
-        \   'haskell' : ['.', 're!.']
+        \   'haskell' : ['.']
         \ }
   " }}}
 
@@ -282,22 +286,64 @@ filetype plugin indent on
     set statusline+=%#warningmsg#
     set statusline+=%*
 
+    " IDE
+
+    " ale error & warning icons
+    let g:ale_sign_error = '⤫'
+    let g:ale_sign_warning = '⚠'
+    " enable integration with airline
+    let g:airline#extensions#ale#enabled = 1
+
+    autocmd FileType typescript,go,elm,haskell,rust nnoremap <buffer> <leader>? :call ale#cursor#ShowCursorDetail()<cr>
+    autocmd FileType typescript,go,elm,haskell,rust nnoremap <buffer> <leader>t YcmCompleter GetType
+
+    " TODO: 'haskell': ['ghc', 'hlint', 'hdevtools', 'ghc-mod'],
+    let g:ale_linters ={
+        \   'haskell': ['stack-ghc', 'hdevtools', 'stack-ghc-mod', 'hlint'],
+        \   'go': ['gometalinter'],
+        \   'typescript': ['tslint'],
+        \}
+
+    let b:ale_fixers = {
+        \   'elm': ['elm-format'],
+        \   'javascript': ['prettier'],
+        \   'typescript': ['prettier'],
+        \   'haskell': ['hfmt'],
+        \   'go': ['gofmt', 'goimports'],
+        \}
+    let g:ale_fix_on_save = 1
+
     " Javascript
 
     " Typescript
     let g:tsuquyomi_disable_quickfix = 1
     let g:typescript_indent_disable = 1 " @link https://github.com/leafgarland/typescript-vim#indenting
 
-    autocmd FileType typescript nmap <buffer> <leader>r <Plug>(TsuquyomiRenameSymbol)
-    autocmd FileType typescript nmap <buffer> <leader>R <Plug>(TsuquyomiRenameSymbolC)
-    autocmd FileType typescript nmap <buffer> <leader>f <Plug>(TsuTypeDefinition)
-    autocmd FileType typescript nmap <buffer> <leader>t <Plug>(YcmCompleter GetType)
+    autocmd FileType typescript nnoremap <buffer> <leader>r <Plug>(TsuquyomiRenameSymbol)
+    autocmd FileType typescript nnoremap <buffer> <leader>R <Plug>(TsuquyomiRenameSymbolC)
 
     " Go
-    autocmd FileType go nmap <buffer> <leader>r <Plug>(GoRename)
-    autocmd FileType go nmap <buffer> <leader>t <Plug>(YcmCompleter GetType)
-    autocmd FileType go nmap <buffer> <leader>p <Plug>(GoFmt)
 
+    " syntax highlight
+    let g:go_highlight_build_constraints = 1
+    let g:go_highlight_extra_types = 1
+    let g:go_highlight_fields = 1
+    let g:go_highlight_functions = 1
+    let g:go_highlight_methods = 1
+    let g:go_highlight_operators = 1
+    let g:go_highlight_structs = 1
+    let g:go_highlight_types = 1
+    let g:go_auto_sameids = 1
+    " goimports on save
+    let g:go_fmt_command = "goimports"
+    " show types under cursor
+    let g:go_auto_type_info = 1
+
+    " add tags (i.e. json) :GoAddTags
+    let g:go_addtags_transform = "camelcase"
+
+    autocmd FileType go nmap <buffer> <leader>r <Plug>(GoRename)
+    autocmd FileType go nmap <buffer> <leader>p <Plug>(GoFmt)
 
     " elm
     let g:elm_format_autosave = 1
@@ -365,6 +411,13 @@ filetype plugin indent on
   " the browser to use
   let g:livedown_browser = "chrome"
   " vim-livedown }}}
+
+  " Haskell
+  nnoremap <Leader>ht :GhcModType<cr>
+  nnoremap <Leader>htc :GhcModTypeClear<cr>
+
+  let g:haskellmode_completion_ghc = 0
+  autocmd FileType haskell setlocal omnifunc=necoghc#omnifunc
 
   " others
     let g:netrw_browsex_viewer= "xdg-open"

@@ -28,8 +28,11 @@ export CARGO="$HOME/.cargo/bin"
 # depot_tools
 export DEPOT_TOOLS="$HOME/dev/depot_tools"
 
+# deno
+export DENO="/home/gillchristian/.deno/bin"
+
 # add stuff to PATH
-export PATH="$GO_BIN:$CADDY:$MY_BIN:$YARN:$CARGO:$DEPOT_TOOLS:$PATH"
+export PATH="$GO_BIN:$CADDY:$MY_BIN:$YARN:$CARGO:$DEPOT_TOOLS:$DENO:$PATH"
 
 export JAVA_HOME="/usr/lib/jvm/java-8-oracle"
 

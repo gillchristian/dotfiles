@@ -6,8 +6,8 @@ source "$DOTFILES_DIR/helpers.sh"
 
 function install_NODE_ENV {
   echo "Installing node, nvm & yarn"
-  nvm install 8.9.4
-  nvm alias default 8.9.4
+  nvm install 10
+  nvm alias default 10
   curl -o- -L https://yarnpkg.com/install.sh | bash
   # yarn adds itself to the $PATH when being installed
   # but yarn path is already exported in ~/.zsh/exports.zsh
@@ -36,7 +36,7 @@ function install_VIM_PLUGINS {
     echo ""
 
     echo "Installing vim-elm dependencies"
-    yarn global add elm elm-test elm-oracle elm-format
+    yarn global add elm elm-test elm-oracle elm-format create-elm-app
     echo ""
 
     echo "Installing nerd-fonts"
@@ -48,7 +48,7 @@ function install_VIM_PLUGINS {
 
     # TODO: move this from here, it's not vim related
     echo "Installing other programs from npm"
-    yarn global add tldr npm-ls-scripts
+    yarn global add tldr npm-ls-scripts bs-platform serve fast-cli diff-so-fancy create-react-app
     echo ""
 
     echo "Installing vim-go dependencies"
