@@ -48,7 +48,7 @@ function install_VIM_PLUGINS {
 
     # TODO: move this from here, it's not vim related
     echo "Installing other programs from npm"
-    yarn global add tldr npm-ls-scripts bs-platform serve fast-cli diff-so-fancy create-react-app
+    yarn global add npm-ls-scripts bs-platform serve diff-so-fancy
     echo ""
 
     echo "Installing vim-go dependencies"

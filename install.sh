@@ -83,10 +83,6 @@ function install_GOLANG {
   export GO_BIN="$GOPATH/bin:/usr/local/go/bin"
 
   goinstall "Find Unleashed" github.com/kbrgl/fu
-  goinstall the_platinum_searcher github.com/monochromegane/the_platinum_searcher/...
-  goinstall hub github.com/github/hub
-  goinstall lazygit github.com/jesseduffield/lazygit
-  goinstall gocloc github.com/hhatto/gocloc/cmd/gocloc
   goinstall gocode github.com/mdempsky/gocode
 
   # only install td if fetching todos-data is succesful
