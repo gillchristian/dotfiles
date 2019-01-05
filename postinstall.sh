@@ -60,7 +60,7 @@ function install_VIM_PLUGINS {
 }
 
 function main {
-  install_NODE_ENV
+  # install_NODE_ENV
 
   install_VIM_PLUGINS
  

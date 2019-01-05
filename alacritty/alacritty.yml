@@ -1,5 +1,6 @@
 env:
   TERM: xterm-256color
+  WINIT_HIDPI_FACTOR: 1
 
 window:
   dimensions:
@@ -22,23 +23,23 @@ scrolling:
 
 font:
   normal:
-    family: Go Mono Nerd Font
+    # family: "Fura Code Nerd Font"
+    family: "Go Mono Nerd Font" 
     style: Regular
   bold:
-    family: Go Mono Nerd Font
+    family: "Go Mono Nerd Font"
     style: Bold
   italic:
-    family: Go Mono Nerd Font
+    family: "Go Mono Nerd Font"
     style: Italic
 
-  size: 8.0
+  size: 14.0
   offset:
     x: 0
     y: 0
   glyph_offset:
     x: 0
     y: 0
-  scale_with_dpi: true
   use_thin_strokes: false
 
 render_timer: false

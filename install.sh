@@ -8,33 +8,26 @@ source "$DOTFILES_DIR/helpers.sh"
 function install_PACKAGES {
   echo "Updating packages repository"
 
-  # spotify repository
-  sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys BBEBDCB318AD50EC6865090613B00F1FD2C19886 0DF731E45CE24F27EEEB1450EFDC8610341D9410
-  echo deb http://repository.spotify.com stable non-free | sudo tee /etc/apt/sources.list.d/spotify.list
-
   # vim 8 repository
   sudo add-apt-repository -y ppa:jonathonf/vim
 
-  sudo apt-get update
+  sudo apt update
   echo ""
 
   echo "Installing packages ..."
   # general
-  sudo apt-get install -y zip ubuntu-restricted-extras unzip rar git vim vim-gnome zsh git-core indicator-multiload
-  sudo apt-get install -y bison curl make binutils gcc build-essential xclip silversearcher-ag spotify-client asciinema
-  sudo apt-get install -y jq git-extras tmux
+  sudo apt install -y zip ubuntu-restricted-extras unzip rar git vim vim-gnome zsh git-core indicator-multiload
+  sudo apt install -y bison curl make binutils gcc build-essential xclip silversearcher-ag asciinema
+  sudo apt install -y jq git-extras tmux
 
   # docker
-  sudo apt-get install -y apt-transport-https ca-certificates software-properties-common
+  sudo apt install -y apt-transport-https ca-certificates software-properties-common
 
   # vim
-  sudo apt-get install -y cmake python3-dev python-dev exuberant-ctags mercurial libmagic-dev
+  sudo apt install -y cmake python3-dev python-dev exuberant-ctags mercurial libmagic-dev
 
   # alacritty
-  sudo apt-get install -y libfreetype6-dev libfontconfig1-dev
-
-  # others
-  sudo apt-get install -y --allow-unauthenticated spotify-client
+  sudo apt install -y libfreetype6-dev libfontconfig1-dev
     
   echo ""
 }
@@ -151,7 +144,7 @@ function install_DOCKER_COMPOSE {
 
 function install_DOCKER {
   echo "Installing Docker"
-  sudo apt-get remove docker docker-engine docker.io
+  sudo apt remove docker docker-engine docker.io
   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
   echo "Verifying fingerprint"
   sudo apt-key fingerprint 0EBFCD88
@@ -159,8 +152,8 @@ function install_DOCKER {
     "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
     $(lsb_release -cs) \
     stable"
-  sudo apt-get update
-  sudo apt-get install docker-ce
+  sudo apt update
+  sudo apt install docker-ce
   echo "Verifying Docker installation"
   sudo docker run hello-world
   sudo groupadd docker
@@ -206,4 +199,4 @@ function main {
   install_CONFIG
 }
 
-main
+install_RUST
