@@ -4,7 +4,6 @@ robbyrussell/oh-my-zsh path:lib
 # Oh-my-zsh plugins
 robbyrussell/oh-my-zsh path:plugins/git
 robbyrussell/oh-my-zsh path:plugins/node
-robbyrussell/oh-my-zsh path:plugins/npm
 robbyrussell/oh-my-zsh path:plugins/safe-paste
 robbyrussell/oh-my-zsh path:plugins/pip
 robbyrussell/oh-my-zsh path:plugins/command-not-found

@@ -1,0 +1,13 @@
+# This is the implicit global project's config file, which is only used when
+# 'stack' is run outside of a real project.  Settings here do _not_ act as
+# defaults for all projects.  To change stack's default settings, edit
+# '/home/gillchristian/.stack/config.yaml' instead.
+#
+# For more information about stack's configuration, see
+# http://docs.haskellstack.org/en/stable/yaml_configuration/
+#
+packages: []
+resolver: lts-13.2
+extra-deps:
+  - hindent-5.2.7@sha256:35a1883948d2a2d9b663630d0e5c33fcb303149ac0b1f42a59f5e8fbc88b31e5
+  - stylish-haskell-0.9.2.1@sha256:9d4257c983b7d717c833b8d0c53c4e7b749ae24d102c640fbe8b3a8e7cd357ec

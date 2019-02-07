@@ -7,7 +7,7 @@ bindkey '^[[B' history-substring-search-down
 export DOTFILES_DIR="$HOME/dev/dotfiles"
 
 # Dir colors
-eval $(dircolors -b $HOME/.dircolors)
+# eval $(dircolors -b $HOME/.dircolors)
 
 # Source all the configs
 source ~/.zsh/sources.zsh

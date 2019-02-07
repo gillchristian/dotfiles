@@ -11,7 +11,6 @@ filetype plugin indent on
   Plug 'scrooloose/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind'] } | Plug 'Xuyuanp/nerdtree-git-plugin'
   Plug 'vim-airline/vim-airline'
   Plug 'airblade/vim-gitgutter'
-  Plug 'chrisbra/Colorizer', { 'on': 'ColorHighlight' }
 
   " Themes
   Plug 'morhetz/gruvbox'
@@ -39,23 +38,14 @@ filetype plugin indent on
   Plug 'ervandew/supertab'
   Plug 'bkad/CamelCaseMotion'
 
-  " start screen
-  Plug 'mhinz/vim-startify'
-
   " IDE (autocomplete & others)
   Plug 'Valloric/YouCompleteMe'
   Plug 'ternjs/tern_for_vim'
-  Plug 'SirVer/ultisnips'
   Plug 'editorconfig/editorconfig-vim'
-  Plug 'dbeniamine/cheat.sh-vim'
 
-  " ????
   Plug 'majutsushi/tagbar'
   Plug 'AndrewRadev/linediff.vim', {'on': 'Linediff'}
-  Plug 'Shougo/vimproc.vim', {'do' : 'make'}
-  Plug 'vim-scripts/loremipsum', {'on': 'Loremipsum'}
-  Plug 'tpope/vim-fugitive'
-  Plug 'mileszs/ack.vim'
+  Plug 'Shougo/vimproc.vim', {'do' : 'make'} " should I remove it?
 
   " ---------- languages ----------
 
@@ -65,7 +55,7 @@ filetype plugin indent on
   Plug 'shime/vim-livedown'
 
   " Golang
-  Plug 'fatih/vim-go'
+  Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
   Plug 'nsf/gocode', { 'rtp': 'vim', 'do': '~/.vim/bundle/gocode/vim/symlink.sh' }
 
   " Elm
@@ -79,17 +69,12 @@ filetype plugin indent on
   Plug 'mxw/vim-jsx'
   Plug 'HerringtonDarkholme/yats.vim'
   Plug 'Quramy/tsuquyomi'
-  Plug 'flowtype/vim-flow', {'autoload': {'filetypes': 'javascript'}}
   Plug 'fleischie/vim-styled-components'
-  Plug 'Quramy/vim-js-pretty-template'
-  Plug 'leafgarland/typescript-vim'
   Plug 'jxnblk/vim-mdx-js'
 
   " Haskell
   Plug 'neovimhaskell/haskell-vim'
-  Plug 'begriffs/haskell-vim-now'
-  Plug 'eagletmt/ghcmod-vim'
-  Plug 'eagletmt/neco-ghc'
+  " Plug 'eagletmt/ghcmod-vim'
 
   " Rust
   Plug 'rust-lang/rust.vim'
@@ -99,8 +84,6 @@ filetype plugin indent on
 
   " GN files
   Plug 'ngg/vim-gn'
-
-  " -------------------------------
 
   " Icons (must be the last one)
   Plug 'ryanoasis/vim-devicons'
@@ -120,7 +103,7 @@ filetype plugin indent on
     set number   
     set showcmd
     set showtabline=2
-    set textwidth=120
+    set textwidth=80
     set wildmenu
     set nowrap
     set mouse+=a
@@ -146,7 +129,7 @@ filetype plugin indent on
     set diffopt+=vertical
     set formatoptions=cqj
     set nohidden
-    set ignorecase
+    " set ignorecase
     set modeline
     set splitright
     set completeopt-=preview
@@ -166,7 +149,6 @@ filetype plugin indent on
     vnoremap M %
 
     " Insert mode
-    inoremap jk <esc>
     inoremap <c-o> <esc>O
 
     " Save
@@ -176,8 +158,6 @@ filetype plugin indent on
     " Easier command history navigation
     cnoremap <c-p> <up>
     cnoremap <c-n> <down>
-
-    nnoremap <silent> cof :call ToggleFoldMethod()<cr>
 
     " Hide searched items
     nnoremap <silent> <c-h> :nohl<cr>
@@ -193,8 +173,9 @@ filetype plugin indent on
     let maplocalleader = ','
 
     " C: Copy {{{
-      " cf: copy filename / path to clipboard
+      " cf: copy filename to clipboard
       nnoremap <silent> <leader>cf :let @+=expand('%:tfoo')<cr>
+      " cp: copy path to clipboard
       nnoremap <silent> <leader>cp :let @+= expand("%:p")<cr> 
       " cl: copy filename:linenumber to clipboard
       nnoremap <silent> <leader>cl :let @+=join([expand('%:tfoo'), line(".")], ":")<cr>
@@ -207,14 +188,12 @@ filetype plugin indent on
     " }}}
     " }}}
     " Q: Quickfix {{{
-      vnoremap <leader>q "zy :tabe<cr>:Ack '<c-r>z'<cr>
       nnoremap <leader>qc :cclose<cr>
     " }}}
     " T: Tabs {{{
       nnoremap <silent> <leader>to :tabonly<cr>
       nnoremap <silent> <leader>tp :tabm -1<cr>
       nnoremap <silent> <leader>tn :tabm +1<cr>
-      nnoremap <silent> <leader>tr :call TabCloseRight()<cr>
     " }}}
     " V: Vim {{{
       nnoremap <leader>vv :tabe $MYVIMRC<cr>
@@ -236,36 +215,24 @@ filetype plugin indent on
   let g:ackprg = 'ag --vimgrep'
   autocmd FileType javascript hi link jsObjectKey GruvboxFg3 
   autocmd FileType javascript hi link jsFuncCall Constant
-  " Colorizer
-    let g:colorizer_auto_filetype='scss,css,html,ts,js,tsx,re' " doesn't work for some reason
-    nnoremap <silent> <Leader>h :ColorHighlight<cr>
-
-  " vim-easy-align {{{
-    xmap ga <Plug>(EasyAlign)
-    nmap ga <Plug>(EasyAlign)
-  " vim-easy-align }}}
   " YCM {{{
     let g:ycm_server_python_interpreter = '/usr/bin/python'
 
     let g:ycm_semantic_triggers =  {
         \   'c' : ['->', '.'],
-        \   'objc' : ['->', '.'],
-        \   'ocaml' : ['.', '#'],
+        \   'ocaml,reason' : ['.', '#'],
         \   'cpp,objcpp' : ['->', '.', '::'],
-        \   'perl' : ['->'],
-        \   'php' : ['->', '::', '"', "'", 'use ', 'namespace ', '\'],
-        \   'elm,cs,java,javascript,typescript,d,python,perl6,scala,vb,elixir,go' : ['.'],
+        \   'd,python,perl6,scala,vb,elixir,go,haskell' : ['.'],
+        \   'elm,cs,java,javascript,typescript' : ['.'],
         \   'html': ['<', '"', '</', ' '],
         \   'vim' : ['re![_a-za-z]+[_\w]*\.'],
-        \   'ruby' : ['.', '::'],
         \   'lua' : ['.', ':'],
-        \   'erlang' : [':'],
-        \   'haskell' : ['.']
+        \   'erlang' : [':']
         \ }
   " }}}
 
   " airline {{{
-    " this is for devicons
+    " devicons
     let g:airline_powerline_fonts = 1
   " }}}
 
@@ -274,17 +241,7 @@ filetype plugin indent on
     let g:ycm_key_list_select_completion = ['<C-n>', '<Down>']
     let g:ycm_key_list_previous_completion = ['<C-p>', '<Up>']
     let g:SuperTabDefaultCompletionType = '<C-n>'
-
-    " better key bindings for UltiSnipsExpandTrigger
-    let g:UltiSnipsExpandTrigger = "<tab>"
-    let g:UltiSnipsJumpForwardTrigger = "<tab>"
-    let g:UltiSnipsJumpBackwardTrigger = "<s-tab>"
   " }}}
-
-  " asdf (this used to be Syntastic but I removed it and there's still some config here lol) {{{
-  "
-    set statusline+=%#warningmsg#
-    set statusline+=%*
 
     " IDE
 
@@ -295,11 +252,11 @@ filetype plugin indent on
     let g:airline#extensions#ale#enabled = 1
 
     autocmd FileType typescript,go,elm,haskell,rust nnoremap <buffer> <leader>? :call ale#cursor#ShowCursorDetail()<cr>
-    autocmd FileType typescript,go,elm,haskell,rust nnoremap <buffer> <leader>t YcmCompleter GetType
+    " autocmd FileType typescript,go,elm,haskell,rust nnoremap <buffer> <leader>t <Plug>(YcmCompleter GetType)
 
     " TODO: 'haskell': ['ghc', 'hlint', 'hdevtools', 'ghc-mod'],
     let g:ale_linters ={
-        \   'haskell': ['stack-ghc', 'hdevtools', 'stack-ghc-mod', 'hlint'],
+        \   'haskell': ['stack-ghc', 'hlint'],
         \   'go': ['gometalinter'],
         \   'typescript': ['tslint'],
         \}
@@ -313,14 +270,12 @@ filetype plugin indent on
         \}
     let g:ale_fix_on_save = 1
 
-    " Javascript
-
     " Typescript
     let g:tsuquyomi_disable_quickfix = 1
     let g:typescript_indent_disable = 1 " @link https://github.com/leafgarland/typescript-vim#indenting
 
-    autocmd FileType typescript nnoremap <buffer> <leader>r <Plug>(TsuquyomiRenameSymbol)
-    autocmd FileType typescript nnoremap <buffer> <leader>R <Plug>(TsuquyomiRenameSymbolC)
+    autocmd FileType typescript nnoremap <buffer> <leader>r :TsuquyomiRenameSymbol<cr>
+    autocmd FileType typescript nnoremap <buffer> <leader>R :TsuquyomiRenameSymbolC<cr>
 
     " Go
 
@@ -333,7 +288,7 @@ filetype plugin indent on
     let g:go_highlight_operators = 1
     let g:go_highlight_structs = 1
     let g:go_highlight_types = 1
-    let g:go_auto_sameids = 1
+    let g:go_auto_sameids = 0
     " goimports on save
     let g:go_fmt_command = "goimports"
     " show types under cursor
@@ -401,23 +356,36 @@ filetype plugin indent on
   " vim-livedown {{{
   " should markdown preview get shown automatically upon opening markdown buffer
   let g:livedown_autorun = 0
-
-  " should the browser window pop-up upon previewing
   let g:livedown_open = 1 
-
-  " the port on which Livedown server will run
   let g:livedown_port = 1337
-
-  " the browser to use
   let g:livedown_browser = "chrome"
   " vim-livedown }}}
 
   " Haskell
-  nnoremap <Leader>ht :GhcModType<cr>
-  nnoremap <Leader>htc :GhcModTypeClear<cr>
+  " nnoremap <Leader>ht :GhcModType<cr>
+  " nnoremap <Leader>htc :GhcModTypeClear<cr>
 
-  let g:haskellmode_completion_ghc = 0
-  autocmd FileType haskell setlocal omnifunc=necoghc#omnifunc
+  " let g:haskellmode_completion_ghc = 0
+  " autocmd FileType haskell setlocal omnifunc=necoghc#omnifunc
+  let g:ale_haskell_hlint_executable = 'stack'
+  let g:ale_haskell_hfmt_executable = 'stack'
+
+  let g:haskell_classic_highlighting = 1    " More normal highlighting
+  let g:haskell_enable_quantification = 1   " to enable highlighting of `forall`
+  let g:haskell_enable_recursivedo = 1      " to enable highlighting of `mdo` and `rec`
+  " let g:haskell_enable_arrowsyntax = 1      " to enable highlighting of `proc`
+  " let g:haskell_enable_pattern_synonyms = 1 " to enable highlighting of `pattern`
+  " let g:haskell_enable_typeroles = 1        " to enable highlighting of type roles
+  " let g:haskell_enable_static_pointers = 1  " to enable highlighting of `static`
+  " let g:haskell_backpack = 1                " to enable highlighting of backpack keywords
+  " let g:haskell_indent_disable = 1
+  let g:haskell_indent_if = 4
+  let g:haskell_indent_case = 4
+  let g:haskell_indent_let = 4
+  let g:haskell_indent_before_where = 2
+  let g:haskell_indent_after_bare_where = 2
+  let g:haskell_indent_in = 1
+  let g:haskell_indent_guard = 4
 
   " others
     let g:netrw_browsex_viewer= "xdg-open"
@@ -429,30 +397,3 @@ filetype plugin indent on
   let g:gruvbox_italic=1
   colorscheme gruvbox
 " }}}
-
-" FUNCTIONS {{{
-  function! TabCloseRight()
-    let cur=tabpagenr()
-    while cur < tabpagenr('$')
-      exe 'tabclose' . (cur + 1)
-    endwhile
-  endfunction
-
-  " Toggle between folding using manual and syntax methods
-  function! ToggleFoldMethod()
-    let l:isManual = &foldmethod ==# 'manual'
-    
-    if l:isManual
-      setlocal foldmethod=syntax
-    else
-      let l:position = getpos('.')
-
-      setlocal foldmethod=manual
-      " Remove all folds
-      normal ggVGzD
-
-      call setpos('.', l:position)
-    endif
-
-  endfunction
-" FUNCTIONS }}}

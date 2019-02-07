@@ -23,14 +23,14 @@ scrolling:
 
 font:
   normal:
-    # family: "Fura Code Nerd Font"
-    family: "Go Mono Nerd Font" 
+    # family: "Go Mono Nerd Font"
+    family: "Fura Code Nerd Font"
     style: Regular
   bold:
-    family: "Go Mono Nerd Font"
+    family: "Fura Code Nerd Font"
     style: Bold
   italic:
-    family: "Go Mono Nerd Font"
+    family: "Fura Code Nerd Font"
     style: Italic
 
   size: 14.0
