@@ -6,18 +6,16 @@ bindkey '^[[B' history-substring-search-down
 
 export DOTFILES_DIR="$HOME/dev/dotfiles"
 
-# Dir colors
-# eval $(dircolors -b $HOME/.dircolors)
-
 # Source all the configs
-source ~/.zsh/sources.zsh
 source ~/.zsh/aliases.zsh
 source ~/.zsh/functions.zsh
 source ~/.zsh/exports.zsh
 source ~/.zsh/hooks.zsh
 
+export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+eval `fnm env`
 
 setxkbmap -option ctrl:nocaps

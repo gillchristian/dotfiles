@@ -31,11 +31,14 @@ export DEPOT_TOOLS="$HOME/dev/depot_tools"
 # deno
 export DENO="$HOME/.deno/bin"
 
+# fnm
+export FNM_PATH="$HOME/.fnm"
+
 # .local/bin
 LOCAL_BIN="$HOME/.local/bin"
 
 # add stuff to PATH
-export PATH="$GO_BIN:$CADDY:$MY_BIN:$YARN:$CARGO:$DEPOT_TOOLS:$DENO:$LOCAL_BIN:$PATH"
+export PATH="$FNM_PATH:$GO_BIN:$CADDY:$MY_BIN:$YARN:$CARGO:$DEPOT_TOOLS:$DENO:$LOCAL_BIN:$PATH"
 
 export JAVA_HOME="/usr/lib/jvm/java-8-oracle"
 

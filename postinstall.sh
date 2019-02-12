@@ -6,10 +6,16 @@ source "$DOTFILES_DIR/helpers.sh"
 
 function install_NODE_ENV {
   echo "Installing node, nvm & yarn"
-  # TODO: this doesn't work (nvm is not defined)
-  nvm install 10
-  nvm alias default 10
+  curl https://raw.githubusercontent.com/Schniz/fnm/master/.ci/install.sh | bash
+
   curl -o- -L https://yarnpkg.com/install.sh | bash
+
+  export PATH=$HOME/.fnm:$PATH
+  eval `fnm env`
+
+  fnm install 10.15.1
+  fnm use 10.15.1
+
   # yarn adds itself to the $PATH when being installed
   # but yarn path is already exported in ~/.zsh/exports.zsh
   # the following line removes that from ~/.zshrc
