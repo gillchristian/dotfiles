@@ -28,6 +28,9 @@ function install_PACKAGES {
 
   # alacritty
   sudo apt install -y libfreetype6-dev libfontconfig1-dev
+
+  # minikube
+  sudo apt install libvirt-clients libvirt-daemon-system qemu-kvm
     
   echo ""
 }
@@ -68,6 +71,13 @@ function install_ZSH {
     chsh -s $(which zsh)
   fi
   echo ""
+}
+
+function install_ERLANG {
+  wget -O- https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc | sudo apt-key add -
+  echo "deb https://packages.erlang-solutions.com/ubuntu bionic contrib" | sudo tee /etc/apt/sources.list.d/rabbitmq.list
+  sudo apt update
+  sudo apt -y install erlang
 }
 
 function main {

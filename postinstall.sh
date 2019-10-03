@@ -92,7 +92,8 @@ function install_RUST {
   # https://github.com/sharkdp/fd
   # https://github.com/sharkdp/bat
   # https://github.com/dalance/amber
-  cargo install ripgrep fd-find bat amber
+  # https://github.com/brigand/glint
+  cargo install ripgrep fd-find bat amber glint
   cargo install --git https://github.com/jwilm/alacritty
   link "$DOTFILES_DIR/alacritty/alacritty.yml" "$XDG_CONFIG_HOME/alacritty.yml"
   # is 60 enough ?
@@ -174,6 +175,43 @@ function install_ANTIBODY {
   echo ""
 }
 
+function install_K8S {
+  curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+  echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
+  sudo apt-get update
+  sudo apt-get install -y kubectl
+}
+
+function install_GCLOUD {
+  # @link https://cloud.google.com/sdk/docs/quickstart-debian-ubuntu
+
+  export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)"
+  echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+  curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+  sudo apt-get update && sudo apt-get install google-cloud-sdk
+}
+
+function install_MINIKUBE {
+  # https://github.com/kubernetes/minikube/blob/master/docs/drivers.md#kvm2-driver
+  sudo systemctl enable libvirtd.service
+  sudo systemctl start libvirtd.service
+  sudo systemctl status libvirtd.service
+
+  sudo usermod -a -G libvirt $(whoami)
+
+  newgrp libvirt
+
+  curl -LO https://storage.googleapis.com/minikube/releases/latest/docker-machine-driver-kvm2
+  sudo install docker-machine-driver-kvm2 /usr/local/bin/
+
+  # https://github.com/kubernetes/minikube#installation
+
+  curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+  sudo install minikube-linux-amd64 /usr/local/bin/minikube
+
+  minikube config set vm-driver kvm2
+}
+
 function main {
   install_NODE_ENV
 
@@ -186,6 +224,12 @@ function main {
   install_DOCKER
 
   install_RUST
+
+  install_K8S
+
+  install_MINIKUBE
+
+  install_GCLOUD
  
   # after calling sed to remove something from the
   # file that is symlinked the symlink gets broken

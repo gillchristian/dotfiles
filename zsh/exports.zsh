@@ -1,9 +1,8 @@
 # Configure spaceship
-export SPACESHIP_KUBECONTEXT_SHOW=false;
-export SPACESHIP_RUBY_SHOW=false;
-export SPACESHIP_CHAR_SYMBOL='$ ';
-export SPACESHIP_PROMPT_PREFIXES_SHOW=false;
-export SPACESHIP_PROMPT_DEFAULT_PREFIX=' ';
+export PURE_CMD_MAX_EXEC_TIME=1;
+export PURE_GIT_PULL=1;
+export PURE_GIT_UNTRACKED_DIRTY=1;
+export PURE_PROMPT_SYMBOL='$';
 
 # Editor
 export EDITOR=vim
@@ -12,6 +11,8 @@ export EDITOR=vim
 export GOPATH="$HOME/dev/go"
 
 export GO_BIN="$GOPATH/bin:/usr/local/go/bin"
+
+export GO111MODULE=on
 
 # Caddy
 export CADDY="$HOME/bin/caddy"
@@ -44,3 +45,5 @@ export JAVA_HOME="/usr/lib/jvm/java-8-oracle"
 
 # xdg config
 export XDG_CONFIG_HOME="$HOME/.config"
+
+export TERM=xterm-256color

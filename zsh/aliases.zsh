@@ -27,3 +27,9 @@ alias batjs='bat -l js' # doesn't support ts so I use JS for that
 
 # standup - show in screen and copy
 alias standup='td standup | tee /dev/tty | c'
+
+# list branches without `less`
+alias gbls='git branch --list | xargs -I{} echo {}'
+
+# better ls
+alias l='exa -la --group-directories-first --git'

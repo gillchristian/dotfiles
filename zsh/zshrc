@@ -18,4 +18,19 @@ export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 
 eval `fnm env`
 
-setxkbmap -option ctrl:nocaps
+setxkbmap -option ctrl:nocaps # caps lock -> ctrl (for tmux)
+setxkbmap us altgr-intl       # altgr i18n-izes (e.g. n + altgr = ñ)
+
+function zle-line-init zle-keymap-select {
+  PROMPT=`~/dev/purs/target/release/purs prompt -k "$KEYMAP" -r "$?" --venv "${${VIRTUAL_ENV:t}%-*}"`
+  zle reset-prompt
+}
+zle -N zle-line-init
+zle -N zle-keymap-select
+
+autoload -Uz add-zsh-hook
+
+function _prompt_purs_precmd() {
+  ~/dev/purs/target/release/purs precmd
+}
+add-zsh-hook precmd _prompt_purs_precmd

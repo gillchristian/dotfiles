@@ -1,2 +1,2 @@
 # zsh on directoy change hook
-add-zsh-hook chpwd wkon;
+# add-zsh-hook chpwd wkon;

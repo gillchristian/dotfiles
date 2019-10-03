@@ -78,6 +78,10 @@ filetype plugin indent on
 
   " Rust
   Plug 'rust-lang/rust.vim'
+  Plug 'prabirshrestha/async.vim'
+  Plug 'prabirshrestha/vim-lsp'
+  Plug 'prabirshrestha/asyncomplete.vim'
+  Plug 'prabirshrestha/asyncomplete-lsp.vim'
 
   " ReasonML
   Plug 'reasonml-editor/vim-reason-plus'
@@ -99,18 +103,19 @@ filetype plugin indent on
     set foldcolumn=2
     set hlsearch
     set laststatus=2
-    set relativenumber 
-    set number   
+    set number relativenumber
+    " Show matching brackets when inserting
+    set showmatch
     set showcmd
     set showtabline=2
     set textwidth=80
-    set wildmenu
     set nowrap
     set mouse+=a
     if &term =~ '^tmux'
         " tmux knows the extended mouse mode
         set ttymouse=xterm2
     endif
+    set term=screen-256color
     set encoding=UTF-8
   " }}}
   " Indentation {{{
@@ -129,10 +134,36 @@ filetype plugin indent on
     set diffopt+=vertical
     set formatoptions=cqj
     set nohidden
+    " Keep at least 8 lines above or below the cursor
+    set scrolloff=5
     " set ignorecase
     set modeline
     set splitright
     set completeopt-=preview
+    " Wildmenu
+    set wildmenu
+    set wildmode=list:full
+  " }}}
+  " Colors {{{
+    set background=dark
+    set t_Co=256
+    let g:gruvbox_italic=1
+    colorscheme gruvbox
+
+    if has("termguicolors")
+      set termguicolors
+    endif
+
+    if has("nvim")
+      let $NVIM_TUI_ENABLE_TRUE_COLOR=1
+      set t_8f=u;%lu;%lum
+      set t_8b=u;%lu;%lum
+    else
+      let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+      let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+    endif
+
+    set fillchars+=vert:│
   " }}}
 " }}}
 
@@ -189,11 +220,6 @@ filetype plugin indent on
     " }}}
     " Q: Quickfix {{{
       nnoremap <leader>qc :cclose<cr>
-    " }}}
-    " T: Tabs {{{
-      nnoremap <silent> <leader>to :tabonly<cr>
-      nnoremap <silent> <leader>tp :tabm -1<cr>
-      nnoremap <silent> <leader>tn :tabm +1<cr>
     " }}}
     " V: Vim {{{
       nnoremap <leader>vv :tabe $MYVIMRC<cr>
@@ -265,10 +291,18 @@ filetype plugin indent on
         \   'elm': ['elm-format'],
         \   'javascript': ['prettier'],
         \   'typescript': ['prettier'],
-        \   'haskell': ['hfmt'],
         \   'go': ['gofmt', 'goimports'],
         \}
     let g:ale_fix_on_save = 1
+
+    " Rust
+    if executable('rls')
+      au User lsp_setup call lsp#register_server({
+          \ 'name': 'rls',
+          \ 'cmd': {server_info->['rustup', 'run', 'nightly', 'rls']},
+          \ 'whitelist': ['rust'],
+          \ })
+    endif 
 
     " Typescript
     let g:tsuquyomi_disable_quickfix = 1
@@ -364,6 +398,15 @@ filetype plugin indent on
   " Haskell
   " nnoremap <Leader>ht :GhcModType<cr>
   " nnoremap <Leader>htc :GhcModTypeClear<cr>
+  " Search for next top level def
+  nnoremap <buffer> ]] /^\(\w\+\)\s\+::\\|\(^\s\+\)::<cr>
+  nnoremap <buffer> [[ ?^\(\w\+\)\s\+::\\|\(^\s\+\)::<cr>
+  au User lsp_setup call lsp#register_server({
+    \ 'name': 'ghcide',
+    \ 'cmd': {server_info->['/home/gillchristian/.local/bin/ghcide', '--lsp']},
+    \ 'whitelist': ['haskell'],
+    \ })
+  nnoremap <leader>t :LspHover<cr>
 
   " let g:haskellmode_completion_ghc = 0
   " autocmd FileType haskell setlocal omnifunc=necoghc#omnifunc
@@ -389,11 +432,5 @@ filetype plugin indent on
 
   " others
     let g:netrw_browsex_viewer= "xdg-open"
-" }}}
-
-" COLORS {{{
-  set background=dark
-  set t_Co=256
-  let g:gruvbox_italic=1
-  colorscheme gruvbox
+    let g:move_key_modifier = 'C'
 " }}}
