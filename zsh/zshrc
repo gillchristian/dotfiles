@@ -1,28 +1,39 @@
-# load antibody plugins
+# ##############################################################################
+#                                                                              #
+# Load antibody plugins                                                        #
+#                                                                              #
+# Completion needs to load before some plugins                                 #
+#                                                                              #
+# By default 'compinit' checks ~/.zcompdump on every load.                     #
+# This changes it to use chage and only do the check once every day. Which     #
+# reduces the startup time significantly.                                      #
+#                                                                              #
+# From:  https://gist.github.com/ctechols/ca1035271ad134841284                 #
+# Addapted by:  https://carlosbecker.com/posts/speeding-up-zsh/                #
+#                                                                              #
+# ##############################################################################
+autoload -Uz compinit
+if [ $(date +'%j') != $(stat -f '%Sm' -t '%j' ~/.zcompdump) ]; then
+  compinit
+else
+  compinit -C
+fi
 source ~/.antibody_plugins.sh
+
+# clenup promp to not see the flash of oh-my-zsh prompt before Purs loads
+PROMPT=""
 
 bindkey '^[[A' history-substring-search-up
 bindkey '^[[B' history-substring-search-down
 
-export DOTFILES_DIR="$HOME/dev/dotfiles"
-
-# Source all the configs
-source ~/.zsh/aliases.zsh
-source ~/.zsh/functions.zsh
-source ~/.zsh/exports.zsh
-source ~/.zsh/hooks.zsh
-
-export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
-
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
-eval `fnm env`
-
-setxkbmap -option ctrl:nocaps # caps lock -> ctrl (for tmux)
-setxkbmap us altgr-intl       # altgr i18n-izes (e.g. n + altgr = ñ)
+# ################################################ #
+#                                                  #
+# Purs prompt (https://github.com/xcambar/purs)    #
+#                                                  #
+# ################################################ #
 
 function zle-line-init zle-keymap-select {
-  PROMPT=`~/dev/purs/target/release/purs prompt -k "$KEYMAP" -r "$?" --venv "${${VIRTUAL_ENV:t}%-*}"`
+  PROMPT=`purs prompt -k "$KEYMAP" -r "$?" --venv "${${VIRTUAL_ENV:t}%-*}"`
   zle reset-prompt
 }
 zle -N zle-line-init
@@ -31,6 +42,40 @@ zle -N zle-keymap-select
 autoload -Uz add-zsh-hook
 
 function _prompt_purs_precmd() {
-  ~/dev/purs/target/release/purs precmd
+  purs precmd
 }
 add-zsh-hook precmd _prompt_purs_precmd
+
+# ##################################################
+
+export DOTFILES_DIR="$HOME/dev/dotfiles"
+
+source ~/.zsh/aliases.zsh
+source ~/.zsh/functions.zsh
+source ~/.zsh/exports.zsh
+# Functions, aliases & exports that shouldn't be in Git
+if [ -f "$HOME/.zsh/private.zsh" ]; then source ~/.zsh/private.zsh; fi
+
+# ############################################################################ #
+#                                                                              #
+# Depdendencies configuration                                                  #
+#                                                                              #
+# Sadly some programs want to have stuff in ~/.zshrc                           #
+# (Instead of letting you place it in the file you want)                       #
+# This is the "safe" space for that \o/                                        #
+# Don't manually change anything after this line :)                            #
+#                                                                              #
+# ############################################################################ #
+
+# Load fnm
+eval "$(fnm env --multi)"
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f "$HOME/google-cloud-sdk/path.zsh.inc" ]; then . "$HOME/google-cloud-sdk/path.zsh.inc"; fi
+
+# BEGIN CW-CLI MANAGED BLOCK
+if [ -f /Users/cw0072/projects/cw-cli/.env ] ; then source /Users/cw0072/projects/cw-cli/.env ; fi
+# END CW-CLI MANAGED BLOCK
+
+# Load fzf
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

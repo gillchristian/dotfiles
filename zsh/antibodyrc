@@ -1,25 +1,13 @@
-# Oh-my-zsh lib files
+# Oh-my-zsh stuff
 robbyrussell/oh-my-zsh path:lib
 
-# Oh-my-zsh plugins
 robbyrussell/oh-my-zsh path:plugins/git
-robbyrussell/oh-my-zsh path:plugins/node
 robbyrussell/oh-my-zsh path:plugins/safe-paste
-robbyrussell/oh-my-zsh path:plugins/pip
-robbyrussell/oh-my-zsh path:plugins/command-not-found
-robbyrussell/oh-my-zsh path:plugins/ubuntu
-robbyrussell/oh-my-zsh path:plugins/yarn
 
-# Theme.
-# mafredri/zsh-async
-# sindresorhus/pure
-
-# moar plugins!!!
+# Other plugins
 zsh-users/zsh-autosuggestions
 zsh-users/zsh-syntax-highlighting
 zsh-users/zsh-history-substring-search
 rupa/z
 moondewio/git-infer kind:path
-moondewio/dir_alias
-# gillchristian/wkon
 thewtex/tmux-mem-cpu-load

@@ -29,16 +29,6 @@ function shrug {
 
 # ##################################################
 
-function lorem {
-	local lines=${1-10}; 
-	tr -dc a-z1-4 < /dev/urandom | tr 1-2 ' \n' | \
-    awk 'length==0 || length>50' | tr 3-4 ' ' | \
-    sed 's/^ *//' | cat -s | sed 's/ / /g' | \
-    fmt | head -n ${lines};
-}
-
-# ##################################################
-
 # replace, plz! \o/
 function rplz {
   rg -l -e $1 $3 | xargs sed -ri.bak -e "s/$1/$2/g"
@@ -75,7 +65,28 @@ function til {
 # ##################################################
 
 # bundle again all antibody plugins
-
 function antibody_bundle {
   antibody bundle < "$DOTFILES_DIR/zsh/antibodyrc" > ~/.antibody_plugins.sh
+}
+
+# ##################################################
+#                                                  #
+# LOADERS                                          #
+#                                                  #
+# You don't want to load these things eagerly if   #
+# you rarely use them.                             #
+# The faster zsh loads the better!                 #
+#                                                  #
+# ##################################################
+
+function load {
+  echo "Loading $1 ..."
+  case $1 in
+    nvm)
+      [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+      ;;
+    rbenv)
+      eval "$(rbenv init -)"
+      ;;
+  esac
 }

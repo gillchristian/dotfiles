@@ -20,9 +20,6 @@ export CADDY="$HOME/bin/caddy"
 # ~/bin 
 export MY_BIN="$HOME/bin"
 
-# yarn
-export YARN="$HOME/.yarn/bin"
-
 # rust's cargo
 export CARGO="$HOME/.cargo/bin"
 
@@ -38,8 +35,11 @@ export FNM_PATH="$HOME/.fnm"
 # .local/bin
 LOCAL_BIN="$HOME/.local/bin"
 
+# yarn
+export YARN_PATH_STUFF="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin"
+
 # add stuff to PATH
-export PATH="$FNM_PATH:$GO_BIN:$CADDY:$MY_BIN:$YARN:$CARGO:$DEPOT_TOOLS:$DENO:$LOCAL_BIN:$PATH"
+export PATH="$YARN_PATH_STUFF:$FNM_PATH:$GO_BIN:$CADDY:$MY_BIN:$YARN:$CARGO:$DEPOT_TOOLS:$DENO:$LOCAL_BIN:$PATH"
 
 export JAVA_HOME="/usr/lib/jvm/java-8-oracle"
 
@@ -47,3 +47,11 @@ export JAVA_HOME="/usr/lib/jvm/java-8-oracle"
 export XDG_CONFIG_HOME="$HOME/.config"
 
 export TERM=xterm-256color
+
+# locales
+export LANGUAGE=en_US.UTF-8
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+
+# NVM
+export NVM_DIR="$HOME/.config"

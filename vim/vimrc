@@ -8,7 +8,8 @@ filetype plugin indent on
   call plug#begin('~/.vim/bundle')
 
   " UI
-  Plug 'scrooloose/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind'] } | Plug 'Xuyuanp/nerdtree-git-plugin'
+  Plug 'scrooloose/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind'] } |
+    \ Plug 'Xuyuanp/nerdtree-git-plugin'
   Plug 'vim-airline/vim-airline'
   Plug 'airblade/vim-gitgutter'
 
@@ -16,48 +17,37 @@ filetype plugin indent on
   Plug 'morhetz/gruvbox'
 
   " Changing files
-  Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+  " Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+  Plug '/usr/local/opt/fzf'
 
   " Lint & format
   Plug 'w0rp/ale'
-  Plug 'prettier/vim-prettier', {'do': 'npm install', 
-                                \ 'for': ['javascript', 'typescript', 'css', 'less', 'scss', 'gql', 'md']}
 
   " Motion & edit
   Plug 'tpope/vim-commentary'
   Plug 'tpope/vim-repeat'
   Plug 'tpope/vim-surround'
   Plug 'tpope/vim-unimpaired'
-  Plug 'kana/vim-textobj-user' | Plug 'fvictorio/vim-textobj-backticks' |
-                               \ Plug 'glts/vim-textobj-comment' |
-                               \ Plug 'kana/vim-textobj-entire' |
-                               \ Plug 'kana/vim-textobj-fold' |
-                               \ Plug 'saaguero/vim-textobj-pastedtext'
+  Plug 'kana/vim-textobj-user' |
+    \ Plug 'fvictorio/vim-textobj-backticks' |
+    \ Plug 'glts/vim-textobj-comment' |
+    \ Plug 'kana/vim-textobj-entire' |
+    \ Plug 'kana/vim-textobj-fold' |
+    \ Plug 'saaguero/vim-textobj-pastedtext'
   Plug 'joequery/Stupid-EasyMotion'
   Plug 'terryma/vim-multiple-cursors'
   Plug 'ervandew/supertab'
   Plug 'bkad/CamelCaseMotion'
 
   " IDE (autocomplete & others)
-  Plug 'Valloric/YouCompleteMe'
-  Plug 'ternjs/tern_for_vim'
+  " Plug 'Valloric/YouCompleteMe'
+  " Plug 'ternjs/tern_for_vim'
   Plug 'editorconfig/editorconfig-vim'
 
   Plug 'majutsushi/tagbar'
-  Plug 'AndrewRadev/linediff.vim', {'on': 'Linediff'}
-  Plug 'Shougo/vimproc.vim', {'do' : 'make'} " should I remove it?
+  " Plug 'Shougo/vimproc.vim', {'do' : 'make'} " should I remove it?
 
   " ---------- languages ----------
-
-  " Jenkinsfile
-  Plug 'thanethomson/vim-jenkinsfile'
-  " Markdown
-  Plug 'shime/vim-livedown'
-
-  " Golang
-  Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
-  Plug 'nsf/gocode', { 'rtp': 'vim', 'do': '~/.vim/bundle/gocode/vim/symlink.sh' }
-
   " Elm
   Plug 'elmcast/elm-vim'
 
@@ -69,12 +59,10 @@ filetype plugin indent on
   Plug 'mxw/vim-jsx'
   Plug 'HerringtonDarkholme/yats.vim'
   Plug 'Quramy/tsuquyomi'
-  Plug 'fleischie/vim-styled-components'
   Plug 'jxnblk/vim-mdx-js'
 
   " Haskell
   Plug 'neovimhaskell/haskell-vim'
-  " Plug 'eagletmt/ghcmod-vim'
 
   " Rust
   Plug 'rust-lang/rust.vim'
@@ -85,9 +73,6 @@ filetype plugin indent on
 
   " ReasonML
   Plug 'reasonml-editor/vim-reason-plus'
-
-  " GN files
-  Plug 'ngg/vim-gn'
 
   " Icons (must be the last one)
   Plug 'ryanoasis/vim-devicons'
@@ -130,11 +115,12 @@ filetype plugin indent on
     set backspace=2
     set backupcopy=yes
     set confirm
-    set clipboard=unnamedplus
-    set diffopt+=vertical
+    set clipboard=unnamed
+    " set clipboard=unnamedplus " for Linux
+    " set diffopt+=vertical     " for linux
     set formatoptions=cqj
     set nohidden
-    " Keep at least 8 lines above or below the cursor
+    " Keep at least 5 lines above or below the cursor
     set scrolloff=5
     " set ignorecase
     set modeline
@@ -238,7 +224,6 @@ filetype plugin indent on
 " }}}
 
 " PLUGINS {{{
-  let g:ackprg = 'ag --vimgrep'
   autocmd FileType javascript hi link jsObjectKey GruvboxFg3 
   autocmd FileType javascript hi link jsFuncCall Constant
   " YCM {{{
@@ -262,11 +247,12 @@ filetype plugin indent on
     let g:airline_powerline_fonts = 1
   " }}}
 
+  " Not using UltiSnips now ---
   " Make YCM and UltiSnips work together {{{
     " make YCM compatible with UltiSnips (using supertab)
-    let g:ycm_key_list_select_completion = ['<C-n>', '<Down>']
-    let g:ycm_key_list_previous_completion = ['<C-p>', '<Up>']
-    let g:SuperTabDefaultCompletionType = '<C-n>'
+    " let g:ycm_key_list_select_completion = ['<C-n>', '<Down>']
+    " let g:ycm_key_list_previous_completion = ['<C-p>', '<Up>']
+    " let g:SuperTabDefaultCompletionType = '<C-n>'
   " }}}
 
     " IDE
@@ -278,13 +264,13 @@ filetype plugin indent on
     let g:airline#extensions#ale#enabled = 1
 
     autocmd FileType typescript,go,elm,haskell,rust nnoremap <buffer> <leader>? :call ale#cursor#ShowCursorDetail()<cr>
-    " autocmd FileType typescript,go,elm,haskell,rust nnoremap <buffer> <leader>t <Plug>(YcmCompleter GetType)
+    autocmd FileType typescript,go,elm,haskell,rust nnoremap <buffer> <leader>t <Plug>(YcmCompleter GetType)
 
     " TODO: 'haskell': ['ghc', 'hlint', 'hdevtools', 'ghc-mod'],
     let g:ale_linters ={
         \   'haskell': ['stack-ghc', 'hlint'],
         \   'go': ['gometalinter'],
-        \   'typescript': ['tslint'],
+        \   'typescript': ['tslint', 'eslint'],
         \}
 
     let b:ale_fixers = {
@@ -292,6 +278,7 @@ filetype plugin indent on
         \   'javascript': ['prettier'],
         \   'typescript': ['prettier'],
         \   'go': ['gofmt', 'goimports'],
+        \   'haskell': ['ormolu'],
         \}
     let g:ale_fix_on_save = 1
 
@@ -313,26 +300,11 @@ filetype plugin indent on
 
     " Go
 
-    " syntax highlight
-    let g:go_highlight_build_constraints = 1
-    let g:go_highlight_extra_types = 1
-    let g:go_highlight_fields = 1
-    let g:go_highlight_functions = 1
-    let g:go_highlight_methods = 1
-    let g:go_highlight_operators = 1
-    let g:go_highlight_structs = 1
-    let g:go_highlight_types = 1
-    let g:go_auto_sameids = 0
     " goimports on save
     let g:go_fmt_command = "goimports"
-    " show types under cursor
-    let g:go_auto_type_info = 1
 
     " add tags (i.e. json) :GoAddTags
     let g:go_addtags_transform = "camelcase"
-
-    autocmd FileType go nmap <buffer> <leader>r <Plug>(GoRename)
-    autocmd FileType go nmap <buffer> <leader>p <Plug>(GoFmt)
 
     " elm
     let g:elm_format_autosave = 1
@@ -383,32 +355,21 @@ filetype plugin indent on
     let g:jsx_ext_required = 0
   " vim-javascript }}}
 
-  " vim-prettier {{{
-    let g:prettier#exec_cmd_async = 1
-  " vim-prettier }}}
-
-  " vim-livedown {{{
-  " should markdown preview get shown automatically upon opening markdown buffer
-  let g:livedown_autorun = 0
-  let g:livedown_open = 1 
-  let g:livedown_port = 1337
-  let g:livedown_browser = "chrome"
-  " vim-livedown }}}
-
   " Haskell
   " nnoremap <Leader>ht :GhcModType<cr>
   " nnoremap <Leader>htc :GhcModTypeClear<cr>
   " Search for next top level def
   nnoremap <buffer> ]] /^\(\w\+\)\s\+::\\|\(^\s\+\)::<cr>
   nnoremap <buffer> [[ ?^\(\w\+\)\s\+::\\|\(^\s\+\)::<cr>
-  au User lsp_setup call lsp#register_server({
-    \ 'name': 'ghcide',
-    \ 'cmd': {server_info->['/home/gillchristian/.local/bin/ghcide', '--lsp']},
-    \ 'whitelist': ['haskell'],
-    \ })
-  nnoremap <leader>t :LspHover<cr>
+  " TODO: install ghcide !!!
+  " au User lsp_setup call lsp#register_server({
+  "   \ 'name': 'ghcide',
+  "   \ 'cmd': {server_info->['/home/gillchristian/.local/bin/ghcide', '--lsp']},
+  "   \ 'whitelist': ['haskell'],
+  "   \ })
+  " nnoremap <leader>t :LspHover<cr>
 
-  " let g:haskellmode_completion_ghc = 0
+  let g:haskellmode_completion_ghc = 1
   " autocmd FileType haskell setlocal omnifunc=necoghc#omnifunc
   let g:ale_haskell_hlint_executable = 'stack'
   let g:ale_haskell_hfmt_executable = 'stack'
@@ -416,19 +377,6 @@ filetype plugin indent on
   let g:haskell_classic_highlighting = 1    " More normal highlighting
   let g:haskell_enable_quantification = 1   " to enable highlighting of `forall`
   let g:haskell_enable_recursivedo = 1      " to enable highlighting of `mdo` and `rec`
-  " let g:haskell_enable_arrowsyntax = 1      " to enable highlighting of `proc`
-  " let g:haskell_enable_pattern_synonyms = 1 " to enable highlighting of `pattern`
-  " let g:haskell_enable_typeroles = 1        " to enable highlighting of type roles
-  " let g:haskell_enable_static_pointers = 1  " to enable highlighting of `static`
-  " let g:haskell_backpack = 1                " to enable highlighting of backpack keywords
-  " let g:haskell_indent_disable = 1
-  let g:haskell_indent_if = 4
-  let g:haskell_indent_case = 4
-  let g:haskell_indent_let = 4
-  let g:haskell_indent_before_where = 2
-  let g:haskell_indent_after_bare_where = 2
-  let g:haskell_indent_in = 1
-  let g:haskell_indent_guard = 4
 
   " others
     let g:netrw_browsex_viewer= "xdg-open"
