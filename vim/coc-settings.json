@@ -1,0 +1,6 @@
+{
+  "diagnostic.displayByAle": false,
+  "tsserver.ignoreLocalTsserver": true,
+  "typescript.suggest.paths": true,
+  "javascript.suggest.paths": true
+}
