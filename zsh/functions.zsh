@@ -31,7 +31,7 @@ function shrug {
 
 # replace, plz! \o/
 function rplz {
-  rg -l -e $1 $3 | xargs sed -ri.bak -e "s/$1/$2/g"
+  rg -l -e $1 $3 | xargs sed -i.bak -e "s/$1/$2/g"
 }
 
 # ##################################################
@@ -45,7 +45,7 @@ function nb {
 
 # open vim with fuzzy search
 function fim {
-  vim $(fzf)
+  vim $(fzf --preview 'bat {} | head -200')
 }
 
 # ##################################################
@@ -60,6 +60,14 @@ function we {
 # find stuff in gillchristian/til repo
 function til {
   cat til.md | rg '#' | cut -d ' ' -f 2- | rg -i $@
+}
+
+# ##################################################
+
+# history top
+function history-top {
+  local count=${1:=20}
+  history | awk '{print $2}' | sort | uniq -c | sort -rn | head -"$count" | cat -n
 }
 
 # ##################################################
@@ -80,7 +88,10 @@ function antibody_bundle {
 # ##################################################
 
 function load {
-  echo "Loading $1 ..."
+  local supported=(
+    "nvm"
+    "rbenv"
+  )
   case $1 in
     nvm)
       [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
@@ -88,5 +99,60 @@ function load {
     rbenv)
       eval "$(rbenv init -)"
       ;;
+    "")
+      echo "Lazy load programs to avoid slowing down shell initialization."
+      echo ""
+      echo "These are the supported programs:"
+      for program in $supported
+      do
+        echo "  - $program"
+      done
+      return 1
+      ;;
+    *)
+      echo "Lazy load programs to avoid slowing down shell initialization."
+      echo ""
+      echo "Lazy load for \"$1\" is not yet implemented."
+      echo ""
+      echo "These are the supported programs:"
+      for program in $supported
+      do
+        echo "  - $program"
+      done
+      return 1
+      ;;
   esac
+
+  echo "Loaded $1"
+}
+
+# z - with fzf when no args are provided
+unalias z 2> /dev/null
+z() {
+  [ $# -gt 0 ] && _z "$*" && return
+  cd "$(_z -l 2>&1 | fzf --height 40% --nth 2.. --reverse --inline-info +s --tac --query "${*##-* }" | sed 's/^[0-9,.]* *//')"
+}
+
+# branch delete with fzf (skips the current one)
+#
+# use with care as it force deletes the branch
+zbd() {
+  git branch --list | \
+    # deleting the current one doesn't work
+    sed '/^\*/d' | \
+    # probably don't want to delete master :)
+    sed '/master/d' | \
+    xargs -I{} echo {} | \
+    fzf --preview='git log {} | head -100' --ansi | \
+    xargs -I{} git branch -D {}
+}
+
+# checkout branch with fzf
+zgo() {
+  git branch --list | \
+    # you wouldn't want to switch to the current branch, would you?
+    sed '/^\*/d' | \
+    xargs -I{} echo {} | \
+    fzf --preview='git log {} | head -100' --ansi | \
+    xargs -I{} git checkout {}
 }

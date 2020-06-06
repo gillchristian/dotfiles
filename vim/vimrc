@@ -21,6 +21,7 @@ filetype plugin indent on
   " In Mac with Brew installation
   " @link: https://github.com/junegunn/fzf#as-vim-plugin
   Plug '/usr/local/opt/fzf'
+  Plug 'junegunn/fzf.vim'
 
   " Lint & format
   Plug 'w0rp/ale'
@@ -39,6 +40,7 @@ filetype plugin indent on
   Plug 'joequery/Stupid-EasyMotion'
   Plug 'terryma/vim-multiple-cursors'
   Plug 'bkad/CamelCaseMotion'
+  Plug 'justinmk/vim-gtfo'
 
   " IDE (autocomplete & others)
   Plug 'editorconfig/editorconfig-vim'
@@ -59,6 +61,7 @@ filetype plugin indent on
 
   " Haskell
   Plug 'neovimhaskell/haskell-vim'
+  Plug 'sdiehl/vim-ormolu'
 
   " ReasonML
   Plug 'reasonml-editor/vim-reason-plus'

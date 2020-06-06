@@ -55,3 +55,6 @@ export LC_ALL=en_US.UTF-8
 
 # NVM
 export NVM_DIR="$HOME/.config"
+
+# FZF
+export FZF_DEFAULT_COMMAND='fd --type f'

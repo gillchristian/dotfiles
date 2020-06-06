@@ -1,6 +1,9 @@
 # copy
 alias c='pbcopy'
 
+# pull translations
+alias i18n="load rbenv && bundle exec rake translations:pull && bundle exec rake i18n:js:export"
+
 # -- GIT --- #
 #
 # pretty logs
@@ -19,6 +22,8 @@ alias dc='docker-compose'
 
 # purge docker images with no tag
 alias docker-purge='docker rmi $(docker images | grep "^<none>" | awk "{print $3}")'
+
+# -- #
 
 # bat, a cat clone with wings
 # screw pagination
@@ -54,3 +59,6 @@ alias pg_stop='launchctl unload ~/Library/LaunchAgents/homebrew.mxcl.postgresql.
 
 # get my public IP
 alias my-ip='curl ipecho.net/plain ; echo'
+
+# zettelkasten
+alias zet='neuron -d ~/dev/zettelkasten/zettels'

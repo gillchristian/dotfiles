@@ -85,3 +85,11 @@ WORKING-ON.txt
 
 # moondewio/dir_alias
 .aliasfile
+
+# Ruby stuff
+/gems
+/bundler
+/bin
+/cache
+/extensions
+/specifications

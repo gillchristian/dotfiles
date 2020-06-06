@@ -1,17 +1,28 @@
 [user]
 	name = gillchristian
 	email = gillchristiang@gmail.com
+
 [github]
 	user = gillchristian
+
 [core]
 	excludesfile = ~/.gitignore_global
+  # pager = delta --theme='Dracula'
+
+# [interactive]
+#   diffFilter = delta --color-only
+
 [color]
 	ui = auto
+
 [hub]
 	protocol = ssh
+
 [push]
 	default = simple
+
 [alias]
 	up = pull --rebase
+
 [fetch]
 	prune = true
