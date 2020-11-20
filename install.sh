@@ -45,15 +45,13 @@ function install_alacritty {
   fi
 }
 
-function install_fonts {
-  brew cask install font-fira-code font-go-mono-nerd-font font-hack-nerd-font
-}
-
 function install_utils {
   brew install cask
   # command line (and vim) fuzzy finder
   # @link: https://github.com/junegunn/fzf
   brew install fzf
+
+  $(brew --prefix)/opt/fzf/install # install bindings
   # record and share terminal sessions
   # @link: https://asciinema.org/
   brew install asciinema
@@ -90,7 +88,7 @@ function install_zsh {
 }
 
 function install_node {
-  case $1 in
+  case $0 in
     nvm)
       # not supported but nvm team but /shrug
       brew install nvm
@@ -118,7 +116,7 @@ function install_node {
 }
 
 function install_vim {
-  brew install vim --with-override-system-vi --override-system-vim
+  brew install vim
 
   if [ ! -d ~/.vim ] ; then
     link "$DOTFILES_DIR/vim" ~/.vim
@@ -202,7 +200,7 @@ function install_go {
 
 function install_erlang {
   # TODO: is the repl called erlang? Or erl?
-  if ! exists go; then
+  if ! exists erlang; then
     brew install erlang
   fi
 }
@@ -248,10 +246,10 @@ function install_mine {
 function main {
   setup_dotfiles
 
-  default_modules="brew git zsh utils fonts alacritty vim tmux docker rust purs node haskell go erlang"
+  default_modules="brew git zsh utils alacritty vim tmux docker rust purs node haskell"
   modules=${MODULE:=$default_modules}
 
-  # TODO: install on the right order ()
+  # TODO: install on the right order
   #       brew git zsh are dependencies but don't need to be installed
   #       if this is not the initial run on the system (i.e. if they are there)
   for module in $modules
@@ -259,12 +257,11 @@ function main {
     case $module in
       # main dependencies
       brew) install_brew ;;
-      git) install_git ;;
+      git) setup_git ;;
       zsh) install_zsh ;;
       purs) install_purs ;;
       # misc
       utils) install_utils ;;
-      fonts) install_fonts ;;
       # apps
       alacritty) install_alacritty ;;
       vim) install_vim ;;
@@ -272,15 +269,13 @@ function main {
       # language envs & platforms
       docker) install_docker ;;
       rust) install_rust ;;
-      node) install_node "$NODE_MANAGER" ;;
+      node)  install_node ;;
       haskell) install_haskell ;;
       go) install_go ;;
       erlang) install_erlang ;;
+      todos) install_mine ;;
     esac
   done
-
-  # TODO: only run for me --- how ????
-  if false; then
-    install_mine
-  fi
 }
+
+main

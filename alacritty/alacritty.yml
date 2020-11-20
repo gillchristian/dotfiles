@@ -2,6 +2,7 @@ env:
   TERM: xterm-256color
 
 window:
+  dynamic_title: true
   dimensions:
     columns: 0
     lines: 0
@@ -15,10 +16,6 @@ window:
 scrolling:
   history: 10000
   multiplier: 3
-  faux_multiplier: 3
-  auto_scroll: false
-
-tabspaces: 4
 
 font:
   size: 14.0
@@ -71,7 +68,7 @@ colors:
     cyan:    '0x8ec07c'
     white:   '0xebdbb2'
 
-visual_bell:
+bell:
   animation: EaseOutExpo
   duration: 0 # set to zero to disable
 
@@ -92,8 +89,6 @@ selection:
 cursor:
   style: Block
   unfocused_hollow: true
-
-dynamic_title: true
 
 live_config_reload: true
 
