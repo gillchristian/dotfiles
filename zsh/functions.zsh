@@ -45,7 +45,7 @@ function nb {
 
 # open vim with fuzzy search
 function fim {
-  vim $(fzf --preview 'bat {} | head -200')
+  vim $(fzf --preview 'bat --color=always --line-range :500 {}')
 }
 
 # ##################################################
