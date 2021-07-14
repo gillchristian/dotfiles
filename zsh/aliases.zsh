@@ -1,9 +1,6 @@
 # copy
 alias c='pbcopy'
 
-# pull translations
-alias i18n="load rbenv && bundle exec rake translations:pull && bundle exec rake i18n:js:export"
-
 # -- GIT --- #
 #
 # pretty logs
