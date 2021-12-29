@@ -128,12 +128,16 @@ function load {
   echo "Loaded $1"
 }
 
+# ##################################################
+
 # z - with fzf when no args are provided
 unalias z 2> /dev/null
 z() {
   [ $# -gt 0 ] && _z "$*" && return
   cd "$(_z -l 2>&1 | fzf --height 40% --nth 2.. --reverse --inline-info +s --tac --query "${*##-* }" | sed 's/^[0-9,.]* *//')"
 }
+
+# ##################################################
 
 # branch delete with fzf (skips the current one)
 #
@@ -149,6 +153,8 @@ zbd() {
     xargs -I{} git branch -D {}
 }
 
+# ##################################################
+
 # checkout branch with fzf
 zgo() {
   git branch --list | \
@@ -157,4 +163,31 @@ zgo() {
     xargs -I{} echo {} | \
     fzf --preview='git log {} | head -100' --ansi | \
     xargs -I{} git checkout {}
+}
+
+# ##################################################
+
+clean-tags() {
+  git tag | rg cg_ > tags.txt
+  git tag | rg cg- >> tags.txt
+
+  echo "$@" | xargs -I{} sed -i.bak '/{}/d' tags.txt
+
+  local tags=$(cat tags.txt | wc -l | awk '{$1=$1};1')
+
+  if [ "$tags" = "0" ] ; then
+    echo "No tags to delete xD"
+  else
+    echo "Deleting tags:"
+    cat tags.txt
+
+    cat tags.txt | xargs git push --delete origin
+    cat tags.txt | xargs git tag -d
+  fi
+
+  rm tags.txt
+
+  if [ -f tags.txt.bak ] ; then
+      rm tags.txt.bak
+  fi
 }
