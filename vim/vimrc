@@ -244,7 +244,7 @@ filetype plugin indent on
     return !col || getline('.')[col - 1]  =~# '\s'
   endfunction
 
-  nmap <leader><leader> <Plug>(coc-codeaction)
+  nmap <leader>ca <Plug>(coc-codeaction)
 
   inoremap <silent><expr> <c-space> coc#refresh()
 
@@ -253,6 +253,7 @@ filetype plugin indent on
   nmap <silent> [g <Plug>(coc-diagnostic-prev)
   nmap <silent> ]g <Plug>(coc-diagnostic-next)
 
+  nmap <silent> rs <Plug>(coc-rename)
   nmap <silent> gd <Plug>(coc-definition)
   nmap <silent> gy <Plug>(coc-type-definition)
   nmap <silent> gi <Plug>(coc-implementation)
