@@ -15,10 +15,6 @@ window:
 scrolling:
   history: 10000
   multiplier: 3
-  faux_multiplier: 3
-  auto_scroll: false
-
-tabspaces: 4
 
 font:
   size: 14.0
@@ -30,14 +26,14 @@ font:
     y: 0
   use_thin_strokes: true
   # styles
-  normal:
-    family: "GoMono Nerd Font"
+  # normal:
+    # family: "GoMono Nerd Font"
     # style: Book
-  bold:
-    family: "GoMono Nerd Font"
+  # bold:
+    # family: "GoMono Nerd Font"
     # style: Bold
-  italic:
-    family: "GoMono Nerd Font"
+  # italic:
+    # family: "GoMono Nerd Font"
     # style: Italic
 
 draw_bold_text_with_bright_colors: true
@@ -98,15 +94,15 @@ dynamic_title: true
 live_config_reload: true
 
 key_bindings:
-  - { key: V,        mods: Command,          action: Paste               }
-  - { key: C,        mods: Command,          action: Copy                }
+  - { key: V,        mods: Control|Shift,    action: Paste               }
+  - { key: C,        mods: Control|Shift,    action: Paste               }
   - { key: Paste,                   action: Paste                        }
   - { key: Copy,                    action: Copy                         }
-  - { key: Q,        mods: Command, action: Quit                         }
-  - { key: W,        mods: Command, action: Quit                         }
-  - { key: Key0,     mods: Command, action: ResetFontSize                }
-  - { key: Equals,   mods: Command, action: IncreaseFontSize             }
-  - { key: Subtract, mods: Command, action: DecreaseFontSize             }
+  - { key: Key0,     mods: Control, action: ResetFontSize                }
+  - { key: Equals,   mods: Control, action: IncreaseFontSize             }
+  - { key: Add,      mods: Control, action: IncreaseFontSize             }
+  - { key: Subtract, mods: Control, action: DecreaseFontSize             }
+  - { key: Minus,    mods: Control, action: DecreaseFontSize             }
   - { key: Home,                    chars: "\x1bOH",   mode: AppCursor   }
   - { key: Home,                    chars: "\x1b[H",   mode: ~AppCursor  }
   - { key: End,                     chars: "\x1bOF",   mode: AppCursor   }
@@ -120,28 +116,20 @@ key_bindings:
   - { key: Tab,      mods: Shift,   chars: "\x1b[Z"                      }
   - { key: Back,                    chars: "\x7f"                        }
   - { key: Back,     mods: Alt,     chars: "\x1b\x7f"                    }
-  - { key: Insert,                  chars: "\x1b[2~"                     }
+  - { key: Insert,   mods: Shift,   action: PasteSelection               }
   - { key: Delete,                  chars: "\x1b[3~"                     }
   - { key: Left,     mods: Shift,   chars: "\x1b[1;2D"                   }
-  - { key: Left,     mods: Control, chars: "\x1bb"                       }
+  - { key: Left,     mods: Control, chars: "\x1b[1;5D"                   }
   - { key: Left,     mods: Alt,     chars: "\x1b[1;3D"                   }
-  - { key: Left,                    chars: "\x1b[D",   mode: ~AppCursor  }
-  - { key: Left,                    chars: "\x1bOD",   mode: AppCursor   }
   - { key: Right,    mods: Shift,   chars: "\x1b[1;2C"                   }
-  - { key: Right,    mods: Control, chars: "\x1bf"                       }
+  - { key: Right,    mods: Control, chars: "\x1b[1;5C"                   }
   - { key: Right,    mods: Alt,     chars: "\x1b[1;3C"                   }
-  - { key: Right,                   chars: "\x1b[C",   mode: ~AppCursor  }
-  - { key: Right,                   chars: "\x1bOC",   mode: AppCursor   }
   - { key: Up,       mods: Shift,   chars: "\x1b[1;2A"                   }
   - { key: Up,       mods: Control, chars: "\x1b[1;5A"                   }
   - { key: Up,       mods: Alt,     chars: "\x1b[1;3A"                   }
-  - { key: Up,                      chars: "\x1b[A",   mode: ~AppCursor  }
-  - { key: Up,                      chars: "\x1bOA",   mode: AppCursor   }
   - { key: Down,     mods: Shift,   chars: "\x1b[1;2B"                   }
   - { key: Down,     mods: Control, chars: "\x1b[1;5B"                   }
   - { key: Down,     mods: Alt,     chars: "\x1b[1;3B"                   }
-  - { key: Down,                    chars: "\x1b[B",   mode: ~AppCursor  }
-  - { key: Down,                    chars: "\x1bOB",   mode: AppCursor   }
   - { key: F1,                      chars: "\x1bOP"                      }
   - { key: F2,                      chars: "\x1bOQ"                      }
   - { key: F3,                      chars: "\x1bOR"                      }
@@ -206,14 +194,4 @@ key_bindings:
   - { key: PageDown, mods: Shift,   action: ScrollPageDown               }
   - { key: End,      mods: Shift,   action: ScrollToBottom               }
   - { key: Home,     mods: Shift,   action: ScrollToTop                  }
-
-# (Windows/Linux only)
-# key_bindings:
-#   - { key: V,        mods: Control|Shift, action: Paste            }
-#   - { key: C,        mods: Control|Shift, action: Copy             }
-#   - { key: Insert,   mods: Shift,         action: PasteSelection   }
-#   - { key: Equals,   mods: Control,       action: IncreaseFontSize }
-#   - { key: Add,      mods: Control,       action: IncreaseFontSize }
-#   - { key: Subtract, mods: Control,       action: DecreaseFontSize }
-#   - { key: Minus,    mods: Control,       action: DecreaseFontSize }
-#   - { key: Return,   mods: Alt,           action: ToggleFullscreen }
+  - { key: Return,   mods: Alt,     action: ToggleFullscreen             }

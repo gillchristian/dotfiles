@@ -3,6 +3,25 @@ function gdiff {
   git diff --color $@ | diff-so-fancy
 }
 
+# html2purs shortcut
+function 2purs {
+  local out="$(twpurs html2purs | awk '{print "  " $0}')"
+  echo "module Temp where\n\ntmp =\n$out" |  purty - | tail -n +4 | sed 's/^  //'
+}
+function 2pursC {
+  twpurs classnames $@ | tee >(c)
+}
+function 2pursS {
+  twpurs classnames --single-line $@ | tee >(c)
+}
+
+# ##################################################
+
+function runrustc {
+  local name=$(basename $1 .rs)
+  rustc $@ && ./$name && rm $name
+}
+
 # ##################################################
 
 # git config switcher
@@ -91,13 +110,14 @@ function load {
   local supported=(
     "nvm"
     "rbenv"
+    "direnv"
   )
   case $1 in
     nvm)
       [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
       ;;
-    rbenv)
-      eval "$(rbenv init -)"
+    direnv)
+      eval "$(direnv hook zsh)"
       ;;
     "")
       echo "Lazy load programs to avoid slowing down shell initialization."
@@ -155,4 +175,51 @@ zgo() {
     xargs -I{} echo {} | \
     fzf --preview='git log {} | head -100' --ansi | \
     xargs -I{} git checkout {}
+}
+
+# Clean iOS shitty automatic quotes
+
+function clean-ios-quotes {
+  sd ” '"' **/*.md
+  sd “ '"' **/*.md
+  sd ’ "'" **/*.md
+}
+
+# Direnv hook
+function denv {
+  case $1 in
+    toggle)
+      if [ "$(cat ~/.direnvswitch)" = "On" ]; then
+        direnv-off
+      else
+        direnv-on
+      fi;
+      ;;
+    status)
+      cat ~/.direnvswitch
+      ;;
+    on)
+      echo "On" > ~/.direnvswitch
+      eval "$(direnv hook zsh)"
+      ;;
+    off)
+      echo "Off" > ~/.direnvswitch
+      ;;
+    "")
+      echo "Manage direnv hook."
+      echo ""
+      echo "$ denv on"
+      echo "$ denv off"
+      echo "$ denv toggle"
+      echo "$ denv status"
+      ;;
+    *)
+      echo "Manage direnv hook."
+      echo ""
+      echo "$ denv on"
+      echo "$ denv off"
+      echo "$ denv toggle"
+      echo "$ denv status"
+      ;;
+  esac
 }

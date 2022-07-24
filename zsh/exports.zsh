@@ -4,6 +4,10 @@ export PURE_GIT_PULL=1;
 export PURE_GIT_UNTRACKED_DIRTY=1;
 export PURE_PROMPT_SYMBOL='$';
 
+# Google Cloud SDK fix
+# @reference https://stackoverflow.com/questions/70551641/gcloud-failed-to-load-openssl-1-1-1-not-found
+export LD_LIBRARY_PATH=/usr/local/lib
+
 # Editor
 export EDITOR=vim
 
@@ -38,10 +42,14 @@ LOCAL_BIN="$HOME/.local/bin"
 # yarn
 export YARN_PATH_STUFF="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin"
 
-# add stuff to PATH
-export PATH="$YARN_PATH_STUFF:$FNM_PATH:$GO_BIN:$CADDY:$MY_BIN:$YARN:$CARGO:$DEPOT_TOOLS:$DENO:$LOCAL_BIN:$PATH"
+# Java =/
+#
+# export JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64"
+export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64"
 
-export JAVA_HOME="/usr/lib/jvm/java-8-oracle"
+# add stuff to PATH
+
+export PATH="$YARN_PATH_STUFF:$FNM_PATH:$GO_BIN:$CADDY:$MY_BIN:$YARN:$CARGO:$DEPOT_TOOLS:$DENO:$LOCAL_BIN:$PATH"
 
 # xdg config
 export XDG_CONFIG_HOME="$HOME/.config"

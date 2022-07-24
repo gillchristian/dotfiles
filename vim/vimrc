@@ -17,14 +17,15 @@ filetype plugin indent on
   Plug 'morhetz/gruvbox'
 
   " Changing files
-  " Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+  Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
   " In Mac with Brew installation
   " @link: https://github.com/junegunn/fzf#as-vim-plugin
-  Plug '/usr/local/opt/fzf'
+  " Plug '/usr/local/opt/fzf'
   Plug 'junegunn/fzf.vim'
+  Plug 'BurntSushi/ripgrep'
 
   " Lint & format
-  Plug 'w0rp/ale'
+  Plug 'dense-analysis/ale'
 
   " Motion & edit
   Plug 'tpope/vim-commentary'
@@ -47,6 +48,8 @@ filetype plugin indent on
   Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
   " ---------- languages ----------
+  " Neuron
+  Plug 'ihsanturk/neuron.vim'
   " Elm
   Plug 'elmcast/elm-vim'
 
@@ -63,8 +66,35 @@ filetype plugin indent on
   Plug 'neovimhaskell/haskell-vim'
   Plug 'sdiehl/vim-ormolu'
 
+  " PureScript
+  Plug 'purescript-contrib/purescript-vim'
+  Plug 'frigoeu/psc-ide-vim'
+
   " ReasonML
   Plug 'reasonml-editor/vim-reason-plus'
+
+  " JSON
+  Plug 'kevinoid/vim-jsonc'
+
+  " Dhall
+  Plug 'vmchale/dhall-vim'
+
+  " Toml
+  Plug 'cespare/vim-toml'
+
+  " Nix
+  Plug 'LnL7/vim-nix'
+
+  " Avro
+  Plug 'gurpreetatwal/vim-avro'
+
+  " Org-mode
+  " TODO: find a maintained plugin (or switch to Neovim)
+  Plug 'jceb/vim-orgmode'
+  Plug 'axvr/org.vim'
+
+  " Terraform
+  Plug 'hashivim/vim-terraform'
 
   " Icons (must be the last one)
   Plug 'ryanoasis/vim-devicons'
@@ -107,9 +137,9 @@ filetype plugin indent on
     set backspace=2
     set backupcopy=yes
     set confirm
-    set clipboard=unnamed
-    " set clipboard=unnamedplus " for Linux
-    " set diffopt+=vertical     " for linux
+    " set clipboard=unnamed
+    set clipboard=unnamedplus " for Linux
+    set diffopt+=vertical     " for linux
     set formatoptions=cqj
     " Keep at least 5 lines above or below the cursor
     set scrolloff=5
@@ -132,6 +162,7 @@ filetype plugin indent on
   " }}}
   " Colors {{{
     set background=dark
+    " set background=light
     set t_Co=256
     let g:gruvbox_italic=1
     colorscheme gruvbox
@@ -252,6 +283,11 @@ filetype plugin indent on
   nmap <silent> gi <Plug>(coc-implementation)
   nmap <silent> gr <Plug>(coc-references)
 
+  " Remap for do codeAction of current line
+  nmap <leader>ac  <Plug>(coc-codeaction)
+  " Fix autofix problem of current line
+  nmap <leader>qf  <Plug>(coc-fix-current)
+
   nnoremap <silent> K :call <SID>show_documentation()<CR>
 
   function! s:show_documentation()
@@ -267,20 +303,6 @@ filetype plugin indent on
   " show all diagnostics
   nnoremap <silent> <Leader>a  :<C-u>CocList diagnostics<cr>
 
-  " YCM {{{
-    let g:ycm_server_python_interpreter = '/usr/bin/python'
-
-    let g:ycm_semantic_triggers =  {
-        \   'c' : ['->', '.'],
-        \   'ocaml,reason' : ['.', '#'],
-        \   'cpp,objcpp' : ['->', '.', '::'],
-        \   'd,python,perl6,scala,vb,elixir,go,haskell' : ['.'],
-        \   'elm,cs,java,javascript,typescript' : ['.'],
-        \   'html': ['<', '"', '</', ' '],
-        \   'vim' : ['re![_a-za-z]+[_\w]*\.'],
-        \   'lua' : ['.', ':'],
-        \   'erlang' : [':']
-        \ }
   " }}}
 
   " airline {{{
@@ -373,6 +395,10 @@ filetype plugin indent on
   " vim-javascript {{{
     let g:jsx_ext_required = 0
   " vim-javascript }}}
+  
+  " PureScript
+  let g:psc_ide_syntastic_mode = 1
+  nnoremap <buffer> <silent> <leader>g :Pgoto<CR>
 
   " Haskell
   " nnoremap <Leader>ht :GhcModType<cr>

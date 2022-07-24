@@ -1,5 +1,11 @@
+# zoom-meeting-parser
+alias zum='xclip -o -sel clip | zoom-meeting-parser | xclip -sel clip'
+
 # copy
-alias c='pbcopy'
+alias c='xclip -sel c'
+
+# paste
+alias p='xclip -sel c -o'
 
 # pull translations
 alias i18n="load rbenv && bundle exec rake translations:pull && bundle exec rake i18n:js:export"
@@ -36,7 +42,7 @@ alias standup='td standup | tee /dev/tty | c'
 alias gbls='git branch --list | xargs -I{} echo {}'
 
 # better ls
-alias l='exa -la --group-directories-first --git'
+alias l='exa -la --group-directories-first'
 
 # TODO: add to dir_alias
 alias aliasf='bat .aliasfile' # TODO apply it to all the .aliasfile's
@@ -46,9 +52,6 @@ alias lss='ls-scripts'
 
 # list ports (on Linux)
 alias ports='netstat -tulpn'
-
-# list ports (on Mac)
-alias ports='lsof -iTCP -sTCP:LISTEN -n -P'
 
 # psql on Mac
 #

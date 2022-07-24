@@ -1,2 +1,7 @@
 Host github.com
     User git
+
+Host x.scarf.sh
+    User christian
+    Port 54321
+    ForwardAgent yes

@@ -1,45 +1,27 @@
 #!/bin/bash 
 
 function link {
-  # paths cannot be relative
-  local origin="$1"
-  local target="$2"
-
-  if [[ -e "$target" ]]; then
-    echo "$target already exists, if it is a symlink it will be deleted"
-    if [[ -h "$target" ]]; then
-      rm -rf "$target"
-      ln -s "$origin" "$target"
+  if [[ -e "$2" ]]; then
+    echo "$2 already exists, if it is a symlink it will be deleted"
+    if [[ -h "$2" ]]; then
+      rm -rf "$2"
+      ln -s $1 $2
     else
       echo "Not a symlink, renaming and linking"
-      mv -f "$target" "$target"_old
-      ln -s "$origin" "$target"
+      mv -f "$2" "$2_old"
+      ln -s $1 $2
     fi
   else
-    ln -s "$origin" "$target"
+    ln -s $1 $2
   fi
 }
 
-# Checks if a program is installed. Ignores aliases
-# 
-# if exists prog-a && exists prog-b; then
-#   echo "Both programs exist"
-# else
-#   echo "Either one or both programs don't exist"
-# fi
-function exists {
-  hash "$1" 2>/dev/null;
+function update {
+  sudo apt-get install -y "$@"
 }
 
-# Checks if a brew cask is installed.
-#
-# @link: https://stackoverflow.com/a/33107009/4530566
-#
-# if exists cask-a && exists cask-b; then
-#   echo "Both casks exist"
-# else
-#   echo "Either one or both casks don't exist"
-# fi
-function cask-exists {
-  brew cask info "$1" &>/dev/null
+function goinstall {
+  echo "Installing $1 from $2"
+  go get -u $2
+  echo ""
 }
