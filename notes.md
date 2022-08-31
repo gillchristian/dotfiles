@@ -8,5 +8,6 @@ Things missing
 - [ ] antibody installation (installs in the current dir, on ./bin)
 - [ ] purs installation
 - [ ] PureScript installation
-- [ ] Nix installation (Neuron?)
+- [ ] Nix installation?
 - [ ] Cleanup of things that aren't used anymore (k8s, minikube, etc)
+- [ ] `tool-sync` installation and link of config file

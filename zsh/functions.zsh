@@ -223,3 +223,28 @@ function denv {
       ;;
   esac
 }
+
+# Sym links made easier
+function slink {
+  if [ "$1" = "--help" ]; then
+    echo 'Usage'
+    echo '$ link "/full/origin/path" "/full/target/path"'
+    echo ''
+    echo 'Example:'
+    echo '$ link "$DOTFILES_DIR/tool/tool.toml" ~/.tool.toml'
+  else
+    if [[ -e "$2" ]]; then
+      echo "$2 already exists, if it is a symlink it will be deleted"
+      if [[ -h "$2" ]]; then
+        rm -rf "$2"
+        ln -s $1 $2
+      else
+        echo "Not a symlink, renaming and linking"
+        mv -f "$2" "$2_old"
+        ln -s $1 $2
+      fi
+    else
+      ln -s $1 $2
+    fi
+  fi
+}

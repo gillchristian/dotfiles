@@ -1,0 +1,11 @@
+store_directory = "~/.local/bin"
+
+[bat]
+[difftastic]
+[exa]
+[fd]
+[ripgrep]
+
+# TODO: xD
+# https://github.com/dalance/amber
+# https://github.com/brigand/glint
