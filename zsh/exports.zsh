@@ -47,9 +47,11 @@ export YARN_PATH_STUFF="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.
 # export JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64"
 export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64"
 
+FLYCTL_BIN="$HOME/.fly/bin"
+
 # add stuff to PATH
 
-export PATH="$YARN_PATH_STUFF:$FNM_PATH:$GO_BIN:$CADDY:$MY_BIN:$YARN:$CARGO:$DEPOT_TOOLS:$DENO:$LOCAL_BIN:$PATH"
+export PATH="$YARN_PATH_STUFF:$FNM_PATH:$GO_BIN:$CADDY:$MY_BIN:$YARN:$CARGO:$DEPOT_TOOLS:$DENO:$LOCAL_BIN:$FLYCTL_BIN:$PATH"
 
 # xdg config
 export XDG_CONFIG_HOME="$HOME/.config"
