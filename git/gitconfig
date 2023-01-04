@@ -7,10 +7,6 @@
 
 [core]
 	excludesfile = ~/.gitignore_global
-  # pager = delta --theme='Dracula'
-
-# [interactive]
-#   diffFilter = delta --color-only
 
 [color]
 	ui = auto
@@ -26,3 +22,6 @@
 
 [fetch]
 	prune = true
+
+[init]
+	defaultBranch = master

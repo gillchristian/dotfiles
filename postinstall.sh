@@ -13,8 +13,8 @@ function install_NODE_ENV {
   export PATH=$HOME/.fnm:$PATH
   eval `fnm env`
 
-  fnm install 12.18.0
-  fnm use 12.18.0
+  fnm install 18.12.1
+  fnm use 18.12.1
 
   # yarn adds itself to the $PATH when being installed
   # but yarn path is already exported in ~/.zsh/exports.zsh
@@ -84,19 +84,19 @@ function install_HASKELL {
 
 function install_RUST {
   # Install Rust
-  # echo "Installing Rust"
-  # curl https://sh.rustup.rs -sSf | sh
-  # echo ""
+  echo "Installing Rust"
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+  echo ""
 
   # https://github.com/BurntSushi/ripgrep
   # https://github.com/sharkdp/fd
   # https://github.com/sharkdp/bat
   # https://github.com/dalance/amber
   # https://github.com/brigand/glint
-  # cargo install ripgrep fd-find bat amber glint
-  cargo install --git https://github.com/jwilm/alacritty
+  # https://the.exa.website/
+  cargo install ripgrep fd-find bat amber glint exa
+  cargo install alacritty
   link "$DOTFILES_DIR/alacritty/alacritty.yml" "$XDG_CONFIG_HOME/alacritty.yml"
-  # is 60 enough ?
   sudo update-alternatives --install $(which x-terminal-emulator) x-terminal-emulator $(which alacritty) 60
 
   echo ""
@@ -133,9 +133,11 @@ function install_DOCKER_COMPOSE {
   # TODO: prompt version
   echo "Installing docker-compose"
   sudo touch /usr/local/bin/docker-compose
-  touch /tmp/docker-compose-binary
-  curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-compose-$(uname -s)-$(uname -m)" > /tmp/docker-compose-binary
-  sudo mv /tmp/docker-compose-binary /usr/local/bin/docker-compose
+  touch /tmp/docker-compose
+
+  curl -SL https://github.com/docker/compose/releases/download/v2.12.2/docker-compose-linux-x86_64 -o /tmp/docker-compose
+
+  sudo mv /tmp/docker-compose /usr/local/bin/docker-compose
   sudo chmod +x /usr/local/bin/docker-compose
   echo ""
 }
@@ -165,9 +167,9 @@ function install_DOCKER {
 }
 
 function install_ANTIBODY {
-  # echo "Installing Antibody and adding config"
-  # curl -sL git.io/antibody | sh -s
-  # echo ""
+  echo "Installing Antibody and adding config"
+  curl -sfL git.io/antibody | sh -s - -b "$HOME/bin"
+  echo ""
 
   echo "Installing plugins with antibody"
   antibody bundle < "$DOTFILES_DIR/zsh/antibodyrc" > ~/.antibody_plugins.sh
@@ -177,7 +179,7 @@ function install_ANTIBODY {
 
 function install_K8S {
   curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
-  echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
+  echo "deb https://apt.kubernetes.io/kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
   sudo apt-get update
   sudo apt-get install -y kubectl
 }
@@ -213,21 +215,19 @@ function install_MINIKUBE {
 }
 
 function main {
-  # install_NODE_ENV
+  install_NODE_ENV
+  
+  install_DOCKER
+
+  install_RUST
+
+  install_ANTIBODY
   
   # install_VIM_PLUGINS
   
   # install_HASKELL
   
   # install_GOLANG
-  
-  # install_DOCKER
-  
-  # install_DOCKER_COMPOSE
-
-  install_RUST
-
-  # install_ANTIBODY
 
   # install_K8S
 
@@ -243,4 +243,6 @@ function main {
   echo ""
 }
 
-main
+# main
+
+install_ANTIBODY

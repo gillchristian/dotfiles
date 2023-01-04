@@ -10,5 +10,4 @@ zsh-users/zsh-syntax-highlighting
 zsh-users/zsh-history-substring-search
 reegnz/jq-zsh-plugin
 rupa/z
-moondewio/git-infer kind:path
 thewtex/tmux-mem-cpu-load
