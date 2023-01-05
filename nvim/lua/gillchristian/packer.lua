@@ -55,6 +55,7 @@ require('packer').startup(function(use)
   use 'tpope/vim-fugitive'
   use 'tpope/vim-rhubarb'
   use 'lewis6991/gitsigns.nvim'
+  -- TODO: check out airblade/vim-gitgutter
 
   -- Motion and editing
   use 'tpope/vim-commentary'
@@ -80,6 +81,24 @@ require('packer').startup(function(use)
   use { 'nvim-telescope/telescope-fzf-native.nvim', run = 'make', cond = vim.fn.executable 'make' == 1 }
 
   use 'github/copilot.vim'
+
+  -- File tree view
+  -- TODO: figure out which one to stick with
+  -- TODO: watch https://www.youtube.com/watch?v=oFc2kr734rs
+  -- TODO: read about "oil and vinegar issue" http://vimcasts.org/blog/2013/01/oil-and-vinegar-split-windows-and-project-drawer/
+  -- TODO: check out lambdalisue/fern-git-status.vim
+  --
+  -- https://github.com/lambdalisue/fern.vim
+  use 'lambdalisue/fern.vim'
+
+  -- https://github.com/nvim-tree/nvim-tree.lua
+  use {
+    'nvim-tree/nvim-tree.lua',
+    requires = {
+      'nvim-tree/nvim-web-devicons',
+    },
+    tag = 'nightly'
+  }
 
   -- Add custom plugins to packer from ~/.config/nvim/lua/custom/plugins.lua
   local has_plugins, plugins = pcall(require, 'custom.plugins')

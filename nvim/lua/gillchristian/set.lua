@@ -1,5 +1,16 @@
 -- See `:help vim.o`
 
+-- Set <space> as the leader key
+-- See `:help mapleader`
+--
+-- IMPORTANT: Must happen before plugins are required (otherwise wrong leader will be used)
+vim.g.mapleader = ' '
+vim.g.maplocalleader = ' '
+
+-- Disable netrw in favor for nvim-tree
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+
 -- Set highlight on search
 vim.o.hlsearch = true
 vim.o.incsearch = true

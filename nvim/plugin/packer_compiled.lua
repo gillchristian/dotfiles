@@ -104,6 +104,11 @@ _G.packer_plugins = {
     path = "/home/bb8/.local/share/nvim/site/pack/packer/start/copilot.vim",
     url = "https://github.com/github/copilot.vim"
   },
+  ["fern.vim"] = {
+    loaded = true,
+    path = "/home/bb8/.local/share/nvim/site/pack/packer/start/fern.vim",
+    url = "https://github.com/lambdalisue/fern.vim"
+  },
   ["fidget.nvim"] = {
     loaded = true,
     path = "/home/bb8/.local/share/nvim/site/pack/packer/start/fidget.nvim",
@@ -154,6 +159,11 @@ _G.packer_plugins = {
     path = "/home/bb8/.local/share/nvim/site/pack/packer/start/nvim-lspconfig",
     url = "https://github.com/neovim/nvim-lspconfig"
   },
+  ["nvim-tree.lua"] = {
+    loaded = true,
+    path = "/home/bb8/.local/share/nvim/site/pack/packer/start/nvim-tree.lua",
+    url = "https://github.com/nvim-tree/nvim-tree.lua"
+  },
   ["nvim-treesitter"] = {
     loaded = true,
     path = "/home/bb8/.local/share/nvim/site/pack/packer/start/nvim-treesitter",
@@ -165,6 +175,11 @@ _G.packer_plugins = {
     needs_bufread = false,
     path = "/home/bb8/.local/share/nvim/site/pack/packer/opt/nvim-treesitter-textobjects",
     url = "https://github.com/nvim-treesitter/nvim-treesitter-textobjects"
+  },
+  ["nvim-web-devicons"] = {
+    loaded = true,
+    path = "/home/bb8/.local/share/nvim/site/pack/packer/start/nvim-web-devicons",
+    url = "https://github.com/nvim-tree/nvim-web-devicons"
   },
   ["onedark.nvim"] = {
     loaded = true,
@@ -266,8 +281,8 @@ time([[Conditional loading of telescope-fzf-native.nvim]], false)
 -- Load plugins in order defined by `after`
 time([[Sequenced loading]], true)
 vim.cmd [[ packadd nvim-treesitter ]]
-vim.cmd [[ packadd playground ]]
 vim.cmd [[ packadd nvim-treesitter-textobjects ]]
+vim.cmd [[ packadd playground ]]
 time([[Sequenced loading]], false)
 
 _G._packer.inside_compile = false
