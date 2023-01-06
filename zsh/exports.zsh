@@ -43,7 +43,7 @@ LOCAL_BIN="$HOME/.local/bin"
 export YARN_PATH_STUFF="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin"
 
 # Haskell's stack
-STACK_TOOLS="$(stack path --compiler-tools-bin)"
+STACK_TOOLS="$(stack-tools-path '9.2.5' '8.10.7')"
 
 # DotNET / F#
 export DOTNET_ROOT="$HOME/.dotnet"

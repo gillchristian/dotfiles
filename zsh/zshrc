@@ -84,7 +84,7 @@ if [ -f '/home/bb8/bin/google-cloud-sdk/completion.zsh.inc' ]; then . '/home/bb8
 export PATH="$HOME/.subilo/bin:$PATH"
 
 # fnm
-export PATH=/home/bb8/.fnm:$PATH
+export PATH="/home/bb8/.fnm:$PATH"
 eval "`fnm env`"
 
 # Dir env runs when entering a directory
