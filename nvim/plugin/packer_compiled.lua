@@ -104,11 +104,6 @@ _G.packer_plugins = {
     path = "/home/bb8/.local/share/nvim/site/pack/packer/start/copilot.vim",
     url = "https://github.com/github/copilot.vim"
   },
-  ["fern.vim"] = {
-    loaded = true,
-    path = "/home/bb8/.local/share/nvim/site/pack/packer/start/fern.vim",
-    url = "https://github.com/lambdalisue/fern.vim"
-  },
   ["fidget.nvim"] = {
     loaded = true,
     path = "/home/bb8/.local/share/nvim/site/pack/packer/start/fidget.nvim",
@@ -153,6 +148,14 @@ _G.packer_plugins = {
     loaded = true,
     path = "/home/bb8/.local/share/nvim/site/pack/packer/start/nvim-cmp",
     url = "https://github.com/hrsh7th/nvim-cmp"
+  },
+  ["nvim-code-action-menu"] = {
+    commands = { "CodeActionMenu" },
+    loaded = false,
+    needs_bufread = true,
+    only_cond = false,
+    path = "/home/bb8/.local/share/nvim/site/pack/packer/opt/nvim-code-action-menu",
+    url = "https://github.com/weilbith/nvim-code-action-menu"
   },
   ["nvim-lspconfig"] = {
     loaded = true,
@@ -246,6 +249,11 @@ _G.packer_plugins = {
     path = "/home/bb8/.local/share/nvim/site/pack/packer/start/vim-rhubarb",
     url = "https://github.com/tpope/vim-rhubarb"
   },
+  ["vim-signature"] = {
+    loaded = true,
+    path = "/home/bb8/.local/share/nvim/site/pack/packer/start/vim-signature",
+    url = "https://github.com/kshenoy/vim-signature"
+  },
   ["vim-sleuth"] = {
     loaded = true,
     path = "/home/bb8/.local/share/nvim/site/pack/packer/start/vim-sleuth",
@@ -286,9 +294,21 @@ time([[Conditional loading of telescope-fzf-native.nvim]], false)
 -- Load plugins in order defined by `after`
 time([[Sequenced loading]], true)
 vim.cmd [[ packadd nvim-treesitter ]]
-vim.cmd [[ packadd playground ]]
 vim.cmd [[ packadd nvim-treesitter-textobjects ]]
+vim.cmd [[ packadd playground ]]
 time([[Sequenced loading]], false)
+
+-- Command lazy-loads
+time([[Defining lazy-load commands]], true)
+pcall(vim.api.nvim_create_user_command, 'CodeActionMenu', function(cmdargs)
+          require('packer.load')({'nvim-code-action-menu'}, { cmd = 'CodeActionMenu', l1 = cmdargs.line1, l2 = cmdargs.line2, bang = cmdargs.bang, args = cmdargs.args, mods = cmdargs.mods }, _G.packer_plugins)
+        end,
+        {nargs = '*', range = true, bang = true, complete = function()
+          require('packer.load')({'nvim-code-action-menu'}, {}, _G.packer_plugins)
+          return vim.fn.getcompletion('CodeActionMenu ', 'cmdline')
+      end})
+time([[Defining lazy-load commands]], false)
+
 
 _G._packer.inside_compile = false
 if _G._packer.needs_bufread == true then

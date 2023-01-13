@@ -33,6 +33,12 @@ require('packer').startup(function(use)
     requires = { 'hrsh7th/cmp-nvim-lsp', 'L3MON4D3/LuaSnip', 'saadparwaiz1/cmp_luasnip' },
   }
 
+  -- Fancy code action menu
+  use {
+    'weilbith/nvim-code-action-menu',
+    cmd = 'CodeActionMenu',
+  }
+
   use { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
     run = function()
@@ -82,18 +88,9 @@ require('packer').startup(function(use)
   -- Fuzzy Finder Algorithm which requires local dependencies to be built. Only load if `make` is available
   use { 'nvim-telescope/telescope-fzf-native.nvim', run = 'make', cond = vim.fn.executable 'make' == 1 }
 
-  use 'github/copilot.vim'
+  use { 'github/copilot.vim', branch = 'release' }
 
   -- File tree view
-  -- TODO: figure out which one to stick with
-  -- TODO: watch https://www.youtube.com/watch?v=oFc2kr734rs
-  -- TODO: read about "oil and vinegar issue" http://vimcasts.org/blog/2013/01/oil-and-vinegar-split-windows-and-project-drawer/
-  -- TODO: check out lambdalisue/fern-git-status.vim
-  --
-  -- https://github.com/lambdalisue/fern.vim
-  use 'lambdalisue/fern.vim'
-
-  -- https://github.com/nvim-tree/nvim-tree.lua
   use {
     'nvim-tree/nvim-tree.lua',
     requires = {
@@ -101,6 +98,9 @@ require('packer').startup(function(use)
     },
     tag = 'nightly'
   }
+
+  -- Better marks (display/toggle/ delete)
+  use 'kshenoy/vim-signature'
 
   -- Add custom plugins to packer from ~/.config/nvim/lua/custom/plugins.lua
   local has_plugins, plugins = pcall(require, 'custom.plugins')

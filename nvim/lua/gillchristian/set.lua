@@ -9,6 +9,9 @@ vim.g.maplocalleader = ' '
 
 vim.o.encoding='utf-8'
 
+-- Up to three signs in the sign column on the left
+vim.o.signcolumn='auto:3'
+
 -- Disable netrw in favor for nvim-tree
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
@@ -53,8 +56,6 @@ vim.o.writebackup = false
 -- Height of the command line
 vim.o.cmdheight = 2
 
-vim.o.signcolumn = 'yes'
-
 -- Save undo history
 vim.o.undofile = true
 
@@ -64,7 +65,6 @@ vim.o.smartcase = true
 
 -- Decrease update time
 vim.o.updatetime = 100
-vim.wo.signcolumn = 'yes'
 
 -- Set colorscheme
 vim.o.termguicolors = true

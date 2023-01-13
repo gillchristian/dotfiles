@@ -54,8 +54,3 @@ vim.keymap.set('n', ']d', vim.diagnostic.goto_next)
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist)
 -- TODO: this conflicts with CamelCaseMotion
 -- vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float)
-
--- LSP stuff
--- TODO: should I move this to after/plugin/lsp.lua ?
-vim.keymap.set('n', 'ff', vim.lsp.buf.format, { silent = true })
-vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, { silent = true })
