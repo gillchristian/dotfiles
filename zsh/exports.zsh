@@ -43,7 +43,7 @@ LOCAL_BIN="$HOME/.local/bin"
 export YARN_PATH_STUFF="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin"
 
 # Haskell's stack
-STACK_TOOLS="$(stack-tools-path '9.2.5' '8.10.7')"
+STACK_TOOLS="$(stack-tools-path '8.10.7' '9.2.5')"
 
 # DotNET / F#
 export DOTNET_ROOT="$HOME/.dotnet"
@@ -54,9 +54,12 @@ export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64"
 
 FLYCTL_BIN="$HOME/.fly/bin"
 
+# Racket
+export RACKET_BIN="$HOME/racket/bin"
+
 # add stuff to PATH
 
-export PATH="$DOTNET_PATH:$YARN_PATH_STUFF:$STACK_TOOLS:$FNM_PATH:$GO_BIN:$CADDY:$MY_BIN:$YARN:$CARGO:$DEPOT_TOOLS:$DENO:$LOCAL_BIN:$FLYCTL_BIN:$PATH"
+export PATH="$RACKET_BIN:$DOTNET_PATH:$YARN_PATH_STUFF:$STACK_TOOLS:$FNM_PATH:$GO_BIN:$CADDY:$MY_BIN:$YARN:$CARGO:$DEPOT_TOOLS:$DENO:$LOCAL_BIN:$FLYCTL_BIN:$PATH"
 
 # xdg config
 export XDG_CONFIG_HOME="$HOME/.config"

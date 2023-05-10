@@ -248,3 +248,13 @@ function slink {
     fi
   fi
 }
+
+# List all scripts
+function lss {
+  if [[ -e "package.json" ]]; then
+    local output=$(bat package.json | jq '.scripts | to_entries | map("- \(.key): \(.value)") | join("\n")' | sd '"' '')
+    printf "$output\n"
+  else
+    echo "No package.json in this directory"
+  fi
+}

@@ -50,9 +50,6 @@ alias l='exa -la --group-directories-first'
 # TODO: add to dir_alias
 alias aliasf='bat .aliasfile' # TODO apply it to all the .aliasfile's
 
-# ls-scripts
-alias lss='ls-scripts'
-
 # list ports (on Linux)
 alias ports='netstat -tulpn'
 
@@ -68,3 +65,6 @@ alias my-ip='curl ipecho.net/plain ; echo'
 
 # zettelkasten
 alias zet='neuron -d ~/dev/zettelkasten/zettels'
+
+# Fourmolu
+alias fmt-hs="git ls-files -z '*.hs' | xargs -0 fourmolu --mode inplace"
