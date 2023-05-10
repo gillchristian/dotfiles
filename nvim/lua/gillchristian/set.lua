@@ -78,5 +78,5 @@ vim.o.completeopt = 'menuone,noselect'
 vim.o.showmatch = true
 vim.o.showcmd = true
 vim.o.textwidth = 80
-vim.o.colorcolumn = 80
+vim.o.colorcolumn = "40,80,120,160"
 vim.o.showtabline = 2

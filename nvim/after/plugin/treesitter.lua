@@ -13,10 +13,11 @@ require('nvim-treesitter.configs').setup {
     'help',
     'vim',
     'elm',
-    'haskell'
+    'haskell',
+    'graphql',
   },
 
-  sync_install = false,
+  sync_install = true,
 
   highlight = {
     enable = true,
