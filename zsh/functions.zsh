@@ -50,7 +50,7 @@ function shrug {
 
 # replace, plz! \o/
 function rplz {
-  rg -l -e $1 $3 | xargs sed -i.bak -e "s/$1/$2/g"
+  rg -l -e $1 $3 | xargs -I{} sed -i.bak -e "s/$1/$2/g" "{}"
 }
 
 # ##################################################

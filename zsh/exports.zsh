@@ -12,11 +12,9 @@ export LD_LIBRARY_PATH=/usr/local/lib
 export EDITOR=nvim
 
 # Golang's GOPATH & bin
-export GOPATH="$HOME/dev/go"
+export GOPATH="$HOME/.go"
 
-export GO_BIN="$GOPATH/bin:/usr/local/go/bin"
-
-export GO111MODULE=on
+export GOBIN="$GOPATH/bin"
 
 # Caddy
 export CADDY="$HOME/bin/caddy"
@@ -50,7 +48,7 @@ export DOTNET_ROOT="$HOME/.dotnet"
 DOTNET_PATH="$DOTNET_ROOT:$DOTNET_ROOT/tools"
 
 # Java =/
-export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64"
+# export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64"
 
 FLYCTL_BIN="$HOME/.fly/bin"
 
@@ -59,7 +57,7 @@ export RACKET_BIN="$HOME/racket/bin"
 
 # add stuff to PATH
 
-export PATH="$RACKET_BIN:$DOTNET_PATH:$YARN_PATH_STUFF:$STACK_TOOLS:$FNM_PATH:$GO_BIN:$CADDY:$MY_BIN:$YARN:$CARGO:$DEPOT_TOOLS:$DENO:$LOCAL_BIN:$FLYCTL_BIN:$PATH"
+export PATH="$RACKET_BIN:$DOTNET_PATH:$YARN_PATH_STUFF:$STACK_TOOLS:$FNM_PATH:$GOBIN:$CADDY:$MY_BIN:$YARN:$CARGO:$DEPOT_TOOLS:$DENO:$LOCAL_BIN:$FLYCTL_BIN:$PATH"
 
 # xdg config
 export XDG_CONFIG_HOME="$HOME/.config"

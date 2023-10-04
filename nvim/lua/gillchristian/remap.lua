@@ -37,7 +37,7 @@ vim.keymap.set('v', 'J', ":m '>+1<CR>gv=gv")
 vim.keymap.set('v', 'K', ":m '<-2<CR>gv=gv")
 
 -- Apped next line to current one but keep the cursor on the current position
-vim.keymap.set('n', 'J', 'mzJ`z')
+-- vim.keymap.set('n', 'J', 'mzJ`z')
 
 -- Vertical navigation with centering
 vim.keymap.set('n', '<C-d>', '<C-d>zz')

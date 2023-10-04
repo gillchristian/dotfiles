@@ -11,6 +11,8 @@ Things missing
 - [ ] Nix installation?
 - [ ] Cleanup of things that aren't used anymore (k8s, minikube, etc)
 - [ ] `tool-sync` installation and link of config file
+- [ ] Extend the `env-tools` & add installation for it
+- [ ] Add [tmux-resurrect](https://github.com/tmux-plugins/tmux-resurrect)
 
 ## 2022-11-09
 
@@ -82,3 +84,7 @@ $ sudo update-desktop-database
 ```
 
 Reference: <https://askubuntu.com/a/907572> & <https://askubuntu.com/a/805143>
+
+### Installing Java xD
+
+https://www.youtube.com/watch?v=F1fh4W_TXa8 => the update alternative part is also required
