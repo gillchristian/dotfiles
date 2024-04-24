@@ -91,9 +91,12 @@ function history-top {
 
 # ##################################################
 
-# bundle again all antibody plugins
-function antibody_bundle {
-  antibody bundle < "$DOTFILES_DIR/zsh/antibodyrc" > ~/.antibody_plugins.sh
+# bundle again all antidote plugins
+function antidote_bundle {
+  zsh_plugins="$DOTFILES_DIR/zsh/zsh_plugins"
+  
+  source "$(brew --prefix)/opt/antidote/share/antidote/antidote.zsh"
+  antidote bundle <"${zsh_plugins}.txt" >|"${zsh_plugins}.zsh"
 }
 
 # ##################################################

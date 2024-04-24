@@ -9,7 +9,7 @@ export PURE_PROMPT_SYMBOL='$';
 export LD_LIBRARY_PATH=/usr/local/lib
 
 # Editor
-export EDITOR=nvim
+export EDITOR=vim
 
 # Golang's GOPATH & bin
 export GOPATH="$HOME/.go"
@@ -43,7 +43,7 @@ NVIM_BIN="$LOCAL_BIN/nvim/bin"
 export YARN_PATH_STUFF="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin"
 
 # Haskell's stack
-STACK_TOOLS="$(stack-tools-path '8.10.7' '9.2.5')"
+# STACK_TOOLS="$(stack-tools-path '8.10.7' '9.2.5')"
 
 # DotNET / F#
 export DOTNET_ROOT="$HOME/.dotnet"
@@ -78,4 +78,6 @@ export NVM_DIR="$HOME/.config"
 export FZF_DEFAULT_COMMAND='fd --type f'
 
 # OpenSSL fix for Cargo
-export OPENSSL_DIR='/usr/local/ssl'
+export OPENSSL_DIR=/opt/homebrew/opt/openssl@1.1
+export OPENSSL_LIB_DIR=$OPENSSL_DIR/lib
+export OPENSSL_INCLUDE_DIR=$OPENSSL_DIR/include

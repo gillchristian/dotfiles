@@ -1,6 +1,6 @@
-# ##############################################################################
+################################################################################
 #                                                                              #
-# Load antibody plugins                                                        #
+# Load antidote plugins                                                        #
 #                                                                              #
 # Completion needs to load before some plugins                                 #
 #                                                                              #
@@ -11,17 +11,22 @@
 # From:  https://gist.github.com/ctechols/ca1035271ad134841284                 #
 # Addapted by: https://carlosbecker.com/posts/speeding-up-zsh/                 #
 #                                                                              #
-# ##############################################################################
+################################################################################
 autoload -Uz compinit
-if [[ -n ${ZDOTDIR:-${HOME}}/.zcompdump(#qN.mh+24) ]]; then
+if [[ -n ${HOME}/.zcompdump(#qN.mh+24) ]]; then
     compinit;
   else
     compinit -C;
 fi;
-source ~/.antibody_plugins.sh
+
+export DOTFILES_DIR="$HOME/dev/dotfiles"
 
 # clenup promp to not see the flash of oh-my-zsh prompt before Purs loads
 PROMPT=""
+
+# Load antidote plugins statically
+# Use antidote_bundle to re-load plugins
+source "$DOTFILES_DIR/zsh/zsh_plugins.zsh"
 
 bindkey '^[[A' history-substring-search-up
 bindkey '^[[B' history-substring-search-down
@@ -48,8 +53,6 @@ add-zsh-hook precmd _prompt_purs_precmd
 
 # ##################################################
 
-export DOTFILES_DIR="$HOME/dev/dotfiles"
-
 source ~/.zsh/aliases.zsh
 source ~/.zsh/functions.zsh
 source ~/.zsh/exports.zsh
@@ -68,9 +71,7 @@ if [ -f "$HOME/.zsh/private.zsh" ]; then source ~/.zsh/private.zsh; fi
 # ############################################################################ #
 
 # Load fzf
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
-export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+eval "$(fzf --zsh)"
 
 # Nix :)
 if [ -e /home/bb8/.nix-profile/etc/profile.d/nix.sh ]; then . /home/bb8/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
@@ -81,15 +82,11 @@ if [ -f '/home/bb8/bin/google-cloud-sdk/path.zsh.inc' ]; then . '/home/bb8/bin/g
 # The next line enables shell command completion for gcloud.
 if [ -f '/home/bb8/bin/google-cloud-sdk/completion.zsh.inc' ]; then . '/home/bb8/bin/google-cloud-sdk/completion.zsh.inc'; fi
 
-export PATH="$HOME/.subilo/bin:$PATH"
-
 # fnm
-export PATH="/home/bb8/.fnm:$PATH"
+export PATH="/Users/bb8/Library/Application Support/fnm:$PATH"
 eval "`fnm env`"
 
 # Dir env runs when entering a directory
-if [ "$(cat ~/.direnvswitch)" = "On" ]; then
-  eval "$(direnv hook zsh)"
-fi
-
-[ -f "/home/bb8/.ghcup/env" ] && source "/home/bb8/.ghcup/env" # ghcup-env
+# if [ "$(cat ~/.direnvswitch)" = "On" ]; then
+#   eval "$(direnv hook zsh)"
+# fi
