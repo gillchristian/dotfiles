@@ -37,6 +37,8 @@ export FNM_PATH="$HOME/.fnm"
 # .local/bin
 LOCAL_BIN="$HOME/.local/bin"
 
+NVIM_BIN="$LOCAL_BIN/nvim/bin"
+
 # yarn
 export YARN_PATH_STUFF="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin"
 
@@ -57,7 +59,7 @@ export RACKET_BIN="$HOME/racket/bin"
 
 # add stuff to PATH
 
-export PATH="$RACKET_BIN:$DOTNET_PATH:$YARN_PATH_STUFF:$STACK_TOOLS:$FNM_PATH:$GOBIN:$CADDY:$MY_BIN:$YARN:$CARGO:$DEPOT_TOOLS:$DENO:$LOCAL_BIN:$FLYCTL_BIN:$PATH"
+export PATH="$NVIM_BIN:$RACKET_BIN:$DOTNET_PATH:$YARN_PATH_STUFF:$STACK_TOOLS:$FNM_PATH:$GOBIN:$CADDY:$MY_BIN:$YARN:$CARGO:$DEPOT_TOOLS:$DENO:$LOCAL_BIN:$FLYCTL_BIN:$PATH"
 
 # xdg config
 export XDG_CONFIG_HOME="$HOME/.config"

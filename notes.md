@@ -35,12 +35,12 @@ libssl.so.1.1: cannot open shared object file: No such file or directory
 ```
 
 ```bash
-wget http://nz2.archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.16_amd64.deb
+wget http://nz2.archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.22_amd64.deb
 
-sudo dpkg -i libssl1.1_1.1.1f-1ubuntu2.16_amd64.deb
+sudo dpkg -i libssl1.1_1.1.1f-1ubuntu2.22_amd64.deb
 ```
 
-Reference: <https://stackoverflow.com/questions/72133316/ubuntu-22-04-libssl-so-1-1-cannot-open-shared-object-file-no-such-file-or-di>
+Reference: <https://stackoverflow.com/questions/72133316/libssl-so-1-1-cannot-open-shared-object-file-no-such-file-or-directory>
 
 ### Key bindings
 
@@ -87,4 +87,4 @@ Reference: <https://askubuntu.com/a/907572> & <https://askubuntu.com/a/805143>
 
 ### Installing Java xD
 
-https://www.youtube.com/watch?v=F1fh4W_TXa8 => the update alternative part is also required
+<https://www.youtube.com/watch?v=F1fh4W_TXa8> => the update alternative part is also required

@@ -94,7 +94,8 @@ function install_RUST {
   # https://github.com/dalance/amber
   # https://github.com/brigand/glint
   # https://the.exa.website/
-  cargo install ripgrep fd-find bat amber glint exa
+  # https://github.com/lsd-rs/lsd
+  cargo install ripgrep fd-find bat amber glint exa lsd
   cargo install alacritty
   link "$DOTFILES_DIR/alacritty/alacritty.yml" "$XDG_CONFIG_HOME/alacritty.yml"
   sudo update-alternatives --install $(which x-terminal-emulator) x-terminal-emulator $(which alacritty) 60

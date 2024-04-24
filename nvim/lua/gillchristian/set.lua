@@ -1,5 +1,9 @@
 -- See `:help vim.o`
 
+-- Disable netrw in favor for nvim-tree
+-- vim.g.loaded_netrw = 1
+-- vim.g.loaded_netrwPlugin = 1
+
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --
@@ -78,5 +82,5 @@ vim.o.completeopt = 'menuone,noselect'
 vim.o.showmatch = true
 vim.o.showcmd = true
 vim.o.textwidth = 80
-vim.o.colorcolumn = "40,80,120,160"
+vim.o.colorcolumn = "40,80,120"
 vim.o.showtabline = 2

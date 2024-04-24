@@ -41,7 +41,7 @@ alias standup='td standup | tee /dev/tty | c'
 alias gbls='git branch --list | xargs -I{} echo {}'
 
 # better ls
-alias l='exa -la --group-directories-first'
+alias l='lsd -la --group-directories-first'
 
 # list ports (on Linux)
 alias ports='netstat -tulpn'

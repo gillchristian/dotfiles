@@ -109,8 +109,8 @@ function antibody_bundle {
 function load {
   local supported=(
     "nvm"
-    "rbenv"
     "direnv"
+    "brew"
   )
   case $1 in
     nvm)
@@ -118,6 +118,9 @@ function load {
       ;;
     direnv)
       eval "$(direnv hook zsh)"
+      ;;
+    brew)
+      eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
       ;;
     "")
       echo "Lazy load programs to avoid slowing down shell initialization."
@@ -257,4 +260,23 @@ function lss {
   else
     echo "No package.json in this directory"
   fi
+}
+
+function activity {
+  # Run on a subshell to avoid changing the current directory
+  (
+    cd "$HOME/dev" || return
+
+    local table_=$(
+      echo "| DATE | COMMIT | MESSAGE | REPOSITORY |"
+      echo "| ---- | ------ | ------- | ---------- |"
+
+      find . -maxdepth 3 -name ".git" -type d -prune | while read dir; do
+        repo=$(echo "$dir" | sed 's|./||;s|/.git||')
+        git -C "$repo" log --author=gillchristian --since="30 days ago" --date=format:"%Y-%m-%d %H:%M" -1 --format="| %ad | %h | %s | $repo |" 2>/dev/null
+      done | sort -r -t '|' -k1,1
+    )
+
+    echo "$table_" | column -t -s '|'
+  )
 }
