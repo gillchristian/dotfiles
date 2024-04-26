@@ -87,6 +87,9 @@ export PATH="/Users/bb8/Library/Application Support/fnm:$PATH"
 eval "`fnm env`"
 
 # Dir env runs when entering a directory
-# if [ "$(cat ~/.direnvswitch)" = "On" ]; then
-#   eval "$(direnv hook zsh)"
-# fi
+if [ "$(cat ~/.direnvswitch)" = "On" ]; then
+  eval "$(direnv hook zsh)"
+fi
+
+[ -f "/Users/bb8/.ghcup/env" ] && . "/Users/bb8/.ghcup/env" # ghcup-env
+export PATH="/opt/homebrew/opt/libiconv/bin:$PATH"

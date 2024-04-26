@@ -43,11 +43,12 @@ NVIM_BIN="$LOCAL_BIN/nvim/bin"
 export YARN_PATH_STUFF="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin"
 
 # Haskell's stack
-# STACK_TOOLS="$(stack-tools-path '8.10.7' '9.2.5')"
+STACK_TOOLS="$(stack-tools-path '8.10.7' '9.2.5' '9.8.2' '9.6.4')"
 
-# DotNET / F#
-export DOTNET_ROOT="$HOME/.dotnet"
-DOTNET_PATH="$DOTNET_ROOT:$DOTNET_ROOT/tools"
+# DotNET & F#
+# export DOTNET_ROOT="$HOME/.dotnet"
+# DOTNET_PATH="$DOTNET_ROOT:$DOTNET_ROOT/tools:/opt/homebrew/opt/dotnet@6/bin"
+DOTNET_PATH="/opt/homebrew/opt/dotnet@6/bin"
 
 # Java =/
 # export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64"
@@ -57,9 +58,35 @@ FLYCTL_BIN="$HOME/.fly/bin"
 # Racket
 export RACKET_BIN="$HOME/racket/bin"
 
+# OpenVPN (brew)
+OPEN_VPN_PATH="$(brew --prefix openvpn)/sbin"
+
+# CommandLineTools ?
+CLT_PATH="/Library/Developer/CommandLineTools/usr/bin"
+
+# C/C++ Libs: Postgres, libpq, LLVM, libiconv
+ICONV_PATH="/opt/homebrew/opt/libiconv/bin"
+ICONV_LD="-L/opt/homebrew/opt/libiconv/lib"
+ICONV_CPP="-I/opt/homebrew/opt/libiconv/include"
+
+LIBPG_PATH="/opt/homebrew/opt/postgresql@16/bin"
+LIBPG_LD="-L/opt/homebrew/opt/postgresql@16/lib"
+LIBPG_CPP="-I/opt/homebrew/opt/postgresql@16/include"
+
+LLVM_PATH="/opt/homebrew/opt/llvm@12/bin"
+LLVM_LD="-L/opt/homebrew/opt/llvm@12/lib/c++ -Wl,-rpath,/opt/homebrew/opt/llvm@12/lib/c++"
+LLVM_CPP="-I/opt/homebrew/opt/llvm@12/include"
+
+LIBPQ_PATH="/opt/homebrew/opt/libpq/bin"
+LIBPQ_LD="-L/opt/homebrew/opt/libpq/lib"
+LIBPQ_CPP="-I/opt/homebrew/opt/libpq/include"
+
+export LDFLAGS="$ICONV_LD $LIBPG_LD $LLVM_LD $LIBPQ_LD"
+export CPPFLAGS="$ICONV_CPP $LIBPG_CPP $LLVM_CPP $LIBPQ_CPP"
+
 # add stuff to PATH
 
-export PATH="$NVIM_BIN:$RACKET_BIN:$DOTNET_PATH:$YARN_PATH_STUFF:$STACK_TOOLS:$FNM_PATH:$GOBIN:$CADDY:$MY_BIN:$YARN:$CARGO:$DEPOT_TOOLS:$DENO:$LOCAL_BIN:$FLYCTL_BIN:$PATH"
+export PATH="$ICONV_PATH:$LLVM_PATH:$CLT_PATH:$OPEN_VPN_PATH:$PG_PATH:$LIBPQ_PATH:$NVIM_BIN:$RACKET_BIN:$DOTNET_PATH:$YARN_PATH_STUFF:$STACK_TOOLS:$FNM_PATH:$GOBIN:$CADDY:$MY_BIN:$YARN:$CARGO:$DEPOT_TOOLS:$DENO:$LOCAL_BIN:$FLYCTL_BIN:$PATH"
 
 # xdg config
 export XDG_CONFIG_HOME="$HOME/.config"

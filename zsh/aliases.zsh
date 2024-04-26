@@ -44,7 +44,10 @@ alias gbls='git branch --list | xargs -I{} echo {}'
 alias l='lsd -la --group-directories-first'
 
 # list ports (on Linux)
-alias ports='netstat -tulpn'
+alias ports_='netstat -tulpn'
+
+# list ports (on MacOs)
+alias ports='lsof -iTCP -sTCP:LISTEN -n -P'
 
 # psql on Mac
 #
