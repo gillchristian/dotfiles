@@ -69,24 +69,36 @@ ICONV_PATH="/opt/homebrew/opt/libiconv/bin"
 ICONV_LD="-L/opt/homebrew/opt/libiconv/lib"
 ICONV_CPP="-I/opt/homebrew/opt/libiconv/include"
 
+# Reference: <https://stackoverflow.com/a/71895124>
+export LIBRARY_PATH="$LIBRARY_PATH:$(brew --prefix)/lib:$(brew --prefix)/opt/libiconv/lib"
+
+# Reference: <https://stackoverflow.com/a/66571175>
+LIBOMP_LD="-L/opt/homebrew/opt/libomp/lib"
+LIBOMP_CPP="-I/opt/homebrew/opt/libomp/include"
+
 LIBPG_PATH="/opt/homebrew/opt/postgresql@16/bin"
 LIBPG_LD="-L/opt/homebrew/opt/postgresql@16/lib"
 LIBPG_CPP="-I/opt/homebrew/opt/postgresql@16/include"
 
-LLVM_PATH="/opt/homebrew/opt/llvm@12/bin"
-LLVM_LD="-L/opt/homebrew/opt/llvm@12/lib/c++ -Wl,-rpath,/opt/homebrew/opt/llvm@12/lib/c++"
-LLVM_CPP="-I/opt/homebrew/opt/llvm@12/include"
+LLVM_12_PATH="/opt/homebrew/opt/llvm@12/bin"
+LLVM_12_LD="-L/opt/homebrew/opt/llvm@12/lib/c++ -Wl,-rpath,/opt/homebrew/opt/llvm@12/lib/c++"
+LLVM_12_CPP="-I/opt/homebrew/opt/llvm@12/include"
+
+LLVM_PATH="/opt/homebrew/opt/llvm/bin"
+LLVM_LD="-L/opt/homebrew/opt/llvm/lib"
+LLVM_CPP="-I/opt/homebrew/opt/llvm/include"
 
 LIBPQ_PATH="/opt/homebrew/opt/libpq/bin"
 LIBPQ_LD="-L/opt/homebrew/opt/libpq/lib"
 LIBPQ_CPP="-I/opt/homebrew/opt/libpq/include"
 
-export LDFLAGS="$ICONV_LD $LIBPG_LD $LLVM_LD $LIBPQ_LD"
-export CPPFLAGS="$ICONV_CPP $LIBPG_CPP $LLVM_CPP $LIBPQ_CPP"
+export LDFLAGS="$ICONV_LD $LIBPG_LD $LLVM_12_LD $LLVM_LD $LIBPQ_LD $LIBOMP_LD"
+export CPPFLAGS="$ICONV_CPP $LIBPG_CPP $LLVM_12_CPP $LLVM_CPP $LIBPQ_CPP $LIBOMP_CPP"
+export CFLAGS="$ICONV_CPP $LIBPG_CPP $LLVM_12_CPP $LLVM_CPP $LIBPQ_CPP $LIBOMP_CPP"
 
-# add stuff to PATH
+# Add stuff to PATH
 
-export PATH="$ICONV_PATH:$LLVM_PATH:$CLT_PATH:$OPEN_VPN_PATH:$PG_PATH:$LIBPQ_PATH:$NVIM_BIN:$RACKET_BIN:$DOTNET_PATH:$YARN_PATH_STUFF:$STACK_TOOLS:$FNM_PATH:$GOBIN:$CADDY:$MY_BIN:$YARN:$CARGO:$DEPOT_TOOLS:$DENO:$LOCAL_BIN:$FLYCTL_BIN:$PATH"
+export PATH="/usr/bin/:$ICONV_PATH:$LLVM_12_PATH:$LLVM_PATH:$CLT_PATH:$OPEN_VPN_PATH:$PG_PATH:$LIBPQ_PATH:$NVIM_BIN:$RACKET_BIN:$DOTNET_PATH:$YARN_PATH_STUFF:$STACK_TOOLS:$FNM_PATH:$GOBIN:$CADDY:$MY_BIN:$YARN:$CARGO:$DEPOT_TOOLS:$DENO:$LOCAL_BIN:$FLYCTL_BIN:$PATH"
 
 # xdg config
 export XDG_CONFIG_HOME="$HOME/.config"
