@@ -1,5 +1,5 @@
 # NeoVim -> Vim
-# xalias vim=nvim
+alias vim=nvim
 
 # zoom-meeting-parser
 alias zum='xclip -o -sel clip | zoom-meeting-parser | xclip -sel clip'

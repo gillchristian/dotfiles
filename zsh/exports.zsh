@@ -9,7 +9,7 @@ export PURE_PROMPT_SYMBOL='$';
 export LD_LIBRARY_PATH=/usr/local/lib
 
 # Editor
-export EDITOR=vim
+export EDITOR=nvim
 
 # Golang's GOPATH & bin
 export GOPATH="$HOME/.go"

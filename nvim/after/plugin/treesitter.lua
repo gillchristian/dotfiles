@@ -10,7 +10,6 @@ require('nvim-treesitter.configs').setup {
     'rust',
     'javascript',
     'typescript',
-    'help',
     'vim',
     'elm',
     'haskell',
