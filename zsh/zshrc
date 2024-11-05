@@ -93,3 +93,5 @@ fi
 
 [ -f "/Users/bb8/.ghcup/env" ] && . "/Users/bb8/.ghcup/env" # ghcup-env
 export PATH="/opt/homebrew/opt/libiconv/bin:$PATH"
+
+. "$HOME/.cargo/env"

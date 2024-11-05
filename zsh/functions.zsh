@@ -283,3 +283,20 @@ function activity {
     echo "$table_" | column -t -s '|'
   )
 }
+
+function mksticker {
+  ffmpeg -i "$1" -c:v libvpx-vp9 -b:v 0 -crf 30 -pass 1 -an -f null /dev/null && \
+  ffmpeg -i "$1" -c:v libvpx-vp9 -b:v 0 -crf 30 -pass 2 -c:a libopus "${1%.*}.webm"
+}
+
+function mkgifsticker {
+  magick "$1" "${1%.*}.gif"
+  mksticker "${1%.*}.gif"
+  rm "${1%.*}.gif"
+  rm "$1"
+}
+
+function topng {
+  magick "$1" "${1%.*}.png"
+}
+

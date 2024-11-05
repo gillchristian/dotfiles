@@ -18,7 +18,7 @@
 	default = simple
 
 [alias]
-	up = pull --rebase
+	up = pull --rebase --autostash
 
 [fetch]
 	prune = true

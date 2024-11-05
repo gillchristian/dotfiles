@@ -58,7 +58,7 @@ local servers = {
   elmls = {},
   hls = {},
   rust_analyzer = {},
-  tsserver = {},
+  ts_ls = {},
 }
 
 -- Setup neovim lua configuration

@@ -11,16 +11,22 @@ alias c='xclip -sel c'
 alias p='xclip -sel c -o'
 
 # -- GIT ----------------------------- #
-#
+
 # pretty logs
 alias gplg="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
-#
+
 # put all in wip
 alias wip='ga . && gc --no-verify -m wip'
-#
+
 # go back one commit
 alias rollback='git reset HEAD~'
-#
+
+alias push='git push'
+
+alias pushf='git push --force-with-lease'
+
+alias up='git up'
+
 # ------------------------------------ #
 
 # docker-compose
@@ -61,6 +67,3 @@ alias my-ip='curl ipecho.net/plain ; echo'
 
 # Fourmolu
 alias fmt-hs="git ls-files -z '*.hs' | xargs -0 fourmolu --mode inplace"
-
-# ------------------------------------ #
-alias pin='cd ~/dev/Pinata-dev/Pinata'

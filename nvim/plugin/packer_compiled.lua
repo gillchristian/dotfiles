@@ -179,6 +179,11 @@ _G.packer_plugins = {
     path = "/Users/bb8/.local/share/nvim/site/pack/packer/opt/nvim-treesitter-textobjects",
     url = "https://github.com/nvim-treesitter/nvim-treesitter-textobjects"
   },
+  ["nvim-web-devicons"] = {
+    loaded = true,
+    path = "/Users/bb8/.local/share/nvim/site/pack/packer/start/nvim-web-devicons",
+    url = "https://github.com/nvim-tree/nvim-web-devicons"
+  },
   ["onedark.nvim"] = {
     loaded = true,
     path = "/Users/bb8/.local/share/nvim/site/pack/packer/start/onedark.nvim",
