@@ -1,3 +1,5 @@
+# Add deno completions to search path
+if [[ ":$FPATH:" != *":/Users/bb8/.zsh/completions:"* ]]; then export FPATH="/Users/bb8/.zsh/completions:$FPATH"; fi
 ################################################################################
 #                                                                              #
 # Load antidote plugins                                                        #
@@ -95,3 +97,4 @@ fi
 export PATH="/opt/homebrew/opt/libiconv/bin:$PATH"
 
 . "$HOME/.cargo/env"
+. "/Users/bb8/.deno/env"

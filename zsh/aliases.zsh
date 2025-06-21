@@ -5,10 +5,12 @@ alias vim=nvim
 alias zum='xclip -o -sel clip | zoom-meeting-parser | xclip -sel clip'
 
 # copy
-alias c='xclip -sel c'
+# alias c='xclip -sel c' # Linux
+alias c='pbcopy'         # MacOS
 
 # paste
-alias p='xclip -sel c -o'
+# alias p='xclip -sel c -o' # Linux
+# alias p='pbpaste'         # MacOS
 
 # -- GIT ----------------------------- #
 
@@ -24,6 +26,8 @@ alias rollback='git reset HEAD~'
 alias push='git push'
 
 alias pushf='git push --force-with-lease'
+
+alias pushu='git push origin $(git rev-parse --abbrev-ref HEAD) -u'
 
 alias up='git up'
 

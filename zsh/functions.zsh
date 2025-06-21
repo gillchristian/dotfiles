@@ -300,3 +300,39 @@ function topng {
   magick "$1" "${1%.*}.png"
 }
 
+function wc_ {
+  case $1 in
+    -h|--help)
+      echo "Usage: wc_ [file_extension]"
+      echo "Counts words in files with the specified extension (default: md)."
+      ;;
+    *)
+      local ext=${1:-md} # default to markdown files if no argument is given
+
+      find . -name "*.$ext" -exec wc -w {} + |
+      awk -v ext="$ext" '
+      /total/ { grand = $1; next }
+
+      {
+          path = $2                          # ./index.<ext> or ./Notes/Topic.<ext>
+          sub(/^\.\//,"", path)              # strip leading "./"
+
+          split(path, seg, "/")              # seg[1] is the top-level component
+          top  = seg[1] == "" ? "." : seg[1] 
+
+          counts[top] += $1                  # add this file’s words to the bucket
+      }
+
+      END {
+          for (d in counts) {
+              is_file = (d == ".") || (d ~ ("\\." ext "$"))   # root bucket or top ends with .<ext>
+              printf("%8d ./%s%s\n",
+                    counts[d],
+                    (d == "." ? "" : d),
+                    (is_file ? "" : "/"))
+          }
+          printf("%8d total\n", grand)
+      }'
+      ;;
+  esac
+}
