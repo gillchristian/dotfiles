@@ -119,6 +119,11 @@ _G.packer_plugins = {
     path = "/Users/bb8/.local/share/nvim/site/pack/packer/start/indent-blankline.nvim",
     url = "https://github.com/lukas-reineke/indent-blankline.nvim"
   },
+  ["lazydev.nvim"] = {
+    loaded = true,
+    path = "/Users/bb8/.local/share/nvim/site/pack/packer/start/lazydev.nvim",
+    url = "https://github.com/folke/lazydev.nvim"
+  },
   ["lualine.nvim"] = {
     loaded = true,
     path = "/Users/bb8/.local/share/nvim/site/pack/packer/start/lualine.nvim",
@@ -134,23 +139,10 @@ _G.packer_plugins = {
     path = "/Users/bb8/.local/share/nvim/site/pack/packer/start/mason.nvim",
     url = "https://github.com/williamboman/mason.nvim"
   },
-  ["neodev.nvim"] = {
-    loaded = true,
-    path = "/Users/bb8/.local/share/nvim/site/pack/packer/start/neodev.nvim",
-    url = "https://github.com/folke/neodev.nvim"
-  },
   ["nvim-cmp"] = {
     loaded = true,
     path = "/Users/bb8/.local/share/nvim/site/pack/packer/start/nvim-cmp",
     url = "https://github.com/hrsh7th/nvim-cmp"
-  },
-  ["nvim-code-action-menu"] = {
-    commands = { "CodeActionMenu" },
-    loaded = false,
-    needs_bufread = true,
-    only_cond = false,
-    path = "/Users/bb8/.local/share/nvim/site/pack/packer/opt/nvim-code-action-menu",
-    url = "https://github.com/weilbith/nvim-code-action-menu"
   },
   ["nvim-lspconfig"] = {
     loaded = true,
@@ -189,13 +181,6 @@ _G.packer_plugins = {
     path = "/Users/bb8/.local/share/nvim/site/pack/packer/start/packer.nvim",
     url = "https://github.com/wbthomason/packer.nvim"
   },
-  playground = {
-    load_after = {},
-    loaded = true,
-    needs_bufread = true,
-    path = "/Users/bb8/.local/share/nvim/site/pack/packer/opt/playground",
-    url = "https://github.com/nvim-treesitter/playground"
-  },
   ["plenary.nvim"] = {
     loaded = true,
     path = "/Users/bb8/.local/share/nvim/site/pack/packer/start/plenary.nvim",
@@ -219,30 +204,10 @@ _G.packer_plugins = {
     path = "/Users/bb8/.local/share/nvim/site/pack/packer/start/undotree",
     url = "https://github.com/mbbill/undotree"
   },
-  ["vim-commentary"] = {
-    loaded = true,
-    path = "/Users/bb8/.local/share/nvim/site/pack/packer/start/vim-commentary",
-    url = "https://github.com/tpope/vim-commentary"
-  },
-  ["vim-devicons"] = {
-    loaded = true,
-    path = "/Users/bb8/.local/share/nvim/site/pack/packer/start/vim-devicons",
-    url = "https://github.com/ryanoasis/vim-devicons"
-  },
-  ["vim-fugitive"] = {
-    loaded = true,
-    path = "/Users/bb8/.local/share/nvim/site/pack/packer/start/vim-fugitive",
-    url = "https://github.com/tpope/vim-fugitive"
-  },
   ["vim-repeat"] = {
     loaded = true,
     path = "/Users/bb8/.local/share/nvim/site/pack/packer/start/vim-repeat",
     url = "https://github.com/tpope/vim-repeat"
-  },
-  ["vim-rhubarb"] = {
-    loaded = true,
-    path = "/Users/bb8/.local/share/nvim/site/pack/packer/start/vim-rhubarb",
-    url = "https://github.com/tpope/vim-rhubarb"
   },
   ["vim-signature"] = {
     loaded = true,
@@ -290,20 +255,7 @@ time([[Conditional loading of telescope-fzf-native.nvim]], false)
 time([[Sequenced loading]], true)
 vim.cmd [[ packadd nvim-treesitter ]]
 vim.cmd [[ packadd nvim-treesitter-textobjects ]]
-vim.cmd [[ packadd playground ]]
 time([[Sequenced loading]], false)
-
--- Command lazy-loads
-time([[Defining lazy-load commands]], true)
-pcall(vim.api.nvim_create_user_command, 'CodeActionMenu', function(cmdargs)
-          require('packer.load')({'nvim-code-action-menu'}, { cmd = 'CodeActionMenu', l1 = cmdargs.line1, l2 = cmdargs.line2, bang = cmdargs.bang, args = cmdargs.args, mods = cmdargs.mods }, _G.packer_plugins)
-        end,
-        {nargs = '*', range = true, bang = true, complete = function()
-          require('packer.load')({'nvim-code-action-menu'}, {}, _G.packer_plugins)
-          return vim.fn.getcompletion('CodeActionMenu ', 'cmdline')
-      end})
-time([[Defining lazy-load commands]], false)
-
 
 _G._packer.inside_compile = false
 if _G._packer.needs_bufread == true then

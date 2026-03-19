@@ -81,6 +81,6 @@ vim.o.completeopt = 'menuone,noselect'
 -- Show matching brackets when inserted
 vim.o.showmatch = true
 vim.o.showcmd = true
-vim.o.textwidth = 80
+vim.o.textwidth = 0
 vim.o.colorcolumn = "40,80,120"
 vim.o.showtabline = 2

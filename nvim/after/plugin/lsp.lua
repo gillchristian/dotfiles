@@ -17,10 +17,7 @@ local on_attach = function(_, bufnr)
  end
 
   nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
-  -- Show the code action menu from weilbith/nvim-code-action-menu
-  -- The lsp function is `vim.lsp.buf.code_action`
-  -- TODO: how to call it as a function instead? -> require('nvim-code-action-men') didn't work
-  nmap('<leader>ca', ':CodeActionMenu<cr>', '[C]ode [A]ction')
+  nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
 
   nmap('gd', vim.lsp.buf.definition, '[G]oto [d]efinition')
   nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
@@ -62,7 +59,7 @@ local servers = {
 }
 
 -- Setup neovim lua configuration
-require('neodev').setup()
+require('lazydev').setup()
 
 -- nvim-cmp supports additional completion capabilities, so broadcast that to servers
 local capabilities = vim.lsp.protocol.make_client_capabilities()

@@ -12,8 +12,6 @@ require('packer').startup(function(use)
   -- Package manager
   use 'wbthomason/packer.nvim'
 
-  use 'ryanoasis/vim-devicons'
-
   use { -- LSP Configuration & Plugins
     'neovim/nvim-lspconfig',
     requires = {
@@ -25,19 +23,13 @@ require('packer').startup(function(use)
       'j-hui/fidget.nvim',
 
       -- Additional lua configuration, makes nvim stuff amazing
-      'folke/neodev.nvim',
+      'folke/lazydev.nvim',
     },
   }
 
   use { -- Autocompletion
     'hrsh7th/nvim-cmp',
     requires = { 'hrsh7th/cmp-nvim-lsp', 'L3MON4D3/LuaSnip', 'saadparwaiz1/cmp_luasnip' },
-  }
-
-  -- Fancy code action menu
-  use {
-    'weilbith/nvim-code-action-menu',
-    cmd = 'CodeActionMenu',
   }
 
   use { -- Highlight, edit, and navigate code
@@ -52,21 +44,12 @@ require('packer').startup(function(use)
     after = 'nvim-treesitter',
   }
 
-  use {
-    'nvim-treesitter/playground',
-    after = 'nvim-treesitter',
-  }
-
   use 'mbbill/undotree'
 
   -- Git related plugins
-  use 'tpope/vim-fugitive'
-  use 'tpope/vim-rhubarb'
   use 'lewis6991/gitsigns.nvim'
-  -- TODO: check out airblade/vim-gitgutter
 
   -- Motion and editing
-  use 'tpope/vim-commentary'
   use 'tpope/vim-repeat'
   use 'tpope/vim-surround'
   use 'kana/vim-textobj-user'
