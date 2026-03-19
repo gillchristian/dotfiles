@@ -54,3 +54,17 @@ vim.keymap.set('n', ']d', vim.diagnostic.goto_next)
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist)
 -- TODO: this conflicts with CamelCaseMotion
 -- vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float)
+
+vim.keymap.set('n', '<leader>cp', function()
+  local path = vim.fn.expand('%:.')
+  vim.fn.setreg('+', path)
+  vim.notify('Copied: ' .. path)
+end, { desc = 'Copy file path' })
+
+vim.keymap.set('n', '<leader>cP', function()
+  local filepath = vim.fn.expand('%:p')
+  local git_root = vim.fn.systemlist('git -C ' .. vim.fn.shellescape(vim.fn.expand('%:p:h')) .. ' rev-parse --show-toplevel')[1]
+  local rel_path = filepath:sub(#git_root + 2) -- +2 to skip the trailing /
+  vim.fn.setreg('+', rel_path)
+  vim.notify('Copied: ' .. rel_path)
+end, { desc = 'Copy file path (relative to git root)' })
