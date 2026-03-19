@@ -3,7 +3,10 @@
     "allow": [
       "Bash(nvim --version)",
       "mcp__context7__resolve-library-id",
-      "mcp__context7__query-docs"
+      "mcp__context7__query-docs",
+      "Bash(nvim --cmd 'set ft=text' --cmd 'echo &textwidth' --cmd 'q')",
+      "Read(//opt/homebrew/Cellar/neovim/**)",
+      "Read(//opt/homebrew/**)"
     ]
   }
 }
