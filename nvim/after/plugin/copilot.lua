@@ -1,1 +1,1 @@
-vim.g.copilot_no_tab_map = false
+-- Tab is owned by Copilot, not nvim-cmp (see lsp.lua Tab = nil)

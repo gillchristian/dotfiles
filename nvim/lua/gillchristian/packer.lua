@@ -57,7 +57,6 @@ require('packer').startup(function(use)
     after = 'nvim-treesitter',
   }
 
-  use 'theprimeagen/harpoon'
   use 'mbbill/undotree'
 
   -- Git related plugins
