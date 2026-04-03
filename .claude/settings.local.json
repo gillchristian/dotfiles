@@ -8,5 +8,8 @@
       "Read(//opt/homebrew/Cellar/neovim/**)",
       "Read(//opt/homebrew/**)"
     ]
-  }
+  },
+  "disabledMcpjsonServers": [
+    "strava"
+  ]
 }

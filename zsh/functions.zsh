@@ -183,6 +183,14 @@ zgo() {
     xargs -I{} git checkout {}
 }
 
+# add files with fzf (from git status)
+zga() {
+  git status --short | \
+    awk '{print $NF}' | \
+    fzf --multi --preview='git diff --color=always -- {} 2>/dev/null || bat --color=always {}' --ansi | \
+    xargs git add
+}
+
 # Clean iOS shitty automatic quotes
 
 function clean-ios-quotes {
