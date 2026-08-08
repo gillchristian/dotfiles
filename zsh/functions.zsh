@@ -185,10 +185,11 @@ zgo() {
 
 # add files with fzf (from git status)
 zga() {
-  git status --short | \
-    awk '{print $NF}' | \
+  git diff --name-only | \
+    cat - <(git ls-files --others --exclude-standard) | \
     fzf --multi --preview='git diff --color=always -- {} 2>/dev/null || bat --color=always {}' --ansi | \
     xargs git add
+  gst
 }
 
 # Clean iOS shitty automatic quotes

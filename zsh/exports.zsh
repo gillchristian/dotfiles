@@ -45,11 +45,6 @@ export YARN_PATH_STUFF="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.
 # Haskell's stack
 STACK_TOOLS="$(stack-tools-path '8.10.7' '9.2.5' '9.8.2' '9.6.4')"
 
-# DotNET & F#
-# export DOTNET_ROOT="$HOME/.dotnet"
-# DOTNET_PATH="$DOTNET_ROOT:$DOTNET_ROOT/tools:/opt/homebrew/opt/dotnet@6/bin"
-DOTNET_PATH="/opt/homebrew/opt/dotnet@6/bin"
-
 # Java =/
 # export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64"
 

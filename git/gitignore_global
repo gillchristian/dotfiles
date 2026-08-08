@@ -93,3 +93,5 @@ WORKING-ON.txt
 /cache
 /extensions
 /specifications
+
+**/.claude/settings.local.json
