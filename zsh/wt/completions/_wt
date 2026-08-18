@@ -1,0 +1,106 @@
+#compdef wt
+
+# Completion for wt (see ~/.zsh/wt/). Worktree and branch names are asked of
+# the tool itself rather than recomputed here, so they always come from the
+# profile that owns $PWD — including under -R.
+
+local -a cmds names branches repos
+local -i argstart=2
+
+cmds=(
+  'new:worktree + companion worktrees + seed, then cd'
+  'adopt:move the primary checkout'"'"'s branch into a worktree'
+  'ls:every worktree with branch, distance from trunk, state'
+  'ports:which checkout serves each port, and what runs there'
+  'sync:fetch, fast-forward the trunk, rebase clean worktrees'
+  'rm:remove a worktree (companions first, then prune)'
+  'lock:protect a worktree from wt rm and git prune'
+  'unlock:release the lock'
+  'seed:re-run seeding on an existing worktree'
+  'gc:delete the profile'"'"'s gc_paths'
+  'which:print the worktree $PWD is in'
+  'doctor:the primary'"'"'s prerequisites, then each worktree'
+  'probe:run the profile'"'"'s probes and show their raw output'
+  'init:write a starting .wt.zsh for this repo, and register it'
+  'setup:make the primary satisfy the profile'
+  'repos:the registry'
+  'help:usage (help profile for the profile format)'
+)
+
+_wt_comp_worktrees() { wt "${wt_r[@]}" _names 2>/dev/null }
+_wt_comp_targets()   { print -rl -- primary $(_wt_comp_worktrees) }
+_wt_comp_branches() {
+  local root=$(wt "${wt_r[@]}" which --root 2>/dev/null)
+  [[ -z $root ]] && return
+  git -C "$root" for-each-ref --format='%(refname:short)' refs/heads refs/remotes 2>/dev/null |
+    sed -e 's|^[^/]*/||' -e '/^HEAD$/d' | sort -u
+}
+
+# a leading -R <repo> shifts everything and must be carried into the queries above
+local -a wt_r=()
+if [[ ${words[2]} == (-R|--repo) ]]; then
+  wt_r=(-R ${words[3]})
+  argstart=4
+fi
+
+if (( CURRENT == 2 )); then
+  _describe -t commands 'wt command' cmds
+  names=(${(f)"$(_wt_comp_worktrees)"})
+  _describe -t worktrees 'worktree' names
+  _values 'flag' '-R[act on another registered repo]'
+  return
+fi
+if (( CURRENT == 3 )) && [[ ${words[2]} == (-R|--repo) ]]; then
+  repos=(${(f)"$(wt _repos 2>/dev/null)"})
+  _describe -t repos 'repo' repos
+  return
+fi
+if (( CURRENT == argstart )); then
+  _describe -t commands 'wt command' cmds
+  names=(${(f)"$(_wt_comp_worktrees)"})
+  _describe -t worktrees 'worktree' names
+  return
+fi
+
+case ${words[argstart]} in
+  rm)
+    names=(${(f)"$(_wt_comp_worktrees)"})
+    _describe -t worktrees 'worktree' names
+    _values 'flag' '--branch[also delete the branches]' \
+                   '--no-fold[never squash-merge a companion]' \
+                   '--force[skip the safety checks]'
+    ;;
+  lock|unlock|seed|probe)
+    names=(${(f)"$(_wt_comp_worktrees)"})
+    _describe -t worktrees 'worktree' names
+    ;;
+  gc)
+    names=(${(f)"$(_wt_comp_targets)"})   # the primary is a valid target too
+    _describe -t worktrees 'worktree' names
+    ;;
+  new)
+    branches=(${(f)"$(_wt_comp_branches)"})
+    _describe -t branches 'branch' branches
+    _values 'flag' '--from[base a new branch on this ref]' \
+                   '--as[name the worktree yourself]' \
+                   '--no-seed[skip the build-state clone]'
+    ;;
+  adopt)
+    branches=(${(f)"$(_wt_comp_branches)"})
+    _describe -t branches 'branch' branches
+    _values 'flag' '--move-changes[carry uncommitted changes over]' \
+                   '--as[name the worktree yourself]'
+    ;;
+  sync)   _values 'flag' '--no-rebase[only report]' ;;
+  setup)  _values 'flag' '--dry-run[say what it would do]' ;;
+  init)   _values 'flag' '--force[overwrite an existing .wt.zsh]'; _files -/ ;;
+  repos)  _values 'subcommand' 'list' 'add' 'rm' ;;
+  which)  _values 'flag' '--path[print the worktree path]' \
+                         '--root[print the primary checkout]' \
+                         '--repo[print the profile name]' ;;
+  help)   _values 'topic' 'profile' ;;
+  *)
+    names=(${(f)"$(_wt_comp_targets)"})
+    _describe -t worktrees 'worktree' names
+    ;;
+esac

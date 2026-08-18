@@ -1,0 +1,78 @@
+#compdef wt
+
+# Completion for wt (see ~/.zsh/wt.zsh): subcommands and worktree names on the
+# first word, then worktree names or branch names depending on the subcommand.
+
+local -a cmds names branches
+
+cmds=(
+  'new:worktree + mirrored knowledge branch + seed, then cd'
+  'adopt:move the primary checkout'"'"'s branch into a worktree'
+  'ls:every worktree with branch, distance from main, state'
+  'ports:which checkout serves each dev port, and what runs there'
+  'sync:fetch, fast-forward main, rebase clean worktrees'
+  'rm:remove a worktree (knowledge first, then prune)'
+  'lock:protect a worktree from wt rm and git prune'
+  'unlock:release the lock'
+  'seed:re-run seeding on an existing worktree'
+  'gc:drop rustc incremental caches (frees GBs, recompiles nothing)'
+  'which:print the worktree $PWD is in'
+  'doctor:seeding, drift, stale registrations, shared-DB warnings'
+  'help:usage'
+)
+
+_wt_comp_names() { print -rl -- main ${(f)"$(_wt_names 2>/dev/null)"} }
+
+_wt_comp_branches() {
+  git -C "${WT_MAIN:-$HOME/dev/Pinata-dev/Pinata}" for-each-ref \
+      --format='%(refname:short)' refs/heads refs/remotes/origin 2>/dev/null |
+    sed 's|^origin/||' | sort -u
+}
+
+if (( CURRENT == 2 )); then
+  _describe -t commands 'wt command' cmds
+  names=(${(f)"$(_wt_comp_names)"})
+  _describe -t worktrees 'worktree' names
+  return
+fi
+
+case ${words[2]} in
+  rm)
+    names=(${(f)"$(_wt_names 2>/dev/null)"})
+    _describe -t worktrees 'worktree' names
+    _values 'flag' '--branch[also delete the branches]' \
+                   '--no-kb-merge[do not fold the knowledge mirror into KB main]' \
+                   '--force[skip the safety checks]'
+    ;;
+  lock|unlock|seed)
+    names=(${(f)"$(_wt_names 2>/dev/null)"})
+    _describe -t worktrees 'worktree' names
+    ;;
+  gc)
+    names=(${(f)"$(_wt_comp_names)"})   # main is a valid target too
+    _describe -t worktrees 'worktree' names
+    ;;
+  new)
+    branches=(${(f)"$(_wt_comp_branches)"})
+    _describe -t branches 'branch' branches
+    _values 'flag' '--from[base a new branch on this ref]' \
+                   '--as[name the worktree yourself]' \
+                   '--no-seed[skip the build-state clone]'
+    ;;
+  adopt)
+    branches=(${(f)"$(_wt_comp_branches)"})
+    _describe -t branches 'branch' branches
+    _values 'flag' '--move-changes[carry uncommitted changes over]' \
+                   '--as[name the worktree yourself]'
+    ;;
+  sync)
+    _values 'flag' '--no-rebase[only report]'
+    ;;
+  which)
+    _values 'flag' '--path[print the path instead of the name]'
+    ;;
+  *)
+    names=(${(f)"$(_wt_comp_names)"})
+    _describe -t worktrees 'worktree' names
+    ;;
+esac

@@ -1,0 +1,1460 @@
+# ############################################################################ #
+#                                                                              #
+# wt — Pinata worktrees                                                        #
+#                                                                              #
+# `git worktree` alone is not enough on this repo:                             #
+#                                                                              #
+#   - knowledge/ is a separate nested repo (ignored by Pinata) and working     #
+#     without it is impossible, so every worktree gets its own knowledge       #
+#     worktree at <wt>/knowledge on a branch of the same name.                 #
+#                                                                              #
+#   - the tracked repo is ~95 MB but the working tree is ~25 GB of ignored     #
+#     build state (Rustend/target alone is 20 GB), so a virgin worktree would  #
+#     mean a full rebuild. Ignored paths are seeded with APFS clones (cp -c):  #
+#     seconds, ~0 extra disk (copy-on-write), and cargo keeps every unit Fresh #
+#     because its fingerprints survive the path change.                        #
+#                                                                              #
+#   - local-only config (.envrc, CLAUDE.md, .claude/skills, …) is symlinked    #
+#     back to the primary checkout, so there is one source of truth.           #
+#                                                                              #
+# Layout                                                                       #
+#   ~/dev/Pinata-dev/Pinata                    primary checkout, stays on main #
+#   ~/dev/Pinata-dev/PINATA-632                worktree, one per ticket        #
+#   ~/dev/Pinata-dev/PINATA-632/knowledge      its mirrored knowledge branch   #
+#                                                                              #
+# What this cannot fix: dev ports and the local postgres on :10000 are shared, #
+# so run the stack from one worktree at a time. `wt ls` flags worktrees with   #
+# migrations main does not have; `wt doctor` spells the rest out.              #
+#                                                                              #
+# ############################################################################ #
+
+WT_MAIN=${WT_MAIN:-$HOME/dev/Pinata-dev/Pinata}
+WT_HOME=${WT_HOME:-$HOME/dev/Pinata-dev}
+# array, so set it as one if you override: WT_PROTECTED=(main master release)
+(( ${#WT_PROTECTED} )) || WT_PROTECTED=(main master)
+
+# Local-only paths shared with the primary checkout by symlink: one source of
+# truth, edit them from anywhere. They are untracked, so `wt rm` drops the links
+# before removing a worktree (see _wt_unseed).
+WT_SYMLINK=(
+  .envrc
+  CLAUDE.md
+  scripts_
+  workspace.local.code-workspace
+  .claude/settings.local.json
+  .claude/skills
+  systems/Rustend/.cargo/config.toml   # dev debuginfo; must match everywhere
+)
+
+# Ignored paths not worth seeding. Everything else git reports as ignored gets
+# cloned, so this stays correct as the repo grows new build dirs.
+WT_NO_SEED=(
+  'knowledge'                   # gets its own worktree
+  '.review'                     # per-PR review manifests, regenerated
+  '.DS_Store' '*/.DS_Store'
+  '*/log/*' '*/tmp/*'           # logs, rails tmp, sockets, secrets
+  'projects/db-scripts/runs'
+  '.claude/*' 'scripts_/*'      # symlinked instead
+  'workspace.local.code-workspace'
+)
+
+# Known dev ports → label. This is only for labelling and for showing which
+# expected services are down: the scan itself finds listeners by cwd, so a
+# service on an unlisted port is still attributed correctly.
+#
+# Ports per systems/Rustend/bin/http_api/src/app_uris.rs (the registry in code)
+# plus observation. Note CLAUDE.md's list is stale: it calls 10001 Rustend, but
+# 10001 is the F#/.NET Pinata.Api and Rustend is 10010.
+(( ${#WT_PORTS} )) || typeset -gA WT_PORTS=(
+  1234  webnacho-dev
+  10000 postgres
+  10001 api
+  10004 accounts
+  10005 go
+  10008 mycompany
+  10009 backend
+  10010 rustend
+  10090 apinacho
+  10091 webnacho
+  10100 theapp
+)
+
+# ---------------------------------------------------------------------------- #
+# output helpers
+# ---------------------------------------------------------------------------- #
+
+_wt_err()  { print -u2 -P "%F{9}wt:%f $*" }
+_wt_warn() { print -P "%F{11}wt:%f $*" }
+_wt_info() { print -P "%F{8}·%f $*" }
+_wt_ok()   { print -P "%F{10}✔%f $*" }
+_wt_die()  { _wt_err "$*"; return 1 }
+_wt_head() { print -P "%F{12}==>%f $*" }
+
+# ---------------------------------------------------------------------------- #
+# git helpers
+# ---------------------------------------------------------------------------- #
+
+_wt_g()  { git -C "$WT_MAIN" "$@" }             # primary Pinata checkout
+_wt_kg() { git -C "$WT_MAIN/knowledge" "$@" }   # primary knowledge checkout
+
+_wt_has_local()  { git -C "$1" show-ref --verify --quiet "refs/heads/$2" }
+_wt_has_remote() { git -C "$1" show-ref --verify --quiet "refs/remotes/origin/$2" }
+
+# Is $2 checked out by a worktree of repo $1? prints the path if so
+_wt_checked_out_in() {
+  git -C "$1" worktree list --porcelain | awk -v b="refs/heads/$2" '
+    /^worktree / { p = substr($0, 10) }
+    $0 == "branch " b { print p; found = 1; exit }
+    END { exit !found }
+  '
+}
+
+_wt_gitdir() { git -C "$1" rev-parse --absolute-git-dir 2>/dev/null }
+
+# Tracked-file dirtiness. Obsidian rewrites .obsidian/workspace.json constantly,
+# so it never counts as work in the knowledge repo.
+_wt_dirty_count() {
+  local n
+  n=$(git -C "$1" status --porcelain --untracked-files=no -- ':(exclude).obsidian/' 2>/dev/null | wc -l)
+  print -r -- ${n//[[:space:]]/}
+}
+
+# Untracked files that are not one of our symlinks — i.e. real unsaved work
+_wt_stray_untracked() {
+  local root=$1 f
+  for f in ${(f)"$(git -C $root ls-files --others --exclude-standard 2>/dev/null)"}; do
+    [[ -z $f ]] && continue
+    [[ ${WT_SYMLINK[(Ie)${f%/}]} -gt 0 ]] && continue
+    [[ -L $root/${f%/} ]] && continue
+    print -r -- $f
+  done
+}
+
+# How the branch stands to its remote counterpart, without touching the network:
+#   ok    tracking a remote branch that still exists
+#   gone  tracked one that has been deleted — which is what GitHub does when it
+#         merges a PR, so the commit counts below stop meaning anything
+#   none  never pushed, so origin/main is the honest comparison
+_wt_upstream_state() {
+  local repo=$1 branch=$2
+  [[ -z $(git -C "$repo" config --get "branch.$branch.merge" 2>/dev/null) ]] &&
+    { print -r -- none; return }
+  git -C "$repo" rev-parse --verify --quiet "$branch@{upstream}" >/dev/null 2>&1 &&
+    { print -r -- ok; return }
+  print -r -- gone
+}
+
+# MERGED / OPEN / CLOSED and the number, tab separated; empty when there is no PR
+# or gh can't answer. This is the only reliable answer to "is this work in main":
+# a squash merge mints one new commit carrying the same tree, so the branch's own
+# commits never become ancestors of main and no amount of counting will say so.
+_wt_pr() {
+  (( $+commands[gh] )) || return 0
+  (cd "$WT_MAIN" && gh pr view "$1" --json state,number -q '"\(.state)\t\(.number)"' 2>/dev/null)
+}
+
+# Would merging $2 into origin/main change anything? Ancestry cannot answer that
+# after a squash merge — the squash mints one new commit carrying the same tree,
+# so the branch's own commits are never ancestors and any count reads "unmerged"
+# forever. The merge *result* is the honest test: if it equals main's tree there
+# is nothing left to lose. Works offline and for the KB repo, which has no PRs.
+_wt_contained() {
+  local repo=$1 branch=$2 merged main
+  _wt_has_remote "$repo" main || return 1
+  merged=$(git -C "$repo" merge-tree --write-tree origin/main "$branch" 2>/dev/null) || return 1
+  main=$(git -C "$repo" rev-parse 'origin/main^{tree}' 2>/dev/null) || return 1
+  [[ -n $merged && $merged == $main ]]
+}
+
+# Is every hunk the branch added already present in main? This answers what
+# _wt_contained cannot once the branch is *stale*: main can hold the branch's
+# contribution AND newer edits on adjacent lines, and a merge conflicts on that
+# region even though nothing is missing — which is exactly what a one-line-per-row
+# table like work/index.md produces. Zero context tests the hunks alone, against a
+# throwaway index so nothing is touched.
+#
+# Deliberately only used to allow removing a *worktree*, which loses no commits —
+# never to authorise deleting a branch, where a false positive would lose work.
+_wt_work_in_main() {
+  local repo=$1 branch=$2 base idx rc
+  base=$(git -C "$repo" merge-base origin/main "$branch" 2>/dev/null) || return 1
+  idx=$(mktemp "${TMPDIR:-/tmp}/wt-idx.XXXXXX") || return 1
+  if ! GIT_INDEX_FILE=$idx git -C "$repo" read-tree origin/main 2>/dev/null; then
+    rm -f "$idx"; return 1
+  fi
+  git -C "$repo" diff -U0 "$base..$branch" |
+    GIT_INDEX_FILE=$idx git -C "$repo" apply --unidiff-zero --reverse --check --cached - 2>/dev/null
+  rc=$?
+  rm -f "$idx"
+  return $rc
+}
+
+# Commits that live only here: vs upstream when there is one, else vs origin/main.
+# A non-zero count does NOT mean unmerged — check _wt_contained before believing it.
+_wt_unpushed() {
+  local repo=$1 branch=$2 base
+  [[ -z $branch || $branch == '(detached)' ]] && { print -r -- 0; return }
+  if git -C "$repo" rev-parse --verify --quiet "$branch@{upstream}" >/dev/null 2>&1; then
+    base="$branch@{upstream}"
+  elif _wt_has_remote "$repo" main; then
+    base=origin/main
+  else
+    print -r -- 0; return
+  fi
+  git -C "$repo" rev-list --count "$base..$branch" 2>/dev/null || print -r -- 0
+}
+
+_wt_behind_main() { git -C "$1" rev-list --count HEAD..origin/main 2>/dev/null || print -r -- 0 }
+
+# The branch name, or — when HEAD is detached — what git is in the middle of.
+# `rev-parse --abbrev-ref HEAD` just says "HEAD", which reads as a branch called
+# HEAD in a listing and hides a half-finished rebase.
+_wt_head_label() {
+  local repo=$1 b g
+  b=$(git -C "$repo" rev-parse --abbrev-ref HEAD 2>/dev/null)
+  [[ -n $b && $b != HEAD ]] && { print -r -- $b; return }
+  g=$(git -C "$repo" rev-parse --absolute-git-dir 2>/dev/null)
+  if [[ -e $g/rebase-merge || -e $g/rebase-apply ]]; then
+    print -r -- rebasing
+  elif [[ -e $g/MERGE_HEAD ]]; then
+    print -r -- merging
+  elif [[ -e $g/CHERRY_PICK_HEAD ]]; then
+    print -r -- cherry-picking
+  else
+    print -r -- detached
+  fi
+}
+
+_wt_mid_operation() { [[ $(_wt_head_label "$1") == (rebasing|merging|cherry-picking) ]] }
+
+# migrations this branch adds on top of main — the shared-DB warning sign
+_wt_new_migrations() {
+  local n
+  n=$(git -C "$1" diff --name-only --diff-filter=A origin/main...HEAD -- systems/Db/migrations 2>/dev/null | wc -l)
+  print -r -- ${n//[[:space:]]/}
+}
+
+# ---------------------------------------------------------------------------- #
+# worktree registry — name \t path \t branch \t locked
+# (the primary checkout and Claude Code's own worktrees are left out)
+# ---------------------------------------------------------------------------- #
+
+_wt_list() {
+  _wt_g worktree list --porcelain | awk -v main="$WT_MAIN" '
+    function flush() {
+      if (path != "" && path != main && path !~ /\/\.claude\/worktrees\//) {
+        n = split(path, seg, "/")
+        printf "%s\t%s\t%s\t%s\n", seg[n], path, branch, locked
+      }
+      path = ""; branch = ""; locked = ""
+    }
+    /^worktree /  { flush(); path = substr($0, 10); next }
+    /^branch /    { branch = substr($0, 8); sub(/^refs\/heads\//, "", branch); next }
+    /^detached/   { branch = "(detached)"; next }
+    /^locked/     { locked = "locked"; next }
+    END { flush() }
+  '
+}
+
+_wt_names()   { _wt_list | cut -f1 }
+_wt_path_of() { _wt_list | awk -F'\t' -v n="$1" '$1 == n { print $2 }' }
+
+# Which checkout contains $PWD (a worktree root, or the primary)? empty if outside
+_wt_root_of_pwd() {
+  local top parent
+  top=$(git rev-parse --show-toplevel 2>/dev/null) || return 1
+  if [[ ${top:t} == knowledge ]]; then
+    parent=${top:h}
+    [[ -e $parent/.git ]] && top=$parent
+  fi
+  print -r -- $top
+}
+
+_wt_current() {
+  local top=$(_wt_root_of_pwd)
+  [[ -n $top && $top != $WT_MAIN && -n $(_wt_path_of ${top:t}) ]] && print -r -- ${top:t}
+}
+
+_wt_pick() {
+  local rows=$(_wt_list)
+  [[ -z $rows ]] && { _wt_err "no worktrees yet — wt new <branch>"; return 1 }
+  {
+    printf '%s\t%s\t%s\t%s\n' main "$WT_MAIN" "$(_wt_g rev-parse --abbrev-ref HEAD)" primary
+    print -r -- $rows
+  } | fzf --height 40% --reverse --inline-info --with-nth 1,3,4 --delimiter='\t' \
+          --preview 'git -C {2} status --short --branch --untracked-files=no' |
+    cut -f2
+}
+
+# ---------------------------------------------------------------------------- #
+# who is serving the dev ports, and from where
+#
+# The ports and the postgres on :10000 are shared across worktrees, so the one
+# question worth answering in a listing is which checkout the running stack
+# belongs to. A listener's cwd is what ties it to a worktree, so this is two lsof
+# calls (~60 ms total): one for the listeners, one to resolve their cwds.
+#
+# Fills, for use by ls / ports / doctor:
+#   _wt_port_pid[port] _wt_port_cmd[port] _wt_port_where[port]  (per port)
+#   _wt_run[<worktree name>]  space-separated labels of what it serves
+# ---------------------------------------------------------------------------- #
+
+_wt_scan_ports() {
+  typeset -gA _wt_port_pid _wt_port_cmd _wt_port_where _wt_port_label _wt_run
+  _wt_port_pid=() _wt_port_cmd=() _wt_port_where=() _wt_port_label=() _wt_run=()
+  (( $+commands[lsof] )) || return 0
+
+  local line pid cmd port cwd owner label
+  local -a pids=() roots=() f
+  local -A cwd_of all_pid all_cmd
+
+  # Every listener, not just the ports we know: a port list goes stale (Rustend
+  # moved to 10010 and Backend to 10009 while CLAUDE.md still said 10001), and
+  # the cwd is what actually ties a service to a checkout.
+  for line in ${(f)"$(lsof -nP -iTCP -sTCP:LISTEN -Fpcn 2>/dev/null)"}; do
+    case $line in
+      p[0-9]*) pid=${line#p} ;;
+      c*)      cmd=${line#c} ;;
+      n*)      port=${${line#n}##*:}
+               [[ -n $port && -z ${port//[0-9]/} ]] || continue    # skip odd names
+               # Ports the OS handed out (IANA dynamic range, macOS default
+               # portrange.first) are debuggers and IPC, not services you start
+               # — .NET's watcher parks two of them inside systems/Api.
+               (( port >= 49152 )) && [[ -z ${WT_PORTS[$port]} ]] && continue
+               [[ -n ${all_pid[$port]} ]] && continue              # first wins (v4/v6)
+               all_pid[$port]=$pid
+               all_cmd[$port]=$cmd
+               pids+=$pid
+               ;;
+    esac
+  done
+  (( ${#pids} )) || return 0
+
+  for line in ${(f)"$(lsof -a -d cwd -p ${(j:,:)${(u)pids}} -Fn 2>/dev/null)"}; do
+    case $line in
+      p[0-9]*) pid=${line#p} ;;
+      n/*)     cwd_of[$pid]=${line#n} ;;
+    esac
+  done
+
+  roots=("main	$WT_MAIN" ${(f)"$(_wt_list)"})
+  for port in ${(kon)all_pid}; do   # numeric order, so labels come out stable
+    cwd=${cwd_of[${all_pid[$port]}]}
+    owner=""
+    for line in $roots; do
+      f=(${(@ps:\t:)line})
+      [[ -n $f[2] && ( $cwd == $f[2] || $cwd == $f[2]/* ) ]] && { owner=$f[1]; break }
+    done
+    # keep Pinata's own listeners on any port, plus known ports held by
+    # something outside a checkout (postgres in OrbStack); ignore the rest of
+    # the machine
+    [[ -z $owner ]] && { [[ -n ${WT_PORTS[$port]} ]] && owner=external || continue }
+
+    # label by the system dir the process runs in — factual, where the port's
+    # nominal name can lie; fall back to the known label, then the command
+    label=${WT_PORTS[$port]:-${all_cmd[$port]}}
+    [[ $cwd == */systems/* ]] && label=${${cwd#*/systems/}%%/*}
+
+    _wt_port_pid[$port]=${all_pid[$port]}
+    _wt_port_cmd[$port]=${all_cmd[$port]}
+    _wt_port_where[$port]=$owner
+    _wt_port_label[$port]=$label
+
+    [[ $owner == external ]] && continue
+    [[ " ${_wt_run[$owner]} " == *" $label "* ]] ||
+      _wt_run[$owner]="${_wt_run[$owner]:+${_wt_run[$owner]} }$label"
+  done
+}
+
+_wt_ports() {
+  (( $+commands[lsof] )) || { _wt_die "lsof not found"; return 1 }
+  _wt_scan_ports
+
+  local port where owner
+  local -a down=()
+
+  printf "%-6s  %-12s  %-13s  %s\n" PORT SERVICE WHERE PROCESS
+  for port in ${(kon)_wt_port_pid}; do
+    where=${_wt_port_where[$port]}
+    printf "%-6s  %-12s  " $port ${_wt_port_label[$port]}
+    if [[ $where == external ]]; then
+      printf "%-13s  " external
+    else
+      print -Pn "%F{14}$(printf '%-13s' $where)%f  "
+    fi
+    print -r -- "${_wt_port_cmd[$port]} (${_wt_port_pid[$port]})"
+  done
+
+  for port in ${(kon)WT_PORTS}; do
+    [[ -n ${_wt_port_pid[$port]} ]] || down+="$port ${WT_PORTS[$port]}"
+  done
+  (( ${#down} )) && print -P "%F{8}not running: ${(j:, :)down}%f"
+
+  for owner in ${(k)_wt_run}; do
+    print -P "%F{8}served from%f %B$owner%b%F{8}: ${_wt_run[$owner]// /, } — the DB on :10000 is shared, so migrations and sqlx prepare belong to that checkout too.%f"
+  done
+}
+
+# ---------------------------------------------------------------------------- #
+# naming: feat/PINATA-632/create-gig-on-submit -> PINATA-632 (else a flat slug)
+# ---------------------------------------------------------------------------- #
+
+_wt_name_for() {
+  setopt local_options extended_glob no_bash_rematch
+  local branch=$1
+  local -a parts ticket
+  # the convention is <type>/<TICKET>/<short-desc>, so the ticket is normally a
+  # segment of its own; failing that take one from anywhere in the name, and only
+  # then fall back to a flat slug of the whole branch
+  parts=(${(s:/:)branch})
+  ticket=(${(M)parts:#[A-Z]##-[0-9]##})
+  (( ${#ticket} )) && { print -r -- ${ticket[1]}; return }
+  [[ $branch =~ '[A-Z]+-[0-9]+' ]] && { print -r -- $MATCH; return }
+  print -r -- ${${branch//\//-}//[^a-zA-Z0-9._-]/-}
+}
+
+# a name given with --as: keep it usable as a directory and as a `wt <name>` word
+_wt_sanitize_name() { print -r -- ${${1//\//-}//[^a-zA-Z0-9._-]/-} }
+
+_wt_is_protected() { [[ ${WT_PROTECTED[(Ie)$1]} -gt 0 ]] }
+
+# clip to $2 characters, marking the cut (zsh's printf pads by character, so a
+# multibyte marker does not throw the column off)
+_wt_fit() {
+  local s=$1
+  (( ${#s} > $2 )) && s="${s[1,$2 - 1]}…"
+  print -r -- $s
+}
+
+# ---------------------------------------------------------------------------- #
+# seeding
+# ---------------------------------------------------------------------------- #
+
+_wt_skip_seed() {
+  local rel=$1 pat
+  for pat in $WT_NO_SEED; do
+    [[ $rel == ${~pat} ]] && return 0
+  done
+  return 1
+}
+
+_wt_seed() {
+  # no_monitor keeps the parallel clones from spamming job notifications
+  setopt local_options no_monitor no_notify
+  local dest=$1 rel src n_link=0 n_clone=0 start=$SECONDS
+
+  for rel in $WT_SYMLINK; do
+    src=$WT_MAIN/$rel
+    [[ -e $src ]] || continue
+    if [[ -e $dest/$rel && ! -L $dest/$rel ]]; then
+      _wt_warn "$rel exists in the worktree, not linking"
+      continue
+    fi
+    [[ -L $dest/$rel ]] && rm -f "$dest/$rel"
+    mkdir -p "${dest}/${rel:h}"
+    ln -s "$src" "$dest/$rel" && (( ++n_link ))
+  done
+
+  local -a todo=()
+  for rel in ${(f)"$(_wt_g status --porcelain --ignored=matching 2>/dev/null | sed -n 's/^!! //p')"}; do
+    rel=${rel%/}
+    [[ -z $rel ]] && continue
+    _wt_skip_seed "$rel" && continue
+    [[ -e $WT_MAIN/$rel ]] || continue
+    [[ -e $dest/$rel ]] && continue
+    todo+=$rel
+  done
+
+  # -c is an APFS clone: one syscall per file, copy-on-write, so this costs
+  # metadata and almost no disk. The paths are independent, so clone them at once
+  # instead of waiting on Rustend/target and every node_modules in turn.
+  (( ${#todo} )) &&
+    _wt_info "cloning ${#todo} ignored paths (~400k files, copy-on-write — about a minute)"
+  for rel in $todo; do
+    mkdir -p "${dest}/${rel:h}"
+    { cp -Rc "$WT_MAIN/$rel" "$dest/$rel" 2>/dev/null ||
+      cp -R  "$WT_MAIN/$rel" "$dest/$rel" 2>/dev/null } &
+  done
+  wait
+
+  for rel in $todo; do
+    if [[ -e $dest/$rel ]]; then
+      (( ++n_clone ))
+    else
+      _wt_warn "could not seed $rel"
+    fi
+  done
+
+  _wt_info "seeded: $n_clone cloned, $n_link linked ($((SECONDS - start))s)"
+}
+
+# Drop the symlinks so `git worktree remove` does not see them as untracked work
+_wt_unseed() {
+  local dest=$1 rel
+  for rel in $WT_SYMLINK; do
+    [[ -L $dest/$rel ]] && rm -f "$dest/$rel"
+  done
+  return 0
+}
+
+# ---------------------------------------------------------------------------- #
+# per-worktree metadata: kept in the worktree's gitdir, so git prunes it with it
+#   wt-pinned  the branch it was created for (drift shows up in ls/doctor/prompt)
+#   wt-label   what the prompt should show
+# ---------------------------------------------------------------------------- #
+
+_wt_mark() {
+  local dir=$1 label=$2 branch=$3 gitdir
+  gitdir=$(_wt_gitdir "$dir") || return
+  [[ -d $gitdir ]] || return
+  print -r -- "$branch" > "$gitdir/wt-pinned"
+  print -r -- "$label"  > "$gitdir/wt-label"
+}
+
+_wt_pinned() {
+  local gitdir=$(_wt_gitdir "$1")
+  [[ -n $gitdir && -f $gitdir/wt-pinned ]] && print -r -- "$(<$gitdir/wt-pinned)"
+}
+
+# ---------------------------------------------------------------------------- #
+# new
+# ---------------------------------------------------------------------------- #
+
+_wt_add_knowledge() {
+  local dir=$1 branch=$2 base=main where
+  local kmain=$WT_MAIN/knowledge
+
+  _wt_kg fetch --quiet origin 2>/dev/null
+
+  if where=$(_wt_checked_out_in "$kmain" "$branch"); then
+    _wt_die "knowledge branch $branch is checked out at $where"
+    return 1
+  fi
+  _wt_has_remote "$kmain" main && base=origin/main
+
+  if _wt_has_local "$kmain" "$branch"; then
+    git -C "$kmain" worktree add "$dir/knowledge" "$branch" >/dev/null || return 1
+    _wt_info "knowledge: existing branch $branch"
+  elif _wt_has_remote "$kmain" "$branch"; then
+    git -C "$kmain" worktree add --track -b "$branch" "$dir/knowledge" "origin/$branch" >/dev/null || return 1
+    _wt_info "knowledge: tracking origin/$branch"
+  else
+    git -C "$kmain" worktree add --no-track -b "$branch" "$dir/knowledge" "$base" >/dev/null || return 1
+    _wt_info "knowledge: new branch $branch off $base"
+  fi
+}
+
+# `direnv status` reports "Found RC allowed 0" when the .envrc in the current
+# directory is approved, 1 when it is blocked
+_wt_direnv_allowed() {
+  [[ $(cd "$1" && direnv status 2>/dev/null | sed -n 's/^Found RC allowed //p') == 0 ]]
+}
+
+_wt_allow_direnv() {
+  local dir=$1 rcdir
+  (( $+commands[direnv] )) || return 0
+  [[ $(cat ~/.direnvswitch 2>/dev/null) == On ]] || return 0
+  for rcdir in "$dir" "$dir"/systems/*(/N); do
+    [[ -e $rcdir/.envrc ]] || continue
+    # `direnv allow <path>` exits 0 and writes nothing when run from anywhere
+    # else, so approve from inside the directory — and check, because a silent
+    # no-op is indistinguishable from success by exit code alone
+    ( cd "$rcdir" && direnv allow )
+    _wt_direnv_allowed "$rcdir" ||
+      _wt_warn "direnv still blocks $rcdir — run 'direnv allow' there"
+  done
+  return 0
+}
+
+# teach rupa/z about the new directory so `z` can find it too
+_wt_register_z() { (( $+functions[_z] )) && _z --add "$1" 2>/dev/null; return 0 }
+
+# git worktree add, minus the husky-without-node_modules noise
+_wt_add() {
+  _wt_g worktree add "$@" 2>&1 | grep -v -E "^(Can't find Husky|You can reinstall it)"
+  return ${pipestatus[1]}
+}
+
+_wt_new() {
+  local branch="" from="" as="" seed=1
+  while (( $# )); do
+    case $1 in
+      --from) from=$2; shift 2 ;;
+      --as) as=$2; shift 2 ;;
+      --no-seed) seed=0; shift ;;
+      -h|--help) _wt_usage; return 0 ;;
+      -*) _wt_die "unknown flag: $1"; return 1 ;;
+      *) branch=$1; shift ;;
+    esac
+  done
+  [[ -z $branch ]] && { _wt_die "usage: wt new <branch|TICKET> [--from <ref>]"; return 1 }
+
+  _wt_g fetch --quiet origin 2>/dev/null
+
+  # A bare ticket resolves to an existing branch; it cannot invent one, because
+  # the convention is <fix|feat|support>/<TICKET>/<short-desc>.
+  if [[ $branch =~ '^[A-Z]+-[0-9]+$' ]]; then
+    local -a hits
+    hits=(${(f)"$(_wt_g for-each-ref --format='%(refname:short)' refs/heads refs/remotes/origin |
+                    sed 's|^origin/||' | grep -F -- "$branch" | sort -u)"})
+    case ${#hits} in
+      0) _wt_die "no branch matches $branch — pass the full name, e.g. feat/$branch/short-desc"; return 1 ;;
+      1) branch=${hits[1]}; _wt_info "resolved $branch" ;;
+      *) _wt_err "several branches match $branch:"; print -rl -- ${hits/#/    }; return 1 ;;
+    esac
+  fi
+
+  _wt_is_protected "$branch" && { _wt_die "$branch is protected — it stays in $WT_MAIN"; return 1 }
+
+  local where
+  if where=$(_wt_checked_out_in "$WT_MAIN" "$branch"); then
+    if [[ $where == $WT_MAIN ]]; then
+      _wt_die "$branch is checked out in the primary — use: wt adopt $branch"
+    else
+      _wt_die "$branch is already at $where"
+    fi
+    return 1
+  fi
+
+  local name=${as:+$(_wt_sanitize_name "$as")}
+  [[ -z $name ]] && name=$(_wt_name_for "$branch")
+  local dir=$WT_HOME/$name
+  [[ -e $dir ]] &&
+    { _wt_die "$dir already exists — name this one with: wt new $branch --as <name>"; return 1 }
+
+  local base=${from:-origin/main}
+  if ! _wt_has_local "$WT_MAIN" "$branch" && ! _wt_has_remote "$WT_MAIN" "$branch"; then
+    _wt_g rev-parse --verify --quiet "$base^{commit}" >/dev/null ||
+      { _wt_die "base ref $base does not exist"; return 1 }
+  fi
+
+  _wt_head "creating %B$name%b for $branch"
+
+  if _wt_has_local "$WT_MAIN" "$branch"; then
+    _wt_add "$dir" "$branch" || { _wt_die "git worktree add failed"; return 1 }
+    _wt_info "pinata: existing branch $branch"
+  elif _wt_has_remote "$WT_MAIN" "$branch"; then
+    _wt_add --track -b "$branch" "$dir" "origin/$branch" || { _wt_die "git worktree add failed"; return 1 }
+    _wt_info "pinata: tracking origin/$branch"
+  else
+    # --no-track: branching off origin/main would otherwise set the new branch's
+    # upstream to origin/main, and with push.default=simple git then refuses the
+    # first push and suggests `git push origin HEAD:main` — pushing the feature
+    # branch onto main. With no upstream you get the usual --set-upstream hint.
+    _wt_add --no-track -b "$branch" "$dir" "$base" || { _wt_die "git worktree add failed"; return 1 }
+    _wt_info "pinata: new branch $branch off $base (push with -u to publish)"
+  fi
+
+  if ! _wt_add_knowledge "$dir" "$branch"; then
+    _wt_err "knowledge worktree failed — rolling the Pinata worktree back"
+    _wt_g worktree remove --force "$dir" 2>/dev/null
+    _wt_g worktree prune
+    return 1
+  fi
+
+  (( seed )) && _wt_seed "$dir"
+  _wt_mark "$dir" "$name" "$branch"
+  _wt_mark "$dir/knowledge" "$name/kb" "$branch"
+  _wt_allow_direnv "$dir"
+  _wt_register_z "$dir"
+
+  _wt_ok "$dir"
+  _wt_cd "$dir"
+}
+
+# ---------------------------------------------------------------------------- #
+# cd
+# ---------------------------------------------------------------------------- #
+
+# Jump keeping the relative subdir when the destination has it, so
+# .../systems/Rustend/lib/domain lands in the same place in the other worktree.
+_wt_cd() {
+  local dest=$1 cur rel=""
+  cur=$(_wt_root_of_pwd)
+  [[ -n $cur && $PWD == $cur/* ]] && rel=${PWD#$cur/}
+  if [[ -n $rel && -d $dest/$rel ]]; then
+    cd "$dest/$rel"
+  else
+    cd "$dest"
+  fi
+  _wt_register_z "$dest"
+}
+
+_wt_goto() {
+  local name=$1 dest
+  if [[ -z $name ]]; then
+    dest=$(_wt_pick) || return 1
+    [[ -z $dest ]] && return 1
+  elif [[ $name == main || $name == primary ]]; then
+    dest=$WT_MAIN
+  else
+    dest=$(_wt_path_of "$name")
+    if [[ -z $dest ]]; then
+      local -a hits
+      hits=(${(f)"$(_wt_list | awk -F'\t' -v n="$name" 'index($1, n) || index($3, n) { print $2 }')"})
+      case ${#hits} in
+        1) dest=${hits[1]} ;;
+        0) _wt_die "no worktree matches $name"; return 1 ;;
+        *) _wt_err "several worktrees match $name:"; print -rl -- ${hits/#/    }; return 1 ;;
+      esac
+    fi
+  fi
+  _wt_cd "$dest"
+}
+
+# ---------------------------------------------------------------------------- #
+# ls
+# ---------------------------------------------------------------------------- #
+
+_wt_ls() {
+  local rows=$(_wt_list) line
+  local pbranch=$(_wt_g rev-parse --abbrev-ref HEAD)
+
+  # declared once: in zsh a bare `local` on an existing local prints its value
+  local -a f state
+  local name wtp branch locked n pinned kb kbranch fmt
+  local -i nw=4 bw=6   # the NAME / BRANCH headers are the floor
+
+  # Size the columns to the data. Branch names run past any fixed width, and one
+  # overflowing cell shifts every column to its right.
+  (( ${#pbranch} > bw )) && bw=${#pbranch}
+  for line in ${(f)rows}; do
+    f=(${(@ps:\t:)line})
+    (( ${#f[1]} > nw )) && nw=${#f[1]}
+    (( ${#f[3]} > bw )) && bw=${#f[3]}
+  done
+  (( nw > 20 )) && nw=20   # beyond this, truncate rather than shove STATE off-screen
+  (( bw > 52 )) && bw=52
+  fmt="%-${nw}s  %-${bw}s  %-6s  "
+
+  _wt_scan_ports
+
+  printf "$fmt%s\n" NAME BRANCH BEHIND STATE
+  printf "$fmt" main "$(_wt_fit "$pbranch" $bw)" ""
+  state=()
+  [[ $pbranch == main ]] && state+="primary" || state+="primary — not on main (wt adopt $pbranch)"
+  [[ -n ${_wt_run[main]} ]] && state+="%F{14}▶${_wt_run[main]// /,}%f"
+  print -P -- "${(j: :)state}"
+
+  [[ -z $rows ]] && { print -P "%F{8}(no worktrees — wt new <branch>)%f"; return 0 }
+
+  for line in ${(f)rows}; do
+    f=(${(@ps:\t:)line})
+    name=$f[1] wtp=$f[2] branch=$f[3] locked=$f[4]
+    state=()
+
+    [[ -n ${_wt_run[$name]} ]] && state+="%F{14}▶${_wt_run[$name]// /,}%f"
+    n=$(_wt_dirty_count "$wtp");        (( n )) && state+="%F{11}~$n%f"
+    n=$(_wt_stray_untracked "$wtp" | wc -l); n=${n//[[:space:]]/}
+    (( n )) && state+="%F{11}?$n%f"
+    # A count of commits not in main reads "unpushed" for a squash-merged branch
+    # forever, so ask whether the work is actually still missing from main
+    # (79 ms on this repo) before believing it.
+    n=$(_wt_unpushed "$wtp" "$branch")
+    if (( n )); then
+      if _wt_contained "$wtp" "$branch"; then
+        state+="%F{10}merged%f"
+      else
+        state+="↑$n"
+        [[ $(_wt_upstream_state "$wtp" "$branch") == gone ]] && state+="%F{11}gone%f"
+      fi
+    fi
+    [[ -n $locked ]] && state+="%F{12}locked%f"
+
+    pinned=$(_wt_pinned "$wtp")
+    [[ -n $pinned && $pinned != $branch ]] && state+="%F{9}pinned:$pinned%f"
+
+    [[ $branch == '(detached)' ]] && branch=$(_wt_head_label "$wtp")
+
+    if [[ -d $wtp/knowledge ]]; then
+      kb=$wtp/knowledge kbranch=$(_wt_head_label "$wtp/knowledge")
+      [[ $kbranch != $branch ]] && state+="%F{11}kb:$kbranch%f"
+      (( $(_wt_dirty_count "$kb") )) && state+="%F{11}kb~%f"
+      (( $(_wt_unpushed "$kb" "$kbranch") )) &&
+        ! _wt_contained "$kb" "$kbranch" && ! _wt_work_in_main "$kb" "$kbranch" && state+="kb↑"
+    else
+      state+="%F{9}no knowledge%f"
+    fi
+
+    n=$(_wt_new_migrations "$wtp"); (( n )) && state+="%F{13}mig:$n%f"
+    (( ${#state} )) || state=("%F{10}clean%f")
+
+    print -P -- "$(printf "$fmt" "$(_wt_fit "$name" $nw)" "$(_wt_fit "$branch" $bw)" \
+                          "$(_wt_behind_main "$wtp")")${(j: :)state}"
+  done
+}
+
+# ---------------------------------------------------------------------------- #
+# sync
+# ---------------------------------------------------------------------------- #
+
+_wt_sync() {
+  local rebase=1
+  [[ $1 == --no-rebase ]] && rebase=0
+
+  _wt_head "fetching"
+  _wt_g fetch --prune --quiet origin || _wt_warn "pinata fetch failed"
+  _wt_kg fetch --prune --quiet origin || _wt_warn "knowledge fetch failed"
+  _wt_g worktree prune
+  _wt_kg worktree prune
+
+  # primary: fast-forward main, nothing cleverer
+  local pbranch=$(_wt_g rev-parse --abbrev-ref HEAD)
+  if [[ $pbranch != main ]]; then
+    _wt_warn "primary is on $pbranch, not main — wt adopt $pbranch"
+  elif (( $(_wt_dirty_count "$WT_MAIN") )); then
+    _wt_warn "primary main is dirty, not fast-forwarding"
+  elif _wt_g merge --ff-only origin/main >/dev/null 2>&1; then
+    _wt_ok "primary main at $(_wt_g rev-parse --short HEAD)"
+  else
+    _wt_warn "primary main would not fast-forward"
+  fi
+  if [[ $(_wt_kg rev-parse --abbrev-ref HEAD) == main ]] && (( ! $(_wt_dirty_count "$WT_MAIN/knowledge") )); then
+    _wt_kg merge --ff-only origin/main >/dev/null 2>&1 &&
+      _wt_ok "primary knowledge main at $(_wt_kg rev-parse --short HEAD)"
+  fi
+
+  local line name wtp behind kbehind rebased=0
+  local -a f conflicts=() kbconflicts=()
+  for line in ${(f)"$(_wt_list)"}; do
+    f=(${(@ps:\t:)line})
+    name=$f[1] wtp=$f[2] behind=$(_wt_behind_main "$wtp")
+
+    # A rebase already in progress is never ours to touch: `git rebase` would
+    # fail and the --abort below would then discard the conflict resolution
+    # someone is in the middle of.
+    if _wt_mid_operation "$wtp"; then
+      _wt_warn "$name is mid-$(_wt_head_label "$wtp") — left alone"
+    elif [[ -z $behind || $behind == 0 ]]; then
+      _wt_info "$name up to date with main"
+    elif (( ! rebase )); then
+      _wt_info "$name is $behind behind main"
+    elif (( $(_wt_dirty_count "$wtp") )); then
+      _wt_warn "$name is $behind behind main but dirty — skipped"
+    elif git -C "$wtp" rebase --quiet origin/main >/dev/null 2>&1; then
+      (( ++rebased ))
+      _wt_ok "$name rebased onto main (+$behind)"
+    else
+      git -C "$wtp" rebase --abort 2>/dev/null
+      conflicts+=$name
+      _wt_err "$name conflicts with main — rebase it by hand"
+    fi
+
+    # The KB is a separate repo whose main moves on its own schedule, so its
+    # mirror is rebased on its own terms — not only when the Pinata branch
+    # happened to need one.
+    [[ -d $wtp/knowledge ]] || continue
+    kbehind=$(_wt_behind_main "$wtp/knowledge")
+    if _wt_mid_operation "$wtp/knowledge"; then
+      _wt_warn "$name knowledge is mid-$(_wt_head_label "$wtp/knowledge") — left alone"
+    elif [[ -z $kbehind || $kbehind == 0 ]]; then
+      :
+    elif (( ! rebase )); then
+      _wt_info "$name knowledge is $kbehind behind KB main"
+    elif (( $(_wt_dirty_count "$wtp/knowledge") )); then
+      _wt_warn "$name knowledge is $kbehind behind KB main but dirty — skipped"
+    elif git -C "$wtp/knowledge" rebase --quiet origin/main >/dev/null 2>&1; then
+      _wt_info "$name knowledge rebased (+$kbehind)"
+    else
+      git -C "$wtp/knowledge" rebase --abort 2>/dev/null
+      kbconflicts+=$name
+      _wt_err "$name knowledge conflicts with KB main — rebase it by hand"
+    fi
+  done
+
+  (( ${#conflicts} )) && print -P "%F{9}conflicting:%f ${(j:, :)conflicts}"
+  (( ${#kbconflicts} )) && print -P "%F{9}conflicting (knowledge):%f ${(j:, :)kbconflicts}"
+  (( rebased )) && print -P "%F{8}rebased branches that are already pushed need a force-push; wt never pushes.%f"
+  return 0
+}
+
+# ---------------------------------------------------------------------------- #
+# folding a knowledge mirror into KB main
+#
+# A mirror exists to hold docs describing code that is not on Pinata main yet.
+# Once the PR is merged that reason is gone, and the KB's own invariant — main
+# describes Pinata origin/main — puts those docs on main. So at teardown time do
+# the squash-merge the ritual asks for instead of refusing to remove the
+# worktree. Merging, pushing, and deleting merged mirror branches in the KB is
+# explicitly autonomous; the Pinata repo is not touched.
+# ---------------------------------------------------------------------------- #
+
+# a commit-subject area from the dirs the mirror touched: "cms: …", "work: …"
+_wt_kb_area() {
+  local repo=$1 branch=$2
+  # three dots: only what the mirror introduced since the merge base. Two dots
+  # would also list what main added meanwhile, so the area was never unique.
+  local -a dirs=(${(f)"$(git -C $repo diff --name-only "origin/main...$branch" 2>/dev/null |
+                          cut -d/ -f1 | sort -u)"})
+  (( ${#dirs} == 1 )) && [[ -n $dirs[1] ]] && { print -r -- $dirs[1]; return }
+  print -r -- kb
+}
+
+# Files a squash-merge of $2 into origin/main would conflict on, without touching
+# a thing: merge-tree --name-only prints the merged tree, then the conflicted
+# paths, then commentary.
+_wt_kb_conflicts() {
+  local repo=$1 branch=$2 line past_tree=0
+  git -C "$repo" merge-tree --write-tree --name-only origin/main "$branch" 2>/dev/null |
+    while IFS= read -r line; do
+      (( past_tree )) || { past_tree=1; continue }
+      [[ -z $line ]] && break
+      print -r -- $line
+    done
+}
+
+_wt_kb_integrate() {
+  local branch=$1 prnum=$2 wtname=$3
+  local kmain=$WT_MAIN/knowledge
+  local n area msg head out
+  local -a conf
+
+  n=$(_wt_unpushed "$kmain" "$branch")
+  (( n )) || return 0
+  _wt_contained "$kmain" "$branch" && return 0
+
+  # the merge lands in the primary KB checkout, so it has to be on main and clean
+  if [[ $(_wt_head_label "$kmain") != main ]]; then
+    _wt_err "primary knowledge is on $(_wt_head_label "$kmain"), not main — cannot fold $branch in"
+    return 1
+  fi
+  if (( $(_wt_dirty_count "$kmain") )); then
+    _wt_err "primary knowledge has uncommitted changes — commit them, then retry"
+    return 1
+  fi
+
+  head=$(git -C "$kmain" rev-parse HEAD)
+  git -C "$kmain" fetch --quiet origin 2>/dev/null
+  git -C "$kmain" merge --ff-only origin/main >/dev/null 2>&1
+
+  area=$(_wt_kb_area "$kmain" "$branch")
+  msg="$area: docs for $(_wt_name_for "$branch") (code merged"
+  [[ -n $prnum ]] && msg+=", #$prnum"
+  msg+=")"
+
+  # Ask what would conflict before starting, so a doomed merge is never begun and
+  # the report can name the files. Merging different rows of work/index.md counts
+  # as a conflict because table rows are adjacent lines.
+  conf=(${(f)"$(_wt_kb_conflicts "$kmain" "$branch")"})
+  conf=(${conf:#})
+  if (( ${#conf} )); then
+    _wt_err "folding $branch into KB main conflicts in:"
+    print -rl -u2 -- ${conf/#/      }
+    _wt_err "nothing was changed. To finish by hand:"
+    print -rl -u2 -- \
+      "      git -C $kmain merge --squash $branch" \
+      "      # resolve, git add, then:" \
+      "      git -C $kmain commit -m ${(qq)msg} && git -C $kmain push origin main" \
+      "      wt rm ${wtname:-<name>}"
+    return 1
+  fi
+
+  # A conflicted squash merge has no MERGE_HEAD, so `merge --abort` cannot undo
+  # it — reset to the commit we started from.
+  if ! out=$(git -C "$kmain" merge --squash "$branch" 2>&1); then
+    git -C "$kmain" reset --hard --quiet "$head"
+    _wt_err "the knowledge squash-merge failed — nothing was changed. git said:"
+    print -rl -u2 -- ${${(f)out}[1,5]/#/      }
+    return 1
+  fi
+  if git -C "$kmain" diff --cached --quiet; then
+    git -C "$kmain" reset --quiet --hard "$head"
+    return 0                                    # the merge was a no-op
+  fi
+
+  if ! git -C "$kmain" commit --quiet -m "$msg"; then
+    git -C "$kmain" reset --hard --quiet "$head"
+    _wt_err "the knowledge commit failed — nothing was changed"
+    return 1
+  fi
+  _wt_ok "knowledge: folded $n commit(s) into KB main — $(git -C "$kmain" log --oneline -1)"
+
+  if git -C "$kmain" push --quiet origin main 2>/dev/null; then
+    _wt_info "knowledge: pushed to origin"
+  else
+    _wt_warn "knowledge: committed but not pushed — git -C $kmain push origin main"
+  fi
+}
+
+# ---------------------------------------------------------------------------- #
+# rm
+# ---------------------------------------------------------------------------- #
+
+_wt_rm() {
+  local name="" force=0 delbranch=0 kbmerge=1
+  while (( $# )); do
+    case $1 in
+      -f|--force) force=1; shift ;;
+      -b|--branch) delbranch=1; shift ;;
+      --no-kb-merge) kbmerge=0; shift ;;
+      -h|--help) _wt_usage; return 0 ;;
+      -*) _wt_die "unknown flag: $1"; return 1 ;;
+      *) name=$1; shift ;;
+    esac
+  done
+  [[ -z $name ]] && name=$(_wt_current)
+  [[ -z $name ]] && { _wt_die "usage: wt rm <name> [--branch] [--force] (or run it from inside one)"; return 1 }
+
+  local row=$(_wt_list | awk -F'\t' -v n="$name" '$1 == n')
+  [[ -z $row ]] && { _wt_die "no worktree named $name"; return 1 }
+  local -a f=(${(@ps:\t:)row})
+  local wtp=$f[2] branch=$f[3] locked=$f[4]
+  local kb=$wtp/knowledge
+
+  local merged=0 pr_merged=0 kb_folded=0 kb_in_main=0
+  if (( ! force )); then
+    local n ustate
+    local -a pr
+
+    [[ -n $locked ]] && { _wt_die "$name is locked — wt unlock $name, or --force"; return 1 }
+
+    # Uncommitted work is the only thing removal can actually destroy, so it
+    # comes first and says where it lives.
+    n=$(_wt_dirty_count "$wtp")
+    (( n )) && { _wt_die "$n uncommitted change(s) exist only in $wtp — commit them, or --force to discard"; return 1 }
+    local -a stray=(${(f)"$(_wt_stray_untracked "$wtp")"})
+    stray=(${stray:#})
+    if (( ${#stray} )); then
+      _wt_err "these files exist only in $wtp:"
+      print -rl -- ${stray[1,10]/#/    }
+      _wt_err "add them, delete them, or --force to discard"
+      return 1
+    fi
+
+    # Ask GitHub before counting commits: after a squash merge the branch's
+    # commits are in main by content but never by ancestry, so the count below
+    # would refuse forever (it read 18 for PINATA-631 on 2026-07-30).
+    pr=(${(@ps:\t:)"$(_wt_pr "$branch")"})
+    case $pr[1] in
+      OPEN)   _wt_die "PR #$pr[2] for $branch is still open — merge it, or --force"; return 1 ;;
+      MERGED) merged=1 pr_merged=1
+              _wt_info "PR #$pr[2] is merged — squashed, so the local commits are expectedly not in main" ;;
+      CLOSED) _wt_warn "PR #$pr[2] was closed without merging" ;;
+    esac
+
+    # second opinion that needs no network, and the only one the KB repo can get
+    if (( ! merged )) && _wt_contained "$wtp" "$branch"; then
+      merged=1
+      _wt_info "$branch adds nothing to origin/main — its changes are already there"
+    fi
+
+    if (( ! merged )); then
+      n=$(_wt_unpushed "$wtp" "$branch")
+      ustate=$(_wt_upstream_state "$wtp" "$branch")
+      if (( n )); then
+        if [[ $ustate == gone ]]; then
+          _wt_err "$name has $n commit(s) not in origin/main and its remote branch is gone,"
+          if (( $+commands[gh] )); then
+            _wt_err "which usually means a squash merge — but gh found no PR for $branch. Check, then --force"
+          else
+            _wt_err "which usually means a squash merge — install gh to confirm, or --force"
+          fi
+        else
+          _wt_err "$name has $n unpushed commit(s) — push, or --force"
+        fi
+        return 1
+      fi
+    fi
+
+    if [[ -d $kb ]]; then
+      local kbranch=$(_wt_head_label "$kb")
+      n=$(_wt_dirty_count "$kb")
+      (( n )) && { _wt_die "the knowledge mirror has $n uncommitted change(s), which exist only in $kb — commit them there, or --force to discard"; return 1 }
+      n=$(_wt_unpushed "$kb" "$kbranch")
+      if (( n )) && ! _wt_contained "$kb" "$kbranch"; then
+        # Already folded by hand? Then the mirror is merely stale, and trying to
+        # fold again would only re-raise the same conflict.
+        if _wt_work_in_main "$kb" "$kbranch"; then
+          kb_in_main=1
+          _wt_info "the knowledge mirror is stale but adds nothing to KB main"
+        # Gated on the PR, not on mere containment: a branch whose work was
+        # abandoned also "adds nothing to main", and the policy for an abandoned
+        # mirror is to drop it with the reasoning recorded on main — not to fold
+        # its docs in silently.
+        elif (( pr_merged && kbmerge )); then
+          _wt_kb_integrate "$kbranch" "$pr[2]" "$name" || return 1
+          kb_folded=1
+        else
+          _wt_die "the knowledge mirror is ahead of KB main by $n commit(s) on $kbranch — squash-merge it into knowledge main first, or --force to leave them sitting on that branch"
+          return 1
+        fi
+      fi
+    fi
+  fi
+
+  [[ $PWD == $wtp* ]] && cd "$WT_MAIN"
+
+  _wt_head "removing %B$name%b"
+  _wt_unseed "$wtp"
+  [[ -n $locked ]] && _wt_g worktree unlock "$wtp" 2>/dev/null
+
+  # knowledge first: removing the Pinata worktree would delete the nested
+  # knowledge worktree silently and leave a dangling registration behind.
+  if [[ -d $kb ]]; then
+    git -C "$WT_MAIN/knowledge" worktree remove --force "$kb" ||
+      { _wt_die "could not remove the knowledge worktree"; return 1 }
+    _wt_info "knowledge worktree removed"
+  fi
+  _wt_g worktree remove --force "$wtp" || { _wt_die "could not remove $wtp"; return 1 }
+  _wt_g worktree prune
+  _wt_kg worktree prune
+
+  if (( delbranch )); then
+    if _wt_g branch -d "$branch" 2>/dev/null; then
+      _wt_info "deleted branch $branch"
+    elif (( merged )); then
+      # -d judges by ancestry, which a squash merge never satisfies; that the
+      # work is in main is the better authority
+      _wt_g branch -D "$branch" >/dev/null && _wt_info "deleted branch $branch (already in main)"
+    elif (( force )); then
+      _wt_g branch -D "$branch" >/dev/null && _wt_warn "force-deleted unmerged $branch"
+    else
+      _wt_warn "kept $branch — not merged into main"
+    fi
+  fi
+
+  # A mirror we just folded into KB main is merged cruft, and deleting merged
+  # mirrors is part of the ritual — so it goes whether or not --branch was given.
+  if (( delbranch || kb_folded )) && _wt_kg show-ref --verify --quiet "refs/heads/$branch"; then
+    if _wt_kg branch -d "$branch" 2>/dev/null; then
+      _wt_info "deleted knowledge branch $branch"
+    elif _wt_contained "$WT_MAIN/knowledge" "$branch"; then
+      # squash-merged into KB main, which -d will never accept
+      _wt_kg branch -D "$branch" >/dev/null &&
+        _wt_info "deleted knowledge branch $branch (already in KB main)"
+    elif (( kb_in_main && delbranch )); then
+      # stale but its hunks are all in main, and --branch says delete branches
+      _wt_kg branch -D "$branch" >/dev/null &&
+        _wt_info "deleted knowledge branch $branch (stale; its changes are in KB main)"
+    elif (( force )); then
+      _wt_kg branch -D "$branch" >/dev/null &&
+        _wt_warn "force-deleted unmerged knowledge branch $branch"
+    else
+      _wt_warn "kept knowledge branch $branch — squash-merge it into knowledge main first"
+    fi
+  fi
+
+  _wt_ok "$name gone"
+}
+
+# ---------------------------------------------------------------------------- #
+# lock / unlock — git's own lock (blocks wt rm and git prune) plus a branch
+# record, so a stray checkout shows up in ls / doctor / the prompt
+# ---------------------------------------------------------------------------- #
+
+_wt_lock() {
+  local name=${1:-$(_wt_current)} reason=${2:-wip} wtp
+  [[ -z $name ]] && { _wt_die "usage: wt lock [name] [reason]"; return 1 }
+  wtp=$(_wt_path_of "$name")
+  [[ -z $wtp ]] && { _wt_die "no worktree named $name"; return 1 }
+  _wt_g worktree lock --reason "$reason" "$wtp" || return 1
+  _wt_mark "$wtp" "$name" "$(git -C $wtp rev-parse --abbrev-ref HEAD)"
+  _wt_ok "$name locked ($reason) — wt rm needs --force now"
+}
+
+_wt_unlock() {
+  local name=${1:-$(_wt_current)} wtp
+  [[ -z $name ]] && { _wt_die "usage: wt unlock [name]"; return 1 }
+  wtp=$(_wt_path_of "$name")
+  [[ -z $wtp ]] && { _wt_die "no worktree named $name"; return 1 }
+  _wt_g worktree unlock "$wtp" && _wt_ok "$name unlocked"
+}
+
+# ---------------------------------------------------------------------------- #
+# adopt — move the primary's current branch into a worktree, park it on main
+# ---------------------------------------------------------------------------- #
+
+_wt_adopt() {
+  local branch="" as="" move=0
+  while (( $# )); do
+    case $1 in
+      --move-changes) move=1; shift ;;
+      --as) as=$2; shift 2 ;;
+      -h|--help) _wt_usage; return 0 ;;
+      -*) _wt_die "unknown flag: $1"; return 1 ;;
+      *) branch=$1; shift ;;
+    esac
+  done
+  [[ -z $branch ]] && branch=$(_wt_g rev-parse --abbrev-ref HEAD)
+  _wt_is_protected "$branch" && { _wt_die "$branch belongs in the primary checkout"; return 1 }
+  [[ $(_wt_g rev-parse --abbrev-ref HEAD) == $branch ]] ||
+    { _wt_die "$branch is not checked out in the primary — use: wt new $branch"; return 1 }
+
+  local name=${as:+$(_wt_sanitize_name "$as")}
+  [[ -z $name ]] && name=$(_wt_name_for "$branch")
+  local dir=$WT_HOME/$name
+  [[ -e $dir ]] && { _wt_die "$dir already exists — try: wt adopt $branch --as <name>"; return 1 }
+
+  local dirty=$(_wt_dirty_count "$WT_MAIN") stashed=0
+  if (( dirty )); then
+    (( move )) || { _wt_die "the primary has $dirty modified file(s) — commit them, or pass --move-changes"; return 1 }
+    _wt_g stash push --quiet -m "wt adopt $branch" || { _wt_die "stash failed"; return 1 }
+    stashed=1
+    _wt_info "stashed $dirty modified file(s)"
+  fi
+
+  # free the knowledge branch the same way when it is sitting on the same name
+  local kmoved=0
+  if [[ $(_wt_kg rev-parse --abbrev-ref HEAD) == $branch ]]; then
+    (( $(_wt_dirty_count "$WT_MAIN/knowledge") )) &&
+      { _wt_die "primary knowledge is on $branch and dirty — commit there first"; return 1 }
+    _wt_kg switch --quiet main || { _wt_die "could not park knowledge on main"; return 1 }
+    kmoved=1
+  fi
+
+  _wt_g fetch --quiet origin 2>/dev/null
+  if _wt_has_local "$WT_MAIN" main; then
+    _wt_g switch --quiet main || { _wt_die "could not park the primary on main"; return 1 }
+  else
+    _wt_g switch --quiet -c main --track origin/main || { _wt_die "could not create main"; return 1 }
+  fi
+  _wt_g merge --ff-only origin/main >/dev/null 2>&1
+  _wt_ok "primary parked on main at $(_wt_g rev-parse --short HEAD)"
+
+  _wt_head "moving %B$branch%b into $name"
+  if ! _wt_add "$dir" "$branch"; then
+    _wt_err "worktree add failed; the branch is intact — retry with: wt new $branch"
+    return 1
+  fi
+  (( kmoved )) && _wt_info "knowledge $branch comes along"
+  _wt_add_knowledge "$dir" "$branch" || _wt_warn "knowledge worktree failed — see wt doctor"
+  _wt_seed "$dir"
+  _wt_mark "$dir" "$name" "$branch"
+  _wt_mark "$dir/knowledge" "$name/kb" "$branch"
+  _wt_allow_direnv "$dir"
+  _wt_register_z "$dir"
+
+  if (( stashed )); then
+    if git -C "$dir" stash pop --quiet; then
+      _wt_ok "changes restored in $name"
+    else
+      _wt_warn "the stash did not apply cleanly — it is still in \`git stash list\`"
+    fi
+  fi
+
+  _wt_ok "$dir"
+  _wt_cd "$dir"
+}
+
+# ---------------------------------------------------------------------------- #
+# seed / which / doctor
+# ---------------------------------------------------------------------------- #
+
+_wt_reseed() {
+  local name=${1:-$(_wt_current)} wtp
+  [[ -z $name ]] && { _wt_die "usage: wt seed [name]"; return 1 }
+  wtp=$(_wt_path_of "$name")
+  [[ -z $wtp ]] && { _wt_die "no worktree named $name"; return 1 }
+  _wt_seed "$wtp"
+  _wt_allow_direnv "$wtp"
+}
+
+_wt_which() {
+  local top name
+  if [[ $1 == --path ]]; then
+    top=$(_wt_root_of_pwd) || return 1
+    [[ -z $top ]] && return 1
+    print -r -- $top
+    return 0
+  fi
+  name=$(_wt_current)
+  [[ -z $name ]] && return 1
+  print -r -- $name
+}
+
+_wt_doctor() {
+  local line issues=0 prunable
+
+  print -P "%B%F{12}primary%f%b $WT_MAIN"
+  local pbranch=$(_wt_g rev-parse --abbrev-ref HEAD)
+  [[ $pbranch != main ]] &&
+    { _wt_warn "on $pbranch, not main — move it out with: wt adopt $pbranch"; (( ++issues )) }
+  local kbranch=$(_wt_kg rev-parse --abbrev-ref HEAD)
+  [[ $kbranch != main ]] && { _wt_warn "knowledge is on $kbranch, not main"; (( ++issues )) }
+
+  prunable=$(_wt_g worktree list --porcelain | grep -c '^prunable')
+  (( prunable )) && { _wt_warn "$prunable stale Pinata worktree registration(s) — wt sync clears them"; (( ++issues )) }
+  prunable=$(_wt_kg worktree list --porcelain | grep -c '^prunable')
+  (( prunable )) && { _wt_warn "$prunable stale knowledge worktree registration(s)"; (( ++issues )) }
+
+  local -a f
+  local name wtp branch n pinned
+  for line in ${(f)"$(_wt_list)"}; do
+    f=(${(@ps:\t:)line})
+    name=$f[1] wtp=$f[2] branch=$f[3]
+    print -P "%B%F{12}$name%f%b $wtp"
+    [[ -d $wtp/knowledge ]] || { _wt_warn "no knowledge worktree"; (( ++issues )) }
+    [[ -e $wtp/node_modules ]] || { _wt_warn "not seeded (no node_modules) — wt seed $name"; (( ++issues )) }
+    [[ -e $wtp/systems/Rustend/target ]] ||
+      { _wt_warn "no Rustend/target — the next cargo build will be a full one"; (( ++issues )) }
+    [[ -L $wtp/.envrc ]] || { _wt_warn ".envrc is not linked — wt seed $name"; (( ++issues )) }
+    _wt_mid_operation "$wtp" &&
+      { _wt_warn "a $(_wt_head_label "$wtp") is in progress here — finish it or abort"; (( ++issues )) }
+    [[ -d $wtp/knowledge ]] && _wt_mid_operation "$wtp/knowledge" &&
+      { _wt_warn "knowledge is mid-$(_wt_head_label "$wtp/knowledge") — git -C $wtp/knowledge status"; (( ++issues )) }
+    pinned=$(_wt_pinned "$wtp")
+    [[ -n $pinned && $pinned != $branch ]] &&
+      { _wt_warn "created for $pinned but sitting on $branch"; (( ++issues )) }
+    n=$(_wt_new_migrations "$wtp")
+    (( n )) && _wt_warn "$n migration(s) main does not have: the DB on :10000 is shared, so run the stack (and sqlx prepare) from here or nowhere"
+    # the ticket is done and the worktree is still here
+    local -a pr=(${(@ps:\t:)"$(_wt_pr "$branch")"})
+    [[ $pr[1] == MERGED ]] && _wt_info "PR #$pr[2] is merged — wt rm $name --branch"
+  done
+
+  # who owns the shared ports and DB right now
+  _wt_scan_ports
+  local owner running=0
+  for owner in ${(k)_wt_run}; do
+    [[ $owner == external ]] && continue
+    running=1
+    print -P "%B%F{14}▶ $owner%f%b is serving ${_wt_run[$owner]// /, } — the DB on :10000 is shared, so migrations and sqlx prepare belong here (wt ports for detail)"
+  done
+  (( running )) ||
+    print -P "%F{8}nothing is listening on the dev ports; they and pinata_development on :10000 are shared — one running stack at a time.%f"
+  (( issues )) && print -P "%F{11}$issues thing(s) to look at%f" || _wt_ok "nothing to report"
+  return 0
+}
+
+# ---------------------------------------------------------------------------- #
+# gc — drop rustc incremental caches
+#
+# They are pure cache and routinely the largest thing in a checkout (26 GB of a
+# 56 GB target when this was written). Deleting one recompiles nothing: cargo
+# only consults it when it actually invokes rustc, and fingerprints don't
+# reference it. The only cost is that the next edit to a crate compiles
+# non-incrementally once, which is why the checkout you are standing in is
+# included like any other.
+# ---------------------------------------------------------------------------- #
+
+_wt_free_kb() { df -k "$WT_HOME" | tail -1 | awk '{print $4}' }
+
+_wt_gc() {
+  local -a rows=() f incs
+  local name wtp line inc lock size before after dropped=0
+
+  if (( $# )); then
+    for name in "$@"; do
+      case $name in
+        main|primary) rows+="main	$WT_MAIN" ;;
+        *)
+          wtp=$(_wt_path_of "$name")
+          [[ -z $wtp ]] && { _wt_die "no worktree named $name"; return 1 }
+          rows+="$name	$wtp"
+          ;;
+      esac
+    done
+  else
+    rows+="main	$WT_MAIN"
+    for line in ${(f)"$(_wt_list)"}; do
+      f=(${(@ps:\t:)line})
+      rows+="$f[1]	$f[2]"
+    done
+  fi
+
+  _wt_head "dropping rustc incremental caches"
+  before=$(_wt_free_kb)
+
+  for line in $rows; do
+    f=(${(@ps:\t:)line})
+    name=$f[1] wtp=$f[2]
+    incs=($wtp/target/*/incremental(N/) $wtp/systems/*/target/*/incremental(N/))
+    if (( ! ${#incs} )); then
+      _wt_info "$name: nothing to drop"
+      continue
+    fi
+    for inc in $incs; do
+      # cargo holds target/<profile>/.cargo-lock for the length of a build
+      lock=${inc:h}/.cargo-lock
+      if [[ -e $lock ]] && lsof -t "$lock" >/dev/null 2>&1; then
+        _wt_warn "$name: a build is running in ${inc:h} — skipped"
+        continue
+      fi
+      size=$(du -sh "$inc" 2>/dev/null | cut -f1)
+      rm -rf "$inc" && (( ++dropped )) &&
+        _wt_info "$name: ${inc#$wtp/} (${size:-?})"
+    done
+  done
+
+  after=$(_wt_free_kb)
+  _wt_ok "dropped $dropped cache(s), $(( (after - before) / 1024 )) MB reclaimed"
+}
+
+# ---------------------------------------------------------------------------- #
+# entry point
+# ---------------------------------------------------------------------------- #
+
+_wt_usage() {
+  print -r -- 'wt — Pinata worktrees (Pinata + knowledge, seeded, one per ticket)
+
+  wt                       pick a worktree with fzf and cd into it
+  wt <name>                cd into it, keeping the relative subdir
+  wt main                  cd into the primary checkout
+
+  wt new <branch|TICKET>   worktree + mirrored knowledge branch + seed, then cd
+                           the directory is named after the ticket in the branch:
+                           feat/PINATA-631/form-cms-page -> PINATA-631
+                           --from <ref>    base a new branch on <ref> (default origin/main)
+                           --as <name>     name the worktree yourself
+                           --no-seed       skip the build-state clone
+  wt adopt [branch]        move the primary'"'"'s branch into a worktree, park it on main
+                           --move-changes  carry uncommitted changes over
+                           --as <name>     name the worktree yourself
+
+  wt ls                    every worktree: branch, distance from main, state
+  wt ports                 which checkout serves each dev port, and what runs there
+  wt doctor                seeding, drift, stale registrations, shared-DB warnings
+  wt which [--path]        the worktree $PWD is in (used by the prompt)
+
+  wt gc [name...]          drop rustc incremental caches (target/*/incremental) —
+                           pure cache, recompiles nothing; defaults to the primary
+                           and every worktree, this one included
+
+  wt sync                  fetch, fast-forward main, rebase clean worktrees onto it
+                           --no-rebase     only report
+  wt lock [name] [reason]  protect it from wt rm and git prune
+  wt unlock [name]
+  wt seed [name]           re-run seeding on an existing worktree
+  wt rm [name]             knowledge worktree, then worktree, then prune
+                           when the PR is merged, the knowledge mirror is
+                           squash-merged into KB main, pushed, and deleted
+                           --branch        also delete the branches
+                           --no-kb-merge   leave the mirror alone (refuse instead)
+                           --force         skip the safety checks
+
+BEHIND is how many commits origin/main has that the branch does not. STATE:
+
+  ▶svc,svc   serving those dev ports from this checkout (wt ports for detail)
+  ~N         N modified tracked files     ?N        N untracked files (seeds aside)
+  ↑N         N commits not pushed         mig:N     N migrations main lacks
+  merged     the branch adds nothing to origin/main — done, `wt rm` will allow it
+             (a squash merge keeps its commits out of main forever, so counting
+             them says "unpushed" for good; the merge result is what is checked)
+  gone       ↑N and the remote branch was deleted, yet the work is NOT in main
+  kb:X       knowledge worktree is on X — a branch, or rebasing/merging/detached
+  kb~ / kb↑  knowledge has modifications / unpushed commits
+  locked     wt rm needs --force          pinned:X  HEAD drifted off X
+  clean      none of the above'
+}
+
+wt() {
+  local cmd=$1
+  (( $# )) && shift
+  case $cmd in
+    "")             _wt_goto ;;
+    new|n)          _wt_new "$@" ;;
+    ls|list|l)      _wt_ls "$@" ;;
+    sync|up)        _wt_sync "$@" ;;
+    rm|remove|done) _wt_rm "$@" ;;
+    lock)           _wt_lock "$@" ;;
+    unlock)         _wt_unlock "$@" ;;
+    adopt)          _wt_adopt "$@" ;;
+    seed)           _wt_reseed "$@" ;;
+    gc)             _wt_gc "$@" ;;
+    ports)          _wt_ports "$@" ;;
+    which)          _wt_which "$@" ;;
+    doctor|dr)      _wt_doctor "$@" ;;
+    help|-h|--help) _wt_usage ;;
+    *)              _wt_goto "$cmd" ;;
+  esac
+}

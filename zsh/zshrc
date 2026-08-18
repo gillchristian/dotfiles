@@ -58,6 +58,8 @@ add-zsh-hook precmd _prompt_purs_precmd
 source ~/.zsh/aliases.zsh
 source ~/.zsh/functions.zsh
 source ~/.zsh/exports.zsh
+# git worktrees, per repository (wt new / wt ls / wt rm ...)
+source ~/.zsh/wt/wt.zsh
 # Functions, aliases & exports that shouldn't be in Git
 if [ -f "$HOME/.zsh/private.zsh" ]; then source ~/.zsh/private.zsh; fi
 
